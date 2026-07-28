@@ -1,0 +1,153 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* ─── design tokens (ported verbatim from the design file) ─────────────── */
+@theme {
+  --color-paper: #E4E5DE;   /* desktop background */
+  --color-window: #EEEFE9;  /* window chrome / body */
+  --color-card: #FBFBF7;    /* raised card */
+  --color-ink: #16130F;
+  --color-orange: #E33F00;
+  --color-yellow: #F2C230;
+  --font-sans: var(--font-space-grotesk), Helvetica, Arial, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
+  --radius: 0px;
+}
+
+/* ─── shadcn variable remap ────────────────────────────────────────────────
+   The five shadcn components reference these raw custom properties directly
+   inside arbitrary values (e.g. color-mix(in oklch, var(--secondary), …)), so
+   they have to exist in :root, not only as theme keys. Every one points at a
+   design token. There is no dark mode in this design; the generated .dark
+   block was deleted rather than left as dead tokens. */
+:root {
+  --background: #E4E5DE;
+  --foreground: #16130F;
+  --card: #FBFBF7;
+  --card-foreground: #16130F;
+  --popover: #FBFBF7;
+  --popover-foreground: #16130F;
+  --primary: #E33F00;
+  --primary-foreground: #EEEFE9;
+  --secondary: #EEEFE9;
+  --secondary-foreground: #16130F;
+  --muted: #EEEFE9;
+  --muted-foreground: #16130F;
+  --accent: #F2C230;
+  --accent-foreground: #16130F;
+  --destructive: #E33F00;
+  --border: #16130F;
+  --input: #16130F;
+  --ring: #E33F00;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* zero border-radius anywhere in this design */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
+}
+
+/* ─── offset-shadow utilities ──────────────────────────────────────────────
+   Only the three values the design repeats 4+ times get a utility; every other
+   offset shadow (4/6/7/8/10px, orange, #16130F1f) stays an arbitrary value at
+   its call site. */
+@utility shadow-hard-2 {
+  box-shadow: 2px 2px 0 var(--color-ink);
+}
+@utility shadow-hard-3 {
+  box-shadow: 3px 3px 0 var(--color-ink);
+}
+@utility shadow-hard-5 {
+  box-shadow: 5px 5px 0 var(--color-ink);
+}
+
+/* ─── keyframes (design lines 20–24) ──────────────────────────────────── */
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes bob {
+  0%, 100% { transform: rotate(-3deg) translateY(0); }
+  50% { transform: rotate(-3deg) translateY(-5px); }
+}
+@keyframes winIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply font-sans;
+  }
+
+  /* design lines 17–19 */
+  a {
+    color: #16130F;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  a:hover {
+    color: #E33F00;
+  }
+  ::selection {
+    background: #F2C230;
+  }
+
+  /* design lines 25–27 */
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #E4E5DE;
+    border-left: 2px solid #16130F;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #16130F;
+    border: 2px solid #E4E5DE;
+  }
+
+  /* design line 28 */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001s !important;
+    }
+  }
+}
