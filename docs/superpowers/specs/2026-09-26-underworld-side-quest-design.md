@@ -24,9 +24,11 @@ ranks or stats are shown.
 - Each obol is a real `<button aria-label="Obol">`, keyboard reachable. A faint ember glint every
   ~8s makes it discoverable but quiet.
 - Pickup: coin pops and flies to the nav. Reduced motion: fade out, no flight, no glint.
-- **Nav chip** (client island next to `BM`): hidden until the first pickup, then `◇ Obols 1/3`.
-  At 3/3 it turns ember and reads `Pay the ferryman →`. After the visitor has crossed once it
-  reads `◆ Underworld`.
+- **Quest chip:** a fixed HUD chip in the bottom-left corner. The nav is not sticky, so a chip
+  there would be off-screen when an obol is picked up in the footer. The chip stays hidden until
+  the first pickup, then shows `◇ Obols 1/3`. At 3/3 it turns ember and reads
+  `Pay the ferryman →`. After the visitor has crossed once, it reads `◆ Underworld`. Picked obols
+  fly to it.
 - Hints: one footer meta line — "The ferryman takes coin." — and a `console.log` greeting.
 - Progress (`obols` found, `crossed`, visitor `best` score) persists in `localStorage`, every
   access in try/catch; on failure it falls back to in-memory state so the quest still works for
@@ -156,7 +158,7 @@ reachable by keyboard and screen reader.
   goes in the footer meta on both realms and in `public/audio/manifest.json`.
 - Files in `public/audio/`, trimmed to clean loops, ~128 kbps, target ≤ 3 MB each. Loaded only
   after the visitor turns sound on.
-- **Off by default.** Sound toggle `♪ Off / On` in the nav of both realms; the choice persists.
+- **Off by default.** A `♪ Off / On` sound toggle sits in the Olympus nav and the Underworld header, and the choice persists.
 - Crossing and Ascend crossfade between tracks. Fades use a Web Audio `GainNode` — iOS Safari
   ignores `HTMLMediaElement.volume`.
 - The audio player lives in a client provider in `app/layout.tsx` so it survives client-side
@@ -172,7 +174,7 @@ reachable by keyboard and screen reader.
 | `lib/quest.ts` (+ test) | quest store: obols, crossed, best; storage fallback; subscribe |
 | `lib/arena.ts` (+ test) | spawn, lifespan curve, scoring |
 | `components/quest/obol.tsx` | hidden coin button |
-| `components/quest/quest-chip.tsx` | nav chip |
+| `components/quest/quest-chip.tsx` | fixed HUD quest chip |
 | `lib/descent.ts` (+ test) | descent timeline: beats, camera path, palette mix |
 | `components/quest/crossing.tsx` | trigger, skip, fallback crossfade, navigation |
 | `components/experience/descent-scene.tsx` | the 3D descent (clouds, fall, shaft, Styx) |
