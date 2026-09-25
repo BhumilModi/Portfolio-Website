@@ -17,7 +17,7 @@ export type CaseItem = {
 export const SITE = {
   name: "Bhumil Modi",
   role: "Forward Deployed AI Engineer",
-  url: "https://bhumil-modi-portfolio.vercel.app",
+  url: "https://bhumil-modi.vercel.app",
   email: "bhumilmodi2002@gmail.com",
   location: "Ankleshwar, Gujarat, India",
   resume: "/Bhumil-Modi-Resume-FDE.pdf",
