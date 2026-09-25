@@ -24,21 +24,25 @@ export default function Onboarding() {
     let raf = 0;
     if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       const set = (k: string, v: number) => el.style.setProperty(k, v.toFixed(3));
+      let last = -1;
       const tick = () => {
         const rect = el.getBoundingClientRect();
         const p = clamp01(-rect.top / Math.max(1, rect.height - window.innerHeight));
-        scene.progress = p;
-        set("--counter", 1 - smoothstep(0, 0.4, local(p, "coalesce")));
-        set("--whisper-in", fadeInOut(local(p, "radiance")));
-        set("--name", smoothstep(0, 0.5, local(p, "name")) * (1 - smoothstep(0.2, 0.6, local(p, "descent"))));
-        set("--whisper-out", fadeInOut(local(p, "descent")));
-        set("--flood", smoothstep(0.55, 1, local(p, "descent")));
+        if (Math.abs(p - last) > 1e-4) {
+          last = p;
+          scene.progress = p;
+          set("--counter", 1 - smoothstep(0, 0.4, local(p, "coalesce")));
+          set("--whisper-in", fadeInOut(local(p, "radiance")));
+          set("--name", smoothstep(0, 0.5, local(p, "name")) * (1 - smoothstep(0.2, 0.6, local(p, "descent"))));
+          set("--whisper-out", fadeInOut(local(p, "descent")));
+          set("--flood", smoothstep(0.55, 1, local(p, "descent")));
+        }
         raf = requestAnimationFrame(tick);
       };
       raf = requestAnimationFrame(tick);
     }
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Enter" && document.activeElement === document.body && scene.progress < 1) {
+      if (el.offsetHeight > 0 && e.key === "Enter" && document.activeElement === document.body && scene.progress < 1) {
         el.querySelector<HTMLAnchorElement>('a[href="#hero"]')?.click();
       }
     };

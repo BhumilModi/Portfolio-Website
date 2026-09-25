@@ -105,6 +105,7 @@ export const WORK = {
     { title: "Grant discovery", body: "Search, match and apply." },
     { title: "Biopharma agent fleet", body: "Regulatory gap analysis ahead of a submission." },
   ],
+  cta: "View on GitHub ↗",
   platformsLabel: "TheAgentic's own platforms",
   platforms: [
     { name: "CortexON", meta: "★ 450+ · open source", body: "Open-source generalised agent for everyday task automation.", role: "Frontend contributor", href: "https://github.com/TheAgenticAI/CortexON" },

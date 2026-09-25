@@ -11,7 +11,9 @@ export function initScene(): boolean {
   const matches = (q: string) => window.matchMedia(q).matches;
   scene.reducedMotion = matches("(prefers-reduced-motion: reduce)");
   scene.tier = matches("(max-width: 768px)") || (navigator.hardwareConcurrency ?? 8) <= 4 ? "low" : "high";
-  const ok = Boolean(document.createElement("canvas").getContext("webgl2"));
+  const gl = document.createElement("canvas").getContext("webgl2");
+  gl?.getExtension("WEBGL_lose_context")?.loseContext(); // release the probe context, don't hold a GPU context we don't use
+  const ok = Boolean(gl);
   if (!ok) document.documentElement.classList.add("no-webgl");
   return ok;
 }

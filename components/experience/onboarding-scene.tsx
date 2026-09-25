@@ -97,7 +97,15 @@ export function BustOnboarding() {
   return <OnboardingScene geometry={useModelGeometry("bust")} />;
 }
 
+// Reduced motion is fixed for the page's lifetime (set once by initScene()), so this early
+// return before any hooks never toggles mid-session — it can't violate hooks order in practice,
+// but we still split it into its own component so the linter doesn't have to take that on faith.
 export default function OnboardingScene({ geometry }: { geometry: THREE.BufferGeometry }) {
+  if (scene.reducedMotion) return null;
+  return <OnboardingSceneActive geometry={geometry} />;
+}
+
+function OnboardingSceneActive({ geometry }: { geometry: THREE.BufferGeometry }) {
   const particles = useMemo(() => buildParticles(geometry, scene.tier === "low" ? 12000 : 30000), [geometry]);
   const rays = useMemo(() => buildRays(), []);
   const bust = useMemo(() => createEngravingMaterial({ reveal: -1.2 }), []);

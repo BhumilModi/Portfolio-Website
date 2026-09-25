@@ -27,7 +27,7 @@ export default function Work() {
             <p className="mt-auto font-mono text-xs uppercase tracking-[0.14em] text-bone/85">{p.role}</p>
             {p.href && (
               <a href={p.href} target="_blank" rel="noreferrer" className="font-mono text-xs uppercase tracking-[0.16em] underline underline-offset-4 transition-colors duration-150 hover:no-underline active:scale-[0.97]">
-                View on GitHub ↗
+                {WORK.cta}
               </a>
             )}
           </li>

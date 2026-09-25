@@ -26,6 +26,7 @@ export default function CaseDialog({ item }: { item: CaseItem }) {
         ref={ref}
         aria-labelledby={headingId}
         className="case-dialog"
+        data-lenis-prevent
         onClose={() => setOpen(false)}
         onClick={(e) => {
           if (e.target === e.currentTarget) e.currentTarget.close(); // backdrop click
