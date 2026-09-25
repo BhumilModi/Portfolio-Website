@@ -14,8 +14,8 @@ export default function Page() {
   return (
     <>
       <StageLoader />
+      <Onboarding />
       <main className="relative z-10 bg-field">
-        <Onboarding />
         <Nav />
         <Hero />
         <Engagement />
