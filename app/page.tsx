@@ -15,17 +15,20 @@ export default function Page() {
     <>
       <StageLoader />
       <Onboarding />
-      <main className="relative z-10 bg-field">
-        <Nav />
-        <Hero />
-        <Engagement />
-        <Approach />
-        <Work />
-        <Cases />
-        <Record />
-        <Faq />
-      </main>
-      <Footer />
+      {/* Wrapper bounds the sticky footer's containing block so it never slides up over the onboarding. */}
+      <div>
+        <main className="relative z-10 bg-field">
+          <Nav />
+          <Hero />
+          <Engagement />
+          <Approach />
+          <Work />
+          <Cases />
+          <Record />
+          <Faq />
+        </main>
+        <Footer />
+      </div>
     </>
   );
 }
