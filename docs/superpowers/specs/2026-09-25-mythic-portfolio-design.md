@@ -44,14 +44,14 @@ Type (Google Fonts via `next/font`):
 
 Final font choice may be adjusted during the `taste-skill` / `impeccable` pass; no Cinzel, no Inter.
 
-**Engraving shader** (one postprocessing `Effect`, shared by every 3D render): luminance →
-line-hatching at 2–3 angles + ordered halftone + faint horizontal scanlines, 2-tone
-(`--void` / `--bone`, `--ember` for particles). A thin RGB tick bar on panel edges is a DOM
+**Engraving shader** (one shared `ShaderMaterial` on every mesh — a material, not a post-pass,
+because drei `<View>` renders bypass a composer): lighting → screen-space line-hatching at 3
+angles + solid highlights + faint horizontal scanlines, 2-tone (`--void` / `--bone`; particles `--ember`). A thin RGB tick bar on panel edges is a DOM
 detail, not shader.
 
 ## 4. Content
 
-Sources: `docs/Bhumil-Modi-Resume-FDE.pdf`, plus Linear and git history in `~/TheAgentic/`
+Sources: the resume (`public/Bhumil-Modi-Resume-FDE.pdf`), plus Linear and git history in `~/TheAgentic/`
 (researched 2026-09-25; evidence kept private, never on the site).
 
 Rules:
@@ -211,7 +211,9 @@ verification & repair loops · evals — **Languages** Python · TypeScript · G
 
 ## 5. Part 1 — Onboarding (≈400vh, pinned, scroll-scrubbed)
 
-One fixed R3F `<Canvas>`. GSAP ScrollTrigger scrubs a single timeline; Lenis smooths scroll.
+One fixed R3F `<Canvas>`. Onboarding progress is read from the track's scroll position each frame and
+drives both the 3D scene and the DOM text; Lenis smooths scroll. Section reveals use native CSS
+`animation-timeline: view()`.
 Beats (progress ranges are starting points, tuned visually):
 
 | Beat | Progress | What happens |
@@ -243,7 +245,7 @@ Beats (progress ranges are starting points, tuned visually):
 
 Section order: Nav · Hero · Engagement · Approach · Work · Cases · Record · FAQ · Footer.
 
-**Interactive cases** (logic in `lib/`, visuals are DOM/SVG + GSAP, not 3D):
+**Interactive cases** (logic in `lib/`, visuals are DOM/SVG + CSS transitions, not 3D):
 - **Argus** — facts drop into slots (each exactly once) → write → verify; a drifting draft
   fails the gate, gets one bounded repair, then ships. The failing draft never ships.
 - **Daedalus** — SVG plan with measured (solid) / assumed (dashed) edges; `geometry stack` ↔
@@ -259,13 +261,13 @@ mono numerals I–IV, not 3D.
 ## 7. Architecture
 
 ```
-app/layout.tsx            fonts, tokens, Lenis + ScrollTrigger bootstrap
+app/layout.tsx            fonts, metadata, Lenis bootstrap
 app/page.tsx              server component, composes sections
 app/globals.css           tokens (§3), base type
 components/experience/
-  canvas-root.tsx         client; one fixed Canvas, View.Port, EffectComposer
-  engraving-effect.ts     postprocessing Effect + GLSL
-  onboarding.tsx          400vh DOM track, builds the scrub timeline
+  stage.tsx               client; one fixed Canvas + View.Port (loaded via stage-loader, ssr:false)
+  engraving-material.ts   shared engraving ShaderMaterial + GLSL
+  onboarding.tsx          400vh DOM track, scroll → progress → scene + DOM text
   onboarding-scene.tsx    particles→bust morph, rays, colonnade, camera path
   card-art.tsx            <View> scenes for section cards
   models.tsx              useGLTF loaders + preload
@@ -275,14 +277,14 @@ lib/content.ts            new copy (from §4)
 lib/argus.ts (+test)      gate simulation — pure state machine
 lib/daedalus.ts (+test)   plan edges + render-mode/cache state — pure
 lib/timeline.ts (+test)   scroll progress → beat + local progress
-lib/scene.ts              module-level mutable scene state written by GSAP, read in useFrame
+lib/scene.ts              module-level mutable scene state written by the scroll reader, read in useFrame
 public/models/*.glb       Poly Haven glTF → GLB (meshopt) via `npx @gltf-transform/cli`, dev-time only
 ```
 
-Scene state is a plain mutable module object, not a state library: GSAP writes, `useFrame` reads.
+Scene state is a plain mutable module object, not a state library: the scroll reader writes, `useFrame` reads.
 
-**New dependencies (approved):** `three`, `@react-three/fiber`, `@react-three/drei`,
-`@react-three/postprocessing`, `gsap`, `lenis` — pinned exact.
+**New dependencies:** `three`, `@react-three/fiber`, `@react-three/drei`, `lenis` (+ `@types/three`), pinned exact.
+`gsap` and `postprocessing` were approved but are not needed (see §3, §5).
 
 Next.js 16 has breaking changes: read the relevant guide in `node_modules/next/dist/docs/`
 before writing code (client-only canvas loading, `next/font`, metadata).
@@ -303,6 +305,23 @@ before writing code (client-only canvas loading, `next/font`, metadata).
   each section, both interactive cases, reduced-motion mode.
 - Lighthouse on the built site: accessibility ≥ 95; performance is recorded and reported, not gated.
 
-## 10. Out of scope
+## 10. GitHub profile README
+
+Same theme, for the `BhumilModi/BhumilModi` profile repo. Built here in `github-profile/`; Bhumil
+copies it over (no push from here).
+
+- `README.md` plus self-contained SVGs in `github-profile/assets/`. GitHub strips CSS and JS from
+  markdown, so the theme lives in the SVGs: `--void` panels, `--bone` engraving, `--field` accents,
+  line-hatching patterns, radiating rays, a League Gothic wordmark embedded as a base64 subset
+  (OFL, so it renders with no external font). Any animation is SVG-native CSS, and it stops
+  under `prefers-reduced-motion`.
+- Assets: `banner.svg` (wordmark + role + rays), `divider.svg`, `engagement.svg` (the four-phase
+  timeline from §4.4).
+- Copy is drawn from §4 and follows the same rules: agentic focus, facts only, no client names.
+  Sections: headline + lede · How an engagement runs · Approach (6 one-liners) · Built at
+  TheAgentic (CortexON, TheAgenticBench, Console) · Stack · Links (portfolio, LinkedIn, email, resume).
+- Must read correctly in GitHub light and dark mode (the panels carry their own background).
+
+## 11. Out of scope
 
 Audio, CMS, blog, i18n, analytics, dark/light toggle (the site has one fixed theme).
