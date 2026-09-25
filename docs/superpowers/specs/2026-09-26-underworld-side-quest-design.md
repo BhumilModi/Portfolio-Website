@@ -32,12 +32,38 @@ ranks or stats are shown.
   access in try/catch; on failure it falls back to in-memory state so the quest still works for
   the session.
 
-## 3. The crossing
+## 3. The crossing — a 3D descent from heaven to hell
 
-- `Pay the ferryman →` plays a ~2s descent: the terracotta field drains downward, colour goes
-  cold, a Styx waterline rises across the screen with `YOU HAVE CROSSED`, then the router
-  navigates to `/underworld`. Skippable (click / Esc). Reduced motion: plain crossfade.
-- `Ascend ↑` on the Underworld plays the reverse and returns to `/`.
+`Pay the ferryman →` plays a ~5.5s time-driven (not scroll) 3D cinematic on the existing fixed
+canvas, built from the parts already there: engraving shader, particles, rays, colonnade. The
+camera falls from Olympus to the Styx in one continuous shot.
+
+| t (s) | Beat | What is on screen |
+|---|---|---|
+| 0 – 0.6 | **The fare** | An engraved obol flips in 3D and drops out of frame. The page fades behind the canvas. |
+| 0.6 – 1.8 | **Olympus** | Camera among warm cloud particles and the colonnade, god-rays from above in bone/ember. The camera pitches down and starts to fall. |
+| 1.8 – 3.0 | **The fall** | Through the cloud layer: particles stretch into upward speed streaks, rays go out, and the shader's palette uniform slides from warm to cold. |
+| 3.0 – 4.2 | **The abyss** | A descending shaft of instanced columns and arches (Carceri-like) rushes past. Embers turn into soulfire wisps rising against the fall. |
+| 4.2 – 5.5 | **The Styx** | The camera brakes and levels out over dark water (a shader plane with soulfire glints). An *Isle of the Dead* silhouette sits on the horizon. `YOU HAVE CROSSED` appears. |
+
+- At the end the router navigates to `/underworld`. The canvas persists across the route, so the
+  Styx water becomes the Underworld page's live backdrop: a seamless handoff, not a cut.
+- **Ascend ↑** plays the same timeline reversed and shortened (~3s): it rises off the water, up
+  the shaft, and through the clouds into warm light, then navigates to `/`.
+- **Skip:** click, Esc or Enter jumps to the end state. A repeat crossing in the same session
+  runs at ~2× speed.
+- **Audio:** *Gymnopédie* fades out during the fall and *Dance of the Furies* fades in at the
+  Styx (when sound is on).
+- **Tiers:** low tier gets fewer particles and columns, and dpr is capped as it is today.
+  Reduced motion, no WebGL, or a failed canvas falls back to a 1s crossfade from terracotta to
+  abyss with `YOU HAVE CROSSED`.
+- The timeline is a pure function of elapsed time in `lib/descent.ts` (beat windows, camera path
+  and palette mix, via the existing `lib/timeline.ts` helpers), with a test. The scene only reads
+  it, the same split as the onboarding.
+- `StageLoader` moves from `app/page.tsx` to `app/layout.tsx` so the canvas survives the route
+  change.
+- New 3D assets: none required. If a boat model is wanted for Charon, it comes from Poly Haven
+  (CC0) through `scripts/fetch-models.mjs`. Otherwise the *Isle* silhouette is enough.
 - The Underworld is its own route, `/underworld`. Visiting it without 3 obols shows Charon's
   gate: "No fare, no crossing." with a link back to Olympus. The gate is a client-side check —
   it is a game, not security.
@@ -135,7 +161,10 @@ The card is claimable only after one trial run; revisits show it directly.
 | `lib/arena.ts` (+ test) | spawn, lifespan curve, scoring |
 | `components/quest/obol.tsx` | hidden coin button |
 | `components/quest/quest-chip.tsx` | nav chip |
-| `components/quest/crossing.tsx` | descent / ascent transition + navigation |
+| `lib/descent.ts` (+ test) | descent timeline: beats, camera path, palette mix |
+| `components/quest/crossing.tsx` | trigger, skip, fallback crossfade, navigation |
+| `components/experience/descent-scene.tsx` | the 3D descent (clouds, fall, shaft, Styx) |
+| `components/experience/styx.tsx` | water plane, reused as the Underworld backdrop |
 | `components/quest/sound.tsx` | audio provider + toggle |
 | `app/underworld/page.tsx` | realm route, gate |
 | `components/underworld/arena.tsx` | trial canvas + lobby/end screens |
@@ -148,9 +177,12 @@ Leaderboards, shareable score images, server state of any kind, more than three 
 
 ## 10. Testing
 
-- `npm test`: `arena.test.ts` (lifespan curve bounds, score maths, accuracy) and
+- `npm test`: `descent.test.ts` (beat windows contiguous, palette mix 0→1 monotonic, reverse
+  ends at start), `arena.test.ts` (lifespan curve bounds, score maths, accuracy) and
   `quest.test.ts` (pickup idempotence, 3/3 unlock, storage-throws fallback).
 - `npm run lint`, `npm run build`.
-- Browser pass (Orca): find all three obols → crossing → trial → card → Ascend; direct
+- Performance trace (chrome-devtools) of the descent on a throttled CPU: no long frames on the
+  handoff to `/underworld`.
+- Browser pass (Orca): find all three obols → 3D descent (and skip) → trial → card → Ascend; direct
   `/underworld` visit without obols shows the gate; desktop and phone widths; reduced motion;
   sound on/off across the crossing; keyboard-only run.
