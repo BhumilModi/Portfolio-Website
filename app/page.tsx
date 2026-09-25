@@ -7,7 +7,7 @@ import Approach from "@/components/sections/approach";
 import Work from "@/components/sections/work";
 import Cases from "@/components/sections/cases";
 import Record from "@/components/sections/record";
-import Faq from "@/components/sections/faq";
+import Together from "@/components/sections/together";
 import Footer from "@/components/sections/footer";
 
 export default function Page() {
@@ -25,7 +25,7 @@ export default function Page() {
           <Work />
           <Cases />
           <Record />
-          <Faq />
+          <Together />
         </main>
         <Footer />
       </div>
