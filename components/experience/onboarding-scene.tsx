@@ -101,7 +101,7 @@ export default function OnboardingScene({ geometry }: { geometry: THREE.BufferGe
   const particles = useMemo(() => buildParticles(geometry, scene.tier === "low" ? 12000 : 30000), [geometry]);
   const rays = useMemo(() => buildRays(), []);
   const bust = useMemo(() => createEngravingMaterial({ reveal: -1.2 }), []);
-  const columns = useMemo(() => createEngravingMaterial({ spacing: 6, opacity: 0 }), []);
+  const columns = useMemo(() => createEngravingMaterial({ spacing: 4, opacity: 0 }), []);
   const root = useRef<THREE.Group>(null);
   const dir = useMemo(() => new THREE.Vector3(), []);
 

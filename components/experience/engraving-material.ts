@@ -11,7 +11,7 @@ void main() {
 }
 `;
 
-// Screen-space line hatching: brighter surfaces pick up more hatch layers, then solid highlights.
+// Screen-space 8×8 ordered (Bayer) dither: a cell inks bone when its surface brightness beats the cell's threshold.
 const fragmentShader = /* glsl */ `
 uniform vec3 uBone;
 uniform vec3 uVoid;
@@ -22,11 +22,12 @@ uniform float uOpacity;
 varying vec3 vNormal;
 varying float vWorldY;
 
-float lines(vec2 p, float angle, float spacing, float width) {
-  vec2 n = vec2(-sin(angle), cos(angle));
-  float d = abs(fract(dot(p, n) / spacing) - 0.5) * spacing;
-  return 1.0 - smoothstep(width * 0.5 - 0.5, width * 0.5 + 0.5, d);
+float bayer2(vec2 a) {
+  a = floor(a);
+  return fract(a.x / 2.0 + a.y * a.y * 0.75);
 }
+float bayer4(vec2 a) { return bayer2(0.5 * a) * 0.25 + bayer2(a); }
+float bayer8(vec2 a) { return bayer4(0.5 * a) * 0.25 + bayer2(a); }
 
 void main() {
   if (vWorldY > uReveal) discard;
@@ -34,21 +35,18 @@ void main() {
   float diffuse = max(dot(n, normalize(uLight)), 0.0);
   float rim = pow(1.0 - abs(n.z), 3.0);
   float l = clamp(diffuse * 0.85 + rim * 0.45, 0.0, 1.0);
-  vec2 p = gl_FragCoord.xy;
-  float ink = lines(p, 0.785, uSpacing, 0.8 + 2.2 * l) * step(0.1, l);
-  ink = max(ink, lines(p, -0.785, uSpacing, 0.6 + 1.8 * l) * step(0.38, l));
-  ink = max(ink, lines(p, 0.0, uSpacing * 0.7, 0.6 + 1.4 * l) * step(0.66, l));
-  ink = max(ink, step(0.9, l));
-  float scan = 0.86 + 0.14 * step(0.5, fract(p.y * 0.5));
-  gl_FragColor = vec4(mix(uVoid, uBone, ink * scan), uOpacity);
+  vec2 cell = floor(gl_FragCoord.xy / uSpacing);
+  float threshold = bayer8(cell) + 1.0 / 128.0;
+  float ink = step(threshold, l);
+  gl_FragColor = vec4(mix(uVoid, uBone, ink), uOpacity);
   #include <colorspace_fragment>
 }
 `;
 
 export type EngravingOptions = { spacing?: number; reveal?: number; opacity?: number };
 
-// spacing is in device pixels — calibration knob for line density.
-export function createEngravingMaterial({ spacing = 5, reveal = 100, opacity = 1 }: EngravingOptions = {}) {
+// spacing is the dither cell size in device pixels — calibration knob for dot size.
+export function createEngravingMaterial({ spacing = 3, reveal = 100, opacity = 1 }: EngravingOptions = {}) {
   return new THREE.ShaderMaterial({
     uniforms: {
       uBone: { value: new THREE.Color("#efe6d4") },
