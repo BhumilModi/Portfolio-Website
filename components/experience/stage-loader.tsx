@@ -1,4 +1,8 @@
-// components/experience/stage-loader.tsx — stub, replaced by Task 5
+"use client";
+import dynamic from "next/dynamic";
+
+const Stage = dynamic(() => import("./stage"), { ssr: false });
+
 export default function StageLoader() {
-  return null;
+  return <Stage />;
 }
