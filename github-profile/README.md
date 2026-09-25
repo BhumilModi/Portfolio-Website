@@ -42,8 +42,8 @@ On the weekly call with your stakeholders, then building the agent pipelines, se
 <img src="./assets/divider.svg" alt="" width="100%" />
 
 <p align="center">
-  <a href="https://bhumil-modi-portfolio.vercel.app"><b>Portfolio</b></a> ·
+  <a href="https://bhumil-modi.vercel.app"><b>Portfolio</b></a> ·
   <a href="https://www.linkedin.com/in/bhumil-modi-430148190">LinkedIn</a> ·
   <a href="mailto:bhumilmodi2002@gmail.com">bhumilmodi2002@gmail.com</a> ·
-  <a href="https://bhumil-modi-portfolio.vercel.app/Bhumil-Modi-Resume-FDE.pdf">Resume</a>
+  <a href="https://bhumil-modi.vercel.app/Bhumil-Modi-Resume-FDE.pdf">Resume</a>
 </p>
