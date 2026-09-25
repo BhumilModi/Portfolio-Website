@@ -57,7 +57,7 @@ export default function Onboarding() {
       className="relative h-[400vh] bg-void text-bone"
       style={{ "--counter": 1, "--whisper-in": 0, "--name": 0, "--whisper-out": 0, "--flood": 0 } as React.CSSProperties}
     >
-      <div className="sticky top-0 h-dvh overflow-hidden">
+      <div className="sticky top-0 z-30 h-dvh overflow-hidden">
         <div aria-hidden className="absolute inset-0">
           <View className="size-full">
             <PerspectiveCamera makeDefault position={[0, 0, 6]} fov={35} />
