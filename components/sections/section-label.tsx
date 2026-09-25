@@ -1,7 +1,7 @@
 export default function SectionLabel({ children, title }: { children: React.ReactNode; title?: string }) {
   return (
     <div className="flex flex-col gap-4">
-      <p className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.18em] text-bone/85">
+      <p className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.18em] opacity-80">
         <span aria-hidden>{"//"}</span>
         {children}
       </p>
