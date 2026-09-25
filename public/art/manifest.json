@@ -1,0 +1,56 @@
+[
+  {
+    "name": "apollo",
+    "id": 340036,
+    "title": "Apollo",
+    "artist": "Hendrick Goltzius",
+    "date": "1588",
+    "url": "https://www.metmuseum.org/art/collection/search/340036",
+    "license": "CC0 — The Met Open Access"
+  },
+  {
+    "name": "carceri",
+    "id": 362671,
+    "title": "Prisoners on a Projecting Platform, from \"Carceri d'invenzione\" (Imaginary Prisons)",
+    "artist": "Giovanni Battista Piranesi",
+    "date": "ca. 1749–50",
+    "url": "https://www.metmuseum.org/art/collection/search/362671",
+    "license": "CC0 — The Met Open Access"
+  },
+  {
+    "name": "sant-angelo",
+    "id": 360267,
+    "title": "View of the Mausoleum of the Emperor Hadrian (now called Castel S. Angelo) from the rear, from Vedute di Roma (Roman Views)",
+    "artist": "Giovanni Battista Piranesi",
+    "date": "ca. 1756",
+    "url": "https://www.metmuseum.org/art/collection/search/360267",
+    "license": "CC0 — The Met Open Access"
+  },
+  {
+    "name": "hercules",
+    "id": 343588,
+    "title": "Farnese Hercules",
+    "artist": "Hendrick Goltzius",
+    "date": "ca. 1592, dated 1617",
+    "url": "https://www.metmuseum.org/art/collection/search/343588",
+    "license": "CC0 — The Met Open Access"
+  },
+  {
+    "name": "amphora",
+    "id": 255154,
+    "title": "Terracotta amphora (jar)",
+    "artist": "Andokides",
+    "date": "ca. 530 BCE",
+    "url": "https://www.metmuseum.org/art/collection/search/255154",
+    "license": "CC0 — The Met Open Access"
+  },
+  {
+    "name": "relief",
+    "id": 248899,
+    "title": "Ten marble fragments of the Great Eleusinian Relief",
+    "artist": null,
+    "date": "ca. 27 BCE–14 CE",
+    "url": "https://www.metmuseum.org/art/collection/search/248899",
+    "license": "CC0 — The Met Open Access"
+  }
+]

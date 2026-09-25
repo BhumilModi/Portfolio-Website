@@ -43,7 +43,7 @@ export const NAV = {
     { label: "Work", href: "#work" },
     { label: "Cases", href: "#cases" },
     { label: "Record", href: "#record" },
-    { label: "FAQ", href: "#faq" },
+    { label: "Hire", href: "#together" },
   ] as Link[],
   cta: { label: "Get in touch", href: `mailto:${SITE.email}` } as Link,
 };
@@ -172,28 +172,30 @@ export const RECORD = {
   ],
 };
 
-export const FAQ = {
-  label: "FAQ",
-  title: "Questions",
-  items: [
-    { q: "What does a forward deployed engineer do?", a: "Sits with the customer. I'm on the weekly call with the stakeholders, then I build the agent and the product around it, from an empty repository to beta." },
-    { q: "Where does the model go in your designs?", a: "Inside a structure. Planners, gates and deterministic checks carry what must be exact; the model does the part only a model can." },
-    { q: "How do you know an agent works?", a: "Evals: deterministic checks plus model judges on fixed datasets, run whenever a prompt or model changes." },
-    { q: "How fast is a first version?", a: "A working POC within two weeks; a functional application by month 2–2.5; a beta with users you choose by month 4–5." },
-    { q: "Which domains?", a: "Ten, including clinical communications, insurance, generative media, CAD and manufacturing, sales, grants, equity research and biopharma." },
-    { q: "Can I see the client work?", a: "The cases describe decisions, not clients. Names stay out." },
-    { q: "Where are you based?", a: `Ankleshwar, Gujarat, India. Reach me at ${SITE.email}.` },
+export const TOGETHER = {
+  label: "Working together",
+  title: "Bring me in on the first call.",
+  facts: [
+    { k: "Role", v: SITE.role },
+    { k: "Based", v: "Ankleshwar, India · IST (UTC+5:30)" },
+    { k: "Works", v: "Remote, alongside your stakeholders" },
+    { k: "First version", v: "A working POC within two weeks" },
+    { k: "Domains", v: "Ten so far, from clinical to CAD" },
   ],
+  actions: [
+    { label: "Get in touch", href: `mailto:${SITE.email}` },
+    { label: "Resume ↓", href: SITE.resume, external: true },
+  ] as Link[],
 };
 
 export const FOOTER = {
   wordmark: "Bhumil Modi",
   line: "Send word.",
-  links: [
-    { label: SITE.email, href: `mailto:${SITE.email}` },
-    { label: "LinkedIn", href: SITE.linkedin, external: true },
-    { label: "GitHub", href: SITE.github, external: true },
-    { label: "Resume (PDF)", href: SITE.resume, external: true },
-  ] as Link[],
-  meta: [SITE.location, "© 2026"] as const,
+  columns: [
+    { title: "Contact", links: [{ label: SITE.email, href: `mailto:${SITE.email}` }] },
+    { title: "Elsewhere", links: [{ label: "LinkedIn", href: SITE.linkedin, external: true }, { label: "GitHub", href: SITE.github, external: true }] },
+    { title: "Site", links: NAV.links },
+    { title: "Resume", links: [{ label: "Resume (PDF)", href: SITE.resume, external: true }] },
+  ] as { title: string; links: Link[] }[],
+  meta: [SITE.location, "Art: The Met, Open Access (CC0)", "© 2026"] as const,
 };
