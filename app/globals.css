@@ -97,11 +97,11 @@ body {
   mask: radial-gradient(circle at 72% 42%, #000 0 8%, transparent 62%);
 }
 
-/* Greek key band: one 24px meander tile repeated along x, inked in currentColor. */
+/* Greek key band: one 36px meander tile repeated along x, inked in currentColor. */
 .meander {
   pointer-events: none;
   background-color: currentColor;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M0 22H22V2H4V18H18V6H8V14H14' fill='none' stroke='black' stroke-width='2' stroke-linecap='square'/%3E%3C/svg%3E") left center / 24px 24px repeat-x;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M0 22H22V2H4V18H18V6H8V14H14' fill='none' stroke='black' stroke-width='2' stroke-linecap='square'/%3E%3C/svg%3E") left center / 36px 36px repeat-x;
 }
 
 /* Paper tooth: a faint ink dot screen over bg-paper. */

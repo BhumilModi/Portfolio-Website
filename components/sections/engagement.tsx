@@ -28,7 +28,7 @@ export default function Engagement() {
           ))}
         </dl>
       </div>
-      <div aria-hidden className="meander h-6 text-bone/50" />
+      <div aria-hidden className="meander h-9 text-bone/50" />
     </section>
   );
 }
