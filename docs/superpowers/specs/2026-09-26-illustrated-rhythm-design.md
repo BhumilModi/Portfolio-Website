@@ -121,3 +121,17 @@ That supersedes §6's collage and ghost wordmark:
 - A top/bottom scrim keeps text contrast ≥ 4.5:1, measured against the image pixels.
 - The wordmark stays solid bone. Link columns and the meta row are as in §6.
 - The three bust masks are dropped as unused.
+
+## 10. Amendment (2026-09-26): no nudity
+
+The owner flagged the Hercules engraving as NSFW. Every figurative piece was audited, and anything with
+nudity was replaced by a clothed or non-figurative subject (all CC0, The Met):
+
+| Slot | Was | Now |
+|---|---|---|
+| Hero | Apollo (Goltzius, 340036) | Piranesi, aerial view of the Colosseum (360270), full-bleed cover |
+| Working together | Farnese Hercules (343588) | Marble portrait bust of a man, draped (248118) |
+| Record | Red-figure amphora with athletes (255154) | Geometric krater (248904) |
+| Footer wash | Great Eleusinian Relief (248899, nude youth) | Grave stele of a young woman and servant (253505), fully draped |
+
+Rule going forward: no nude or partially nude figures anywhere on the site.

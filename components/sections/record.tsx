@@ -8,7 +8,7 @@ export default function Record() {
       <div className="mx-auto w-full max-w-[1280px] px-4 py-24 md:px-8">
         <div className="flex items-end justify-between gap-6">
           <SectionLabel title={RECORD.title}>{RECORD.label}</SectionLabel>
-          <Art name="amphora" className="hidden h-44 w-36 shrink-0 text-ink md:block" />
+          <Art name="krater" className="hidden h-44 w-36 shrink-0 text-ink md:block" />
         </div>
         <ol className="mt-12 flex flex-col font-mono text-sm">
           {RECORD.roles.map((r) => (

@@ -12,13 +12,13 @@ import { ditherMask } from "../lib/dither.ts";
 // tone: continuous-tone duotone instead of a dither mask — { ground, ink, strength } where strength (0–1)
 // is how far the brightest marble moves from ground toward ink. Baked, softened by `blur`, into a JPEG.
 const ART = [
-  { name: "apollo", id: 340036, ink: "dark", levels: [40, 215], width: 700 },
+  { name: "colosseum", id: 360270, ink: "dark", levels: [40, 190], width: 1000, crop: { left: 0.02, top: 0.02, right: 0.02, bottom: 0.12 } },
   { name: "carceri", id: 362671, ink: "dark", levels: [40, 170], width: 1000, crop: { left: 0.02, top: 0.02, right: 0.02, bottom: 0.06 } },
   { name: "sant-angelo", id: 360267, ink: "dark", levels: [40, 150], width: 1000, crop: { left: 0.01, top: 0.01, right: 0.01, bottom: 0.12 } },
-  { name: "hercules", id: 343588, ink: "dark", levels: [40, 215], width: 600, crop: { left: 0.02, top: 0.02, right: 0.02, bottom: 0.15 } },
-  { name: "amphora", id: 255154, ink: "dark", levels: [30, 120], width: 300 },
+  { name: "bust", id: 248118, ink: "light", levels: [45, 235], width: 600 },
+  { name: "krater", id: 248904, ink: "dark", levels: [30, 115], width: 360, crop: { left: 0.08, top: 0.02, right: 0.08, bottom: 0.14 } },
   // ground/ink mirror --color-field/--color-bone; re-run this script if either token changes.
-  { name: "relief", id: 248899, levels: [20, 235], width: 1600, blur: 1.2, crop: { left: 0.02, top: 0.28, right: 0.02, bottom: 0.31 }, tone: { ground: "#9a2a14", ink: "#efe6d4", strength: 0.24 } },
+  { name: "stele", id: 253505, levels: [20, 235], width: 1600, blur: 1.2, crop: { left: 0.2, top: 0.22, right: 0.2, bottom: 0.3 }, tone: { ground: "#9a2a14", ink: "#efe6d4", strength: 0.24 } },
 ];
 
 const hexRgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));

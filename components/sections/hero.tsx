@@ -7,7 +7,7 @@ export default function Hero() {
   return (
     <section id="hero" className="relative isolate scroll-mt-4 overflow-hidden">
       <div aria-hidden className="hero-rays absolute inset-0 -z-10 text-void opacity-35" />
-      <Art name="apollo" className="absolute inset-y-0 left-[-6%] -z-10 w-[70%] text-void opacity-45 max-md:left-0 max-md:w-full" />
+      <Art name="colosseum" className="absolute inset-0 -z-10 text-void opacity-30 [mask-size:cover]" />
       <div className="mx-auto grid w-full max-w-[1280px] gap-10 px-4 pb-24 pt-10 md:grid-cols-[1.1fr_0.9fr] md:items-center md:px-8 md:pt-16">
         <div className="flex flex-col gap-8">
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-bone/85">{HERO.eyebrow}</p>

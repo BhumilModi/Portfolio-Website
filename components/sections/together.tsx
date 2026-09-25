@@ -7,7 +7,7 @@ export default function Together() {
   return (
     <section id="together" className="relative isolate overflow-hidden bg-void text-bone">
       <div className="mx-auto grid w-full max-w-[1280px] gap-12 px-4 py-24 md:grid-cols-[0.9fr_1.1fr] md:items-center md:px-8">
-        <Art name="hercules" className="aspect-[4/5] w-full text-bone opacity-70 max-md:max-h-[60svh]" />
+        <Art name="bust" className="aspect-[4/5] w-full text-bone opacity-70 max-md:max-h-[60svh]" />
         <div className="flex flex-col gap-10">
           <SectionLabel title={TOGETHER.title}>{TOGETHER.label}</SectionLabel>
           <dl className="border-b border-bone/30">
