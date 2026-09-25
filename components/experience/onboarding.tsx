@@ -8,7 +8,7 @@ import OnboardingScene, { BustOnboarding, FALLBACK_SPHERE } from "./onboarding-s
 import SceneBoundary from "./scene-boundary";
 
 // Crisp near-offsets stand the glyphs off the bright engraved bust; the wider blur adds a
-// soft halo for the busy hatched background behind it. Void only, per the constraints.
+// soft halo for the busy dithered background behind it. Void only, per the constraints.
 const TEXT_SHADOW = {
   textShadow:
     "0 0 1px var(--color-void), 0 1px 1px var(--color-void), 0 -1px 1px var(--color-void), 1px 0 1px var(--color-void), -1px 0 1px var(--color-void), 0 2px 8px var(--color-void)",
