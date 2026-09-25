@@ -17,20 +17,27 @@ const ART = [
   { name: "sant-angelo", id: 360267, ink: "dark", levels: [40, 150], width: 1000, crop: { left: 0.01, top: 0.01, right: 0.01, bottom: 0.12 } },
   { name: "hercules", id: 343588, ink: "dark", levels: [40, 215], width: 600, crop: { left: 0.02, top: 0.02, right: 0.02, bottom: 0.15 } },
   { name: "amphora", id: 255154, ink: "dark", levels: [30, 120], width: 300 },
+  // ground/ink mirror --color-field/--color-bone; re-run this script if either token changes.
   { name: "relief", id: 248899, levels: [20, 235], width: 1600, blur: 1.2, crop: { left: 0.02, top: 0.28, right: 0.02, bottom: 0.31 }, tone: { ground: "#9a2a14", ink: "#efe6d4", strength: 0.24 } },
 ];
 
 const hexRgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
 
+const get = async (url, what) => {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`${what}: HTTP ${res.status} for ${url}`);
+  return res;
+};
+
 await mkdir("public/art", { recursive: true });
 const manifest = [];
 
 for (const a of ART) {
-  const obj = await (await fetch(`https://collectionapi.metmuseum.org/public/collection/v1/objects/${a.id}`)).json();
+  const obj = await (await get(`https://collectionapi.metmuseum.org/public/collection/v1/objects/${a.id}`, a.name)).json();
   if (obj.isPublicDomain !== true || !obj.primaryImage) {
     throw new Error(`${a.name}: Met object ${a.id} is not public domain or has no image`);
   }
-  const src = Buffer.from(await (await fetch(obj.primaryImage)).arrayBuffer());
+  const src = Buffer.from(await (await get(obj.primaryImage, a.name)).arrayBuffer());
   let pipeline = sharp(src);
   if (a.crop) {
     const { width: srcW, height: srcH } = await sharp(src).metadata();

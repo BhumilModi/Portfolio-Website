@@ -15,7 +15,7 @@ export default function Footer() {
               <ul className="flex flex-col gap-2 font-mono text-sm uppercase tracking-[0.12em]">
                 {c.links.map((l) => (
                   <li key={l.href}>
-                    <a href={l.href} {...(l.external ? { target: "_blank", rel: "noreferrer" } : {})} className="break-all underline underline-offset-4 transition-colors duration-150 hover:no-underline active:scale-[0.97]">
+                    <a href={l.href} {...(l.external ? { target: "_blank", rel: "noreferrer" } : {})} className="wrap-anywhere underline underline-offset-4 transition-colors duration-150 hover:no-underline active:scale-[0.97]">
                       {l.label}
                     </a>
                   </li>

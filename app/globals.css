@@ -6,8 +6,8 @@
   --color-bone: #efe6d4;
   --color-ash: #6b5f52;
   --color-ember: #d0643b;
-  --color-paper: #efe6d4;
-  --color-ink: #0b0907;
+  --color-paper: var(--color-bone);
+  --color-ink: var(--color-void);
   --font-display: var(--font-league-gothic), "Arial Narrow", sans-serif;
   --font-serif: var(--font-newsreader), Georgia, serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
@@ -21,8 +21,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 ::selection { background: var(--color-bone); color: var(--color-field); }
-:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--color-bone); outline-offset: 3px; }
+.bg-paper :focus-visible { outline-color: var(--color-ink); }
+.case-dialog :focus-visible { outline-color: var(--color-bone); }
 .bg-paper ::selection { background: var(--color-ink); color: var(--color-paper); }
+.case-dialog ::selection { background: var(--color-bone); color: var(--color-void); }
 
 .cap-trim { text-box: trim-both cap alphabetic; }
 
