@@ -11,12 +11,29 @@ import SceneBoundary from "./scene-boundary";
 
 const MODEL_FOR: Partial<Record<ArtId, ModelId>> = { bust: "bust", horse: "horse", lion: "lion", vase: "vase" };
 
-function Motion({ children, sway = false, speed = 0.18 }: { children: React.ReactNode; sway?: boolean; speed?: number }) {
+function Motion({
+  children,
+  sway = false,
+  speed = 0.18,
+  slotRef,
+}: {
+  children: React.ReactNode;
+  sway?: boolean;
+  speed?: number;
+  slotRef?: React.RefObject<HTMLDivElement | null>;
+}) {
   const ref = useRef<THREE.Group>(null);
   useFrame(({ clock }, dt) => {
     if (!ref.current || scene.reducedMotion) return;
     if (sway) ref.current.rotation.y = Math.sin(clock.elapsedTime * 0.5) * 0.4;
     else ref.current.rotation.y += dt * speed;
+    // Hero bust parallax: drift vertically as the slot scrolls through the viewport.
+    if (slotRef?.current) {
+      const rect = slotRef.current.getBoundingClientRect();
+      const centerY = rect.top + rect.height / 2;
+      const t = Math.min(1, Math.max(-1, centerY / window.innerHeight - 0.5));
+      ref.current.position.y = t * 0.25;
+    }
   });
   return <group ref={ref}>{children}</group>;
 }
@@ -62,21 +79,22 @@ function Eye() {
   );
 }
 
-function Art({ art }: { art: ArtId }) {
+function Art({ art, slotRef }: { art: ArtId; slotRef?: React.RefObject<HTMLDivElement | null> }) {
   const model = MODEL_FOR[art];
-  if (model) return <Motion><ModelArt id={model} /></Motion>;
+  if (model) return <Motion slotRef={slotRef}><ModelArt id={model} /></Motion>;
   if (art === "orb") return <Motion speed={0.3}><Orb /></Motion>;
   return <Motion sway><Eye /></Motion>;
 }
 
-export default function CardArt({ art, className }: { art: ArtId; className?: string }) {
+export default function CardArt({ art, className, parallax }: { art: ArtId; className?: string; parallax?: boolean }) {
+  const slotRef = useRef<HTMLDivElement>(null);
   return (
-    <div aria-hidden className={className}>
+    <div aria-hidden ref={slotRef} className={className}>
       <View className="size-full">
         <PerspectiveCamera makeDefault position={[0, 0, 4.4]} fov={32} />
         <SceneBoundary fallback={null}>
           <Suspense fallback={null}>
-            <Art art={art} />
+            <Art art={art} slotRef={parallax ? slotRef : undefined} />
           </Suspense>
         </SceneBoundary>
       </View>

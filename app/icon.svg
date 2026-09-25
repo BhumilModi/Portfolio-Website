@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" fill="#0b0907"/>
+  <text x="32" y="46" text-anchor="middle" font-family="Arial Narrow, sans-serif" font-weight="700" font-size="34" fill="#efe6d4">BM</text>
+  <rect x="10" y="52" width="44" height="3" fill="#9a2a14"/>
+</svg>

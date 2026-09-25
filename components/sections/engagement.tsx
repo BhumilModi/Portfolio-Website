@@ -4,6 +4,8 @@ import SectionLabel from "./section-label";
 export default function Engagement() {
   return (
     <section id="engagement" className="mx-auto w-full max-w-[1280px] px-4 py-24 md:px-8">
+      {/* sr-only: keeps heading order h1→h2→h3 (axe heading-order) without changing the visible eyebrow-only design. */}
+      <h2 className="sr-only">{ENGAGEMENT.label}</h2>
       <SectionLabel>{ENGAGEMENT.label}</SectionLabel>
       <ol className="mt-10 grid gap-px bg-bone/25 md:grid-cols-4">
         {ENGAGEMENT.phases.map((p, i) => (

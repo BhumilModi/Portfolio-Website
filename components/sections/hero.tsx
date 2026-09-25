@@ -27,7 +27,7 @@ export default function Hero() {
         </div>
         <CopyCommand command={HERO.command} copyText={HERO.copyText} />
       </div>
-      <CardArt art="bust" className="art-slot aspect-[4/5] w-full" />
+      <CardArt art="bust" className="art-slot aspect-[4/5] w-full" parallax />
     </section>
   );
 }
