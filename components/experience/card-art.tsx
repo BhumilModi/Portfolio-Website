@@ -25,8 +25,11 @@ function Motion({
   const ref = useRef<THREE.Group>(null);
   useFrame(({ clock }, dt) => {
     if (!ref.current || scene.reducedMotion) return;
-    if (sway) ref.current.rotation.y = Math.sin(clock.elapsedTime * 0.5) * 0.4;
-    else ref.current.rotation.y += dt * speed;
+    // Low tier (phones, few cores) holds the pose to save GPU; spec §8's "one frame then stop" can't work on a fixed canvas.
+    if (scene.tier === "high") {
+      if (sway) ref.current.rotation.y = Math.sin(clock.elapsedTime * 0.5) * 0.4;
+      else ref.current.rotation.y += dt * speed;
+    }
     // Hero bust parallax: drift vertically as the slot scrolls through the viewport.
     if (slotRef?.current) {
       const rect = slotRef.current.getBoundingClientRect();
