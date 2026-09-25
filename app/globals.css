@@ -1,153 +1,81 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 
-/* ─── design tokens (ported verbatim from the design file) ─────────────── */
 @theme {
-  --color-paper: #E4E5DE;   /* desktop background */
-  --color-window: #EEEFE9;  /* window chrome / body */
-  --color-card: #FBFBF7;    /* raised card */
-  --color-ink: #16130F;
-  --color-orange: #E33F00;
-  --color-yellow: #F2C230;
-  --font-sans: var(--font-space-grotesk), Helvetica, Arial, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), monospace;
-  --radius: 0px;
+  --color-void: #0b0907;
+  --color-field: #9a2a14;
+  --color-bone: #efe6d4;
+  --color-ash: #6b5f52;
+  --color-ember: #d0643b;
+  --font-display: var(--font-league-gothic), "Arial Narrow", sans-serif;
+  --font-serif: var(--font-newsreader), Georgia, serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 
-/* ─── shadcn variable remap ────────────────────────────────────────────────
-   The five shadcn components reference these raw custom properties directly
-   inside arbitrary values (e.g. color-mix(in oklch, var(--secondary), …)), so
-   they have to exist in :root, not only as theme keys. Every one points at a
-   design token. There is no dark mode in this design; the generated .dark
-   block was deleted rather than left as dead tokens. */
-:root {
-  --background: #E4E5DE;
-  --foreground: #16130F;
-  --card: #FBFBF7;
-  --card-foreground: #16130F;
-  --popover: #FBFBF7;
-  --popover-foreground: #16130F;
-  --primary: #E33F00;
-  --primary-foreground: #EEEFE9;
-  --secondary: #EEEFE9;
-  --secondary-foreground: #16130F;
-  --muted: #EEEFE9;
-  --muted-foreground: #16130F;
-  --accent: #F2C230;
-  --accent-foreground: #16130F;
-  --destructive: #E33F00;
-  --border: #16130F;
-  --input: #16130F;
-  --ring: #E33F00;
+html { background: var(--color-field); color-scheme: dark; }
+body {
+  background: var(--color-field);
+  color: var(--color-bone);
+  font-family: var(--font-serif);
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--color-bone); color: var(--color-field); }
+:focus-visible { outline: 2px solid var(--color-bone); outline-offset: 3px; }
+
+.cap-trim { text-box: trim-both cap alphabetic; }
+
+/* Engraved-panel ground: shows wherever the 3D doesn't cover, and alone when WebGL is absent. */
+.art-slot {
+  background-color: var(--color-void);
+  background-image: radial-gradient(color-mix(in srgb, var(--color-bone) 28%, transparent) 0.8px, transparent 1.2px);
+  background-size: 6px 6px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-
-  /* zero border-radius anywhere in this design */
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --radius-2xl: 0px;
-  --radius-3xl: 0px;
-  --radius-4xl: 0px;
-}
-
-/* ─── offset-shadow utilities ──────────────────────────────────────────────
-   Only the three values the design repeats 4+ times get a utility; every other
-   offset shadow (4/6/7/8/10px, orange, #16130F1f) stays an arbitrary value at
-   its call site. */
-@utility shadow-hard-2 {
-  box-shadow: 2px 2px 0 var(--color-ink);
-}
-@utility shadow-hard-3 {
-  box-shadow: 3px 3px 0 var(--color-ink);
-}
-@utility shadow-hard-5 {
-  box-shadow: 5px 5px 0 var(--color-ink);
-}
-
-/* ─── keyframes (design lines 20–24) ──────────────────────────────────── */
-@keyframes blink {
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0; }
-}
-@keyframes ticker {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-@keyframes bob {
-  0%, 100% { transform: rotate(-3deg) translateY(0); }
-  50% { transform: rotate(-3deg) translateY(-5px); }
-}
-@keyframes winIn {
-  from { opacity: 0; transform: translateY(10px) scale(0.985); }
-  to { opacity: 1; transform: none; }
-}
-@keyframes pulseDot {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.25; }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  html {
-    @apply font-sans;
-  }
-
-  /* design lines 17–19 */
-  a {
-    color: #16130F;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-  a:hover {
-    color: #E33F00;
-  }
-  ::selection {
-    background: #F2C230;
-  }
-
-  /* design lines 25–27 */
-  ::-webkit-scrollbar {
-    width: 12px;
-    height: 12px;
-  }
-  ::-webkit-scrollbar-track {
-    background: #E4E5DE;
-    border-left: 2px solid #16130F;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #16130F;
-    border: 2px solid #E4E5DE;
-  }
-
-  /* design line 28 */
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.001s !important;
+/* Scroll-driven reveal: native, no JS. Without support the content is simply visible. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
     }
   }
 }
+@keyframes reveal { from { opacity: 0; transform: translateY(24px); } }
+
+@media (prefers-reduced-motion: reduce) { #onboarding { display: none; } }
+.no-webgl #onboarding { display: none; }
+
+.case-dialog {
+  margin: auto;
+  width: min(1040px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: 0;
+  background: var(--color-void);
+  color: var(--color-bone);
+  border: 1px solid color-mix(in srgb, var(--color-bone) 30%, transparent);
+  transition: opacity 200ms ease-out, transform 200ms ease-out, display 200ms allow-discrete, overlay 200ms allow-discrete;
+}
+.case-dialog:not([open]) { opacity: 0; transform: translateY(12px); }
+@starting-style { .case-dialog[open] { opacity: 0; transform: translateY(12px); } }
+.case-dialog::backdrop { background: rgb(11 9 7 / 0.72); }
+
+.demo-btn {
+  border: 1px solid color-mix(in srgb, var(--color-bone) 45%, transparent);
+  padding: 0.5rem 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: background-color 150ms ease-out, color 150ms ease-out, transform 100ms ease-out;
+}
+.demo-btn:hover, .demo-btn[aria-pressed="true"] { background: var(--color-bone); color: var(--color-void); }
+.demo-btn:active { transform: scale(0.97); }
+
+.stage-cell { transition: background-color 200ms ease-out, color 200ms ease-out; }
+.stage-cell[data-state="ok"] { background: var(--color-bone); color: var(--color-void); }
+.stage-cell[data-state="fail"] { background: var(--color-ember); color: var(--color-void); }
+.slot-fact { opacity: 0.25; transition: opacity 300ms ease-out; }
+.slot-fact[data-in="true"] { opacity: 1; }
+
+.faq summary::-webkit-details-marker { display: none; }

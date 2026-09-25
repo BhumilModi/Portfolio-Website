@@ -1,37 +1,28 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { JetBrains_Mono, League_Gothic, Newsreader } from "next/font/google";
+import "lenis/dist/lenis.css";
 import "./globals.css";
+import SmoothScroll from "@/components/experience/smooth-scroll";
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  weight: ["400", "500", "600", "700"],
-  subsets: ["latin"],
-  display: "swap",
-});
+const display = League_Gothic({ variable: "--font-league-gothic", weight: "400", subsets: ["latin"], display: "swap" });
+const serif = Newsreader({ variable: "--font-newsreader", style: ["normal", "italic"], subsets: ["latin"], display: "swap" });
+const mono = JetBrains_Mono({ variable: "--font-jetbrains-mono", weight: ["400", "500"], subsets: ["latin", "greek"], display: "swap" });
 
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  weight: ["400", "500", "700"],
-  subsets: ["latin"],
-  display: "swap",
-});
+const description =
+  "Forward Deployed AI Engineer. I deploy agentic systems inside the customer — working POC in two weeks, live beta inside five months.";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://bhumil-modi-portfolio.vercel.app"),
   title: "Bhumil Modi — Forward Deployed AI Engineer",
-  description: "I take AI products from an empty repository to production.",
+  description,
+  openGraph: { title: "Bhumil Modi — Forward Deployed AI Engineer", description, type: "website" },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
-    >
-      <body className="bg-paper text-ink overflow-hidden font-sans antialiased">
+    <html lang="en" className={`${display.variable} ${serif.variable} ${mono.variable}`}>
+      <body>
+        <SmoothScroll />
         {children}
       </body>
     </html>
