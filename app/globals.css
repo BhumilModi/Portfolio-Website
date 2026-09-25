@@ -79,3 +79,12 @@ body {
 .slot-fact[data-in="true"] { opacity: 1; }
 
 .faq summary::-webkit-details-marker { display: none; }
+
+/* Dithered engraving mask (components/sections/art.tsx). Layered so Tailwind utilities can override mask-size/position. */
+@layer components {
+  .art {
+    pointer-events: none;
+    background-color: currentColor;
+    mask: var(--art) center / contain no-repeat;
+  }
+}

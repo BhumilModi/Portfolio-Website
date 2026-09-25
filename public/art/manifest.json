@@ -1,0 +1,74 @@
+[
+  {
+    "name": "apollo",
+    "id": 340036,
+    "title": "Apollo",
+    "artist": "Hendrick Goltzius",
+    "date": "1588",
+    "url": "https://www.metmuseum.org/art/collection/search/340036",
+    "license": "CC0 — The Met Open Access"
+  },
+  {
+    "name": "carceri",
+    "id": 362671,
+    "title": "Prisoners on a Projecting Platform, from \"Carceri d'invenzione\" (Imaginary Prisons)",
+    "artist": "Giovanni Battista Piranesi",
+    "date": "ca. 1749–50",
+    "url": "https://www.metmuseum.org/art/collection/search/362671",
+    "license": "CC0 — The Met Open Access"
+  },
+  {
+    "name": "sant-angelo",
+    "id": 360267,
+    "title": "View of the Mausoleum of the Emperor Hadrian (now called Castel S. Angelo) from the rear, from Vedute di Roma (Roman Views)",
+    "artist": "Giovanni Battista Piranesi",
+    "date": "ca. 1756",
+    "url": "https://www.metmuseum.org/art/collection/search/360267",
+    "license": "CC0 — The Met Open Access"
+  },
+  {
+    "name": "hercules",
+    "id": 343588,
+    "title": "Farnese Hercules",
+    "artist": "Hendrick Goltzius",
+    "date": "ca. 1592, dated 1617",
+    "url": "https://www.metmuseum.org/art/collection/search/343588",
+    "license": "CC0 — The Met Open Access"
+  },
+  {
+    "name": "amphora",
+    "id": 255154,
+    "title": "Terracotta amphora (jar)",
+    "artist": "Andokides",
+    "date": "ca. 530 BCE",
+    "url": "https://www.metmuseum.org/art/collection/search/255154",
+    "license": "CC0 — The Met Open Access"
+  },
+  {
+    "name": "bust-man",
+    "id": 248118,
+    "title": "Marble portrait bust of a man",
+    "artist": null,
+    "date": "mid–3rd century CE",
+    "url": "https://www.metmuseum.org/art/collection/search/248118",
+    "license": "CC0 — The Met Open Access"
+  },
+  {
+    "name": "bust-emperor",
+    "id": 248851,
+    "title": "Marble portrait bust of the emperor Gaius, known as Caligula",
+    "artist": null,
+    "date": "37–41 CE",
+    "url": "https://www.metmuseum.org/art/collection/search/248851",
+    "license": "CC0 — The Met Open Access"
+  },
+  {
+    "name": "bust-woman",
+    "id": 248897,
+    "title": "Marble portrait bust of a woman",
+    "artist": null,
+    "date": "ca. 100–120 CE",
+    "url": "https://www.metmuseum.org/art/collection/search/248897",
+    "license": "CC0 — The Met Open Access"
+  }
+]
