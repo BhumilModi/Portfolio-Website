@@ -1,7 +1,7 @@
 # Underworld Side Quest — Design Spec
 
 Date: 2026-09-26
-Status: Design approved in brainstorming. Awaiting spec review.
+Status: Approved.
 
 ## 1. Goal
 
@@ -62,8 +62,14 @@ camera falls from Olympus to the Styx in one continuous shot.
   it, the same split as the onboarding.
 - `StageLoader` moves from `app/page.tsx` to `app/layout.tsx` so the canvas survives the route
   change.
-- New 3D assets: none required. If a boat model is wanted for Charon, it comes from Poly Haven
-  (CC0) through `scripts/fetch-models.mjs`. Otherwise the *Isle* silhouette is enough.
+- **Charon's boat** waits on the Styx, and the camera settles beside it in the final beat. It is
+  built procedurally, with no download: a narrow skiff hull from a few three.js primitives, a
+  punting pole, a hooded ferryman silhouette (cone plus sphere) and a soulfire glow sprite at the
+  prow. Everything uses the engraving shader, so it reads as an etching. The boat drifts slowly on
+  the Underworld backdrop.
+  (Poly Haven was checked on 2026-09-26: `ship_pinnace` is a sailed galleon with ~180k polys, and
+  `Lantern_01` is a modern hurricane lamp. Neither fits.)
+- No new 3D model files.
 - The Underworld is its own route, `/underworld`. Visiting it without 3 obols shows Charon's
   gate: "No fare, no crossing." with a link back to Olympus. The gate is a client-side check —
   it is a game, not security.
@@ -164,7 +170,7 @@ The card is claimable only after one trial run; revisits show it directly.
 | `lib/descent.ts` (+ test) | descent timeline: beats, camera path, palette mix |
 | `components/quest/crossing.tsx` | trigger, skip, fallback crossfade, navigation |
 | `components/experience/descent-scene.tsx` | the 3D descent (clouds, fall, shaft, Styx) |
-| `components/experience/styx.tsx` | water plane, reused as the Underworld backdrop |
+| `components/experience/styx.tsx` | water plane and Charon's boat, reused as the Underworld backdrop |
 | `components/quest/sound.tsx` | audio provider + toggle |
 | `app/underworld/page.tsx` | realm route, gate |
 | `components/underworld/arena.tsx` | trial canvas + lobby/end screens |
