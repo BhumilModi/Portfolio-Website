@@ -540,16 +540,92 @@ git commit -m "feat: replace FAQ with a working-together band"
 
 ---
 
-### Task 4: Illustrated footer
+### Task 4: Relief-washed footer (Portal-style)
+
+> Revised 2026-09-26 at the owner's request. The footer background copies the "Getting Started" band on
+> portal.nousresearch.com: one full-bleed classical relief, continuous-tone, washed faintly lighter
+> than the field. This **replaces** the earlier bust-collage idea, so the three bust masks are removed.
+> The wordmark stays solid bone (no outline).
 
 **Files:**
-- Modify: `components/sections/footer.tsx`, `lib/content.ts` (**`FOOTER` block only**. Task 3 edits NAV/FAQ in the same file in parallel, so use the Edit tool scoped to the FOOTER block.)
+- Modify: `scripts/fetch-art.mjs`, `components/sections/art.tsx`, `components/sections/footer.tsx`, `lib/content.ts` (`FOOTER` block only)
+- Create: `public/art/relief.jpg`. Update `public/art/manifest.json` by re-running the script.
+- Delete: `public/art/bust-man.png`, `public/art/bust-emperor.png`, `public/art/bust-woman.png`
 
 **Interfaces:**
-- Consumes: `Art` (Task 1), `NAV.links`, `SITE`, `Link`.
-- Produces: nothing downstream.
+- Consumes: `NAV.links`, `SITE`, `Link` from `lib/content.ts`.
+- Produces: `ArtName` without the bust names. Nothing else downstream.
 
-- [ ] **Step 1: Content**: replace the `export const FOOTER = { … };` block with:
+- [ ] **Step 1: Script.** In `scripts/fetch-art.mjs`:
+
+(a) Add this to the header comment block, after the `crop:` lines:
+
+```js
+// tone: continuous-tone duotone instead of a dither mask — { ground, ink, strength } where strength (0–1)
+// is how far the brightest marble moves from ground toward ink. Baked, softened by `blur`, into a JPEG.
+```
+
+(b) In `ART`, delete the three `bust-*` entries and add:
+
+```js
+  { name: "relief", id: 248899, levels: [20, 235], width: 1600, blur: 1.2, crop: { left: 0.02, top: 0.28, right: 0.02, bottom: 0.31 }, tone: { ground: "#9a2a14", ink: "#efe6d4", strength: 0.24 } },
+```
+
+(c) Add a helper below `const ART = [...]`:
+
+```js
+const hexRgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+```
+
+(d) In the loop, replace everything from `const { data, info } = await pipeline.grayscale()…` up to and including the `.toFile(\`public/art/${a.name}.png\`);` call with:
+
+```js
+  if (a.tone) {
+    const { data, info } = await pipeline.grayscale().resize({ width: a.width }).blur(a.blur).raw().toBuffer({ resolveWithObject: true });
+    const [lo, hi] = a.levels;
+    const ground = hexRgb(a.tone.ground);
+    const ink = hexRgb(a.tone.ink);
+    const rgb = Buffer.alloc(info.width * info.height * 3);
+    for (let i = 0; i < data.length; i++) {
+      const t = Math.min(1, Math.max(0, (data[i] - lo) / (hi - lo))) * a.tone.strength;
+      for (let c = 0; c < 3; c++) rgb[i * 3 + c] = Math.round(ground[c] + (ink[c] - ground[c]) * t);
+    }
+    await sharp(rgb, { raw: { width: info.width, height: info.height, channels: 3 } })
+      .jpeg({ quality: 70, mozjpeg: true })
+      .toFile(`public/art/${a.name}.jpg`);
+    console.log(`✓ ${a.name}  ${info.width}×${info.height} (tone)`);
+  } else {
+    const { data, info } = await pipeline.grayscale().resize({ width: a.width }).raw().toBuffer({ resolveWithObject: true });
+    const mask = ditherMask(data, info.width, info.height, a.ink, a.levels);
+    const rgba = Buffer.alloc(info.width * info.height * 4);
+    for (let i = 0; i < mask.length; i++) rgba[i * 4 + 3] = mask[i];
+    await sharp(rgba, { raw: { width: info.width, height: info.height, channels: 4 } })
+      .resize({ width: info.width * 2, kernel: "nearest" })
+      .png({ palette: true, colours: 2, compressionLevel: 9 })
+      .toFile(`public/art/${a.name}.png`);
+    console.log(`✓ ${a.name}  ${info.width * 2}×${info.height * 2}`);
+  }
+```
+
+Then remove the old trailing `console.log(\`✓ ${a.name} …\`)` line after `manifest.push(...)`, since each branch now logs.
+
+(e) Run it, then delete the stale bust files:
+
+```bash
+node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/fetch-art.mjs
+git rm public/art/bust-man.png public/art/bust-emperor.png public/art/bust-woman.png
+ls -la public/art
+```
+
+Expected: 6 `✓` lines. `relief.jpg` is **≤ 200 KB**; if it's larger, drop the JPEG quality to 60 or the width to 1440. The other PNGs must be byte-identical: `git status` shows only relief.jpg, manifest.json and the deletions. If git shows other PNGs as modified, stop and report it.
+
+- [ ] **Step 2: `components/sections/art.tsx`.** Remove the bust names from the union:
+
+```ts
+export type ArtName = "apollo" | "carceri" | "sant-angelo" | "hercules" | "amphora";
+```
+
+- [ ] **Step 3: Content.** Replace the `export const FOOTER = { … };` block in `lib/content.ts` with:
 
 ```ts
 export const FOOTER = {
@@ -565,22 +641,16 @@ export const FOOTER = {
 };
 ```
 
-- [ ] **Step 2: Component**: replace `components/sections/footer.tsx`
+- [ ] **Step 4: Component.** Replace `components/sections/footer.tsx`:
 
 ```tsx
 import { FOOTER } from "@/lib/content";
-import Art from "./art";
 
 export default function Footer() {
   return (
-    <footer className="sticky bottom-0 z-0 isolate flex h-dvh flex-col justify-between overflow-hidden bg-field px-4 pb-6 pt-24 text-bone md:px-8">
-      {/* Collage: marble busts inked in bone, scrimmed to solid field at top (links) and bottom (meta). */}
-      <div aria-hidden className="absolute inset-0 -z-10">
-        <Art name="bust-man" className="absolute bottom-0 left-[-6%] hidden h-[78%] w-[42%] opacity-55 [mask-position:bottom] md:block" />
-        <Art name="bust-emperor" className="absolute bottom-[-4%] left-1/2 h-[92%] w-[90%] -translate-x-1/2 opacity-80 [mask-position:bottom] md:w-[40%]" />
-        <Art name="bust-woman" className="absolute bottom-0 right-[-6%] hidden h-[72%] w-[38%] opacity-55 [mask-position:bottom] md:block" />
-        <div className="absolute inset-0 bg-linear-to-b from-field from-20% via-field/20 via-55% to-field to-95%" />
-      </div>
+    <footer className="sticky bottom-0 z-0 isolate flex h-dvh flex-col justify-between overflow-hidden bg-field bg-[url(/art/relief.jpg)] bg-cover bg-center px-4 pb-6 pt-24 text-bone md:px-8">
+      {/* Relief wash (CC0 — The Met), Portal-style. Scrim keeps the link rows and meta line near solid field. */}
+      <div aria-hidden className="absolute inset-0 -z-10 bg-linear-to-b from-field/60 via-transparent via-45% to-field/60" />
 
       <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-10">
         <p className="font-serif text-3xl italic leading-[1.15] md:text-5xl">{FOOTER.line}</p>
@@ -603,9 +673,7 @@ export default function Footer() {
       </div>
 
       <div className="mx-auto w-full max-w-[1280px]">
-        <p aria-hidden className="cap-trim select-none font-display text-[clamp(4rem,19vw,20rem)] uppercase leading-[0.8] text-transparent [-webkit-text-stroke:1.5px_var(--color-bone)]">
-          {FOOTER.wordmark}
-        </p>
+        <p aria-hidden className="cap-trim select-none font-display text-[clamp(4rem,19vw,20rem)] uppercase leading-[0.8]">{FOOTER.wordmark}</p>
         <div className="mt-6 flex flex-wrap justify-between gap-x-6 gap-y-2 font-mono text-xs uppercase tracking-[0.14em] text-bone/80">
           {FOOTER.meta.map((m) => <span key={m}>{m}</span>)}
         </div>
@@ -615,25 +683,26 @@ export default function Footer() {
 }
 ```
 
-- [ ] **Step 3: Verify**
+- [ ] **Step 5: Verify**
 
-Run: `npx tsc --noEmit && npm run lint`
-Expected: clean.
+Run: `npx tsc --noEmit && npm run lint && grep -rn "bust-" app components lib scripts`
+Expected: tsc and lint are clean, and grep finds nothing.
 
-Scroll to the bottom with Orca (`window.scrollTo(0, document.body.scrollHeight)`) and take screenshots at 1280 px and 375 px. Check:
-- the busts form a collage behind the outlined wordmark
-- the link columns and meta row are fully legible on solid field
-- nothing overlaps
-- the footer still reveals from under `main`
+Screenshot the footer at 1280×800 and 375×812. Scroll with `window.scrollTo(0, document.body.scrollHeight)` and wait about 1.5 s. Check:
+- The relief reads as a soft marble texture across the whole footer, like portal.nousresearch.com's "Getting Started" band. It should be neither invisible nor loud.
+- The text sits cleanly on top.
+- The footer still reveals from under `main`: scroll to about 90% of the page height and take a screenshot.
 
-Run the axe contrast snippet from Task 2 Step 10 while the page is scrolled to the footer. Expected: no footer violations.
+**Contrast over an image:** axe can't see background images, so measure it yourself. Get the bounding rects of every footer `a`, the column titles and the meta spans via `page.evaluate`. In the screenshot, find the **lightest** pixel inside each rect with PIL, ignoring pixels within ±12 of bone `#efe6d4`, since those are the glyphs. Compute the WCAG contrast of `#efe6d4` against it, applying the `/75` or `/80` alpha of the title and meta text over that pixel. Every ratio must be ≥ 4.5:1. If any fails, raise the scrim to `/70` and re-measure. Don't lower the relief strength unless the scrim can't fix it.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
-git add components/sections/footer.tsx lib/content.ts
-git commit -m "feat: illustrated footer with bust collage, ghost wordmark and link columns"
+git add scripts/fetch-art.mjs components/sections/art.tsx components/sections/footer.tsx lib/content.ts public/art/relief.jpg public/art/manifest.json
+git commit -m "feat: relief-washed footer with link columns"
 ```
+
+(`git rm` already staged the bust deletions.)
 
 ---
 

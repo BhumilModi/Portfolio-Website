@@ -109,3 +109,15 @@ Onboarding, 3D card art, case dialogs and demos, and copy outside §5 are unchan
 - axe contrast check passes on the paper sections and on text over art.
 - Total new art weight ≤ ~900 KB. LCP image unaffected, since hero art is decorative and lazy
   when off-screen.
+
+## 9. Amendment (2026-09-26): footer
+
+The owner asked for the footer to look like the "Getting Started" band on portal.nousresearch.com instead.
+That supersedes §6's collage and ghost wordmark:
+
+- One full-bleed classical relief (The Met 248899, *Great Eleusinian Relief*, CC0), continuous-tone rather
+  than dithered, baked by `scripts/fetch-art.mjs` into a soft duotone JPEG (terracotta ground, marble
+  lifted 24% toward bone). Used as the footer's `background-image` (cover).
+- A top/bottom scrim keeps text contrast ≥ 4.5:1, measured against the image pixels.
+- The wordmark stays solid bone. Link columns and the meta row are as in §6.
+- The three bust masks are dropped as unused.
