@@ -191,11 +191,11 @@ export const TOGETHER = {
 export const FOOTER = {
   wordmark: "Bhumil Modi",
   line: "Send word.",
-  links: [
-    { label: SITE.email, href: `mailto:${SITE.email}` },
-    { label: "LinkedIn", href: SITE.linkedin, external: true },
-    { label: "GitHub", href: SITE.github, external: true },
-    { label: "Resume (PDF)", href: SITE.resume, external: true },
-  ] as Link[],
-  meta: [SITE.location, "© 2026"] as const,
+  columns: [
+    { title: "Contact", links: [{ label: SITE.email, href: `mailto:${SITE.email}` }] },
+    { title: "Elsewhere", links: [{ label: "LinkedIn", href: SITE.linkedin, external: true }, { label: "GitHub", href: SITE.github, external: true }] },
+    { title: "Site", links: NAV.links },
+    { title: "Resume", links: [{ label: "Resume (PDF)", href: SITE.resume, external: true }] },
+  ] as { title: string; links: Link[] }[],
+  meta: [SITE.location, "Art: The Met, Open Access (CC0)", "© 2026"] as const,
 };
