@@ -13,7 +13,7 @@ export default function Engagement() {
             <span className="font-mono text-xs uppercase tracking-[0.16em] text-bone/85">
               {String(i + 1).padStart(2, "0")} · {p.when}
             </span>
-            <h3 className="cap-trim font-display text-5xl uppercase">{p.name}</h3>
+            <h3 className="cap-trim font-display text-5xl tracking-[-0.01em]">{p.name}</h3>
             <p className="text-bone/90">{p.body}</p>
           </li>
         ))}

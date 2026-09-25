@@ -15,7 +15,7 @@ export default function Cases() {
               <span className="font-mono text-xs uppercase tracking-[0.16em] text-bone/85">{c.figure}</span>
             </div>
             <p className="font-mono text-xs uppercase tracking-[0.14em] text-bone/85">{c.meta}</p>
-            <h3 className="cap-trim font-display text-4xl uppercase leading-[0.95]">{c.title}</h3>
+            <h3 className="cap-trim font-display text-4xl leading-[0.95] tracking-[-0.01em]">{c.title}</h3>
             <p className="text-bone/90">{c.situation}</p>
             <div className="mt-auto pt-4">
               <CaseDialog item={c} />

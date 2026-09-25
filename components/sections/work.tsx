@@ -10,7 +10,7 @@ export default function Work() {
         {WORK.agents.map((a, i) => (
           <li key={a.title} className="reveal flex flex-col gap-3 bg-field p-6">
             <span className="font-mono text-xs text-bone/85">{String(i + 1).padStart(2, "0")}</span>
-            <h3 className="font-display text-3xl uppercase leading-none">{a.title}</h3>
+            <h3 className="font-display text-3xl leading-none tracking-[-0.01em]">{a.title}</h3>
             <p className="text-sm text-bone/90">{a.body}</p>
           </li>
         ))}
@@ -20,7 +20,7 @@ export default function Work() {
         {WORK.platforms.map((p) => (
           <li key={p.name} className="reveal flex flex-col gap-4 border border-bone/40 bg-void p-6 transition-colors duration-150 hover:border-bone/70">
             <div className="flex items-baseline justify-between gap-4">
-              <h4 className="font-display text-4xl uppercase leading-none">{p.name}</h4>
+              <h4 className="font-display text-4xl leading-none tracking-[-0.01em]">{p.name}</h4>
               <span className="shrink-0 font-mono text-xs text-ember">{p.meta}</span>
             </div>
             <p className="text-bone/90">{p.body}</p>

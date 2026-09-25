@@ -40,7 +40,7 @@ export default function CaseDialog({ item }: { item: CaseItem }) {
               Close ✕
             </button>
           </div>
-          <h3 id={headingId} className="cap-trim font-display text-5xl uppercase md:text-6xl">{item.title}</h3>
+          <h3 id={headingId} className="cap-trim font-display text-5xl tracking-[-0.01em] md:text-6xl">{item.title}</h3>
           <dl className="grid gap-6 md:grid-cols-3">
             {rows.map(([k, v]) => (
               <div key={k} className="flex flex-col gap-2">
