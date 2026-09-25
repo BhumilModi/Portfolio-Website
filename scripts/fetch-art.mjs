@@ -7,11 +7,13 @@ import { ditherMask } from "../lib/dither.ts";
 // ink: which tone becomes ink — "dark" for engravings/photos on light ground, "light" for marbles on black.
 // levels: [black point, white point]; tune until the ground is empty. width: dither resolution
 // (the PNG is upscaled 2× nearest-neighbour so every dot is a crisp 2px).
+// crop: optional { left, top, right, bottom } fractions of the source image trimmed from each edge
+// before dithering — cuts the plate mark, paper margin and caption text off scanned engravings.
 const ART = [
   { name: "apollo", id: 340036, ink: "dark", levels: [40, 215], width: 700 },
-  { name: "carceri", id: 362671, ink: "dark", levels: [40, 210], width: 1000 },
-  { name: "sant-angelo", id: 360267, ink: "dark", levels: [40, 215], width: 1000 },
-  { name: "hercules", id: 343588, ink: "dark", levels: [40, 215], width: 600 },
+  { name: "carceri", id: 362671, ink: "dark", levels: [40, 170], width: 1000, crop: { left: 0.02, top: 0.02, right: 0.02, bottom: 0.06 } },
+  { name: "sant-angelo", id: 360267, ink: "dark", levels: [40, 150], width: 1000, crop: { left: 0.01, top: 0.01, right: 0.01, bottom: 0.12 } },
+  { name: "hercules", id: 343588, ink: "dark", levels: [40, 215], width: 600, crop: { left: 0.02, top: 0.02, right: 0.02, bottom: 0.15 } },
   { name: "amphora", id: 255154, ink: "dark", levels: [30, 120], width: 300 },
   { name: "bust-man", id: 248118, ink: "light", levels: [45, 235], width: 600 },
   { name: "bust-emperor", id: 248851, ink: "light", levels: [45, 235], width: 600 },
@@ -27,7 +29,16 @@ for (const a of ART) {
     throw new Error(`${a.name}: Met object ${a.id} is not public domain or has no image`);
   }
   const src = Buffer.from(await (await fetch(obj.primaryImage)).arrayBuffer());
-  const { data, info } = await sharp(src).grayscale().resize({ width: a.width }).raw().toBuffer({ resolveWithObject: true });
+  let pipeline = sharp(src);
+  if (a.crop) {
+    const { width: srcW, height: srcH } = await sharp(src).metadata();
+    const left = Math.round(srcW * a.crop.left);
+    const top = Math.round(srcH * a.crop.top);
+    const right = Math.round(srcW * a.crop.right);
+    const bottom = Math.round(srcH * a.crop.bottom);
+    pipeline = pipeline.extract({ left, top, width: srcW - left - right, height: srcH - top - bottom });
+  }
+  const { data, info } = await pipeline.grayscale().resize({ width: a.width }).raw().toBuffer({ resolveWithObject: true });
   const mask = ditherMask(data, info.width, info.height, a.ink, a.levels);
   const rgba = Buffer.alloc(info.width * info.height * 4);
   for (let i = 0; i < mask.length; i++) rgba[i * 4 + 3] = mask[i];
