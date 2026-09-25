@@ -1,11 +1,13 @@
 "use client";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import type { CaseItem } from "@/lib/content";
 import ArgusDemo from "./argus-demo";
 import DaedalusDemo from "./daedalus-demo";
 
 export default function CaseDialog({ item }: { item: CaseItem }) {
   const ref = useRef<HTMLDialogElement>(null);
+  // Demos mount only while open, so closing mid-run clears their timers and each open starts fresh.
+  const [open, setOpen] = useState(false);
   const headingId = `case-${item.numeral}`;
   const rows = [
     ["Situation", item.situation],
@@ -14,13 +16,17 @@ export default function CaseDialog({ item }: { item: CaseItem }) {
   ] as const;
   return (
     <>
-      <button type="button" onClick={() => ref.current?.showModal()} className="font-mono text-xs uppercase tracking-[0.16em] underline underline-offset-4 hover:no-underline">
+      <button type="button" onClick={() => {
+          ref.current?.showModal();
+          setOpen(true);
+        }} className="font-mono text-xs uppercase tracking-[0.16em] underline underline-offset-4 hover:no-underline">
         Open case {item.numeral} →
       </button>
       <dialog
         ref={ref}
         aria-labelledby={headingId}
         className="case-dialog"
+        onClose={() => setOpen(false)}
         onClick={(e) => {
           if (e.target === e.currentTarget) e.currentTarget.close(); // backdrop click
         }}
@@ -43,8 +49,8 @@ export default function CaseDialog({ item }: { item: CaseItem }) {
               </div>
             ))}
           </dl>
-          {item.demo === "argus" && <ArgusDemo />}
-          {item.demo === "daedalus" && <DaedalusDemo />}
+          {open && item.demo === "argus" && <ArgusDemo />}
+          {open && item.demo === "daedalus" && <DaedalusDemo />}
         </div>
       </dialog>
     </>
