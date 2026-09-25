@@ -52,7 +52,7 @@ camera falls from Olympus to the Styx in one continuous shot.
   the shaft, and through the clouds into warm light, then navigates to `/`.
 - **Skip:** click, Esc or Enter jumps to the end state. A repeat crossing in the same session
   runs at ~2× speed.
-- **Audio:** *Gymnopédie* fades out during the fall and *Dance of the Furies* fades in at the
+- **Audio:** *Gymnopédie* fades out during the fall and *Danse macabre* fades in at the
   Styx (when sound is on).
 - **Tiers:** low tier gets fewer particles and columns, and dpr is capped as it is today.
   Reduced motion, no WebGL, or a failed canvas falls back to a 1s crossfade from terracotta to
@@ -91,7 +91,8 @@ Scoped to the `/underworld` route so Olympus tokens are untouched.
 soulfire glow; mono carries the HUD.
 
 **Art:** same dithered pipeline (`scripts/fetch-art.mjs`, `Art` mask component). Sources:
-Böcklin, *Isle of the Dead* (The Met, Open Access CC0) and a dark Piranesi *Carceri* plate.
+Böcklin, *Island of the Dead* (The Met object 435683, Open Access CC0; audited on 2026-09-26:
+one shrouded figure, no nudity) and the existing Piranesi *Carceri* mask.
 Every pick audited against the no-nudity rule on the full image and on the crop — which rules
 out most of Doré's *Inferno*.
 
@@ -138,16 +139,21 @@ foil edge, dithered bust as portrait.
   Reduced motion: static, fades in.
 - `Squad up →` — `mailto:` with subject "Squad up — from the arena".
 
-The card is claimable only after one trial run; revisits show it directly.
+The card can only be claimed after one trial run, and revisits show it directly. The trial needs a
+pointer, so a `Skip the trial` button also unlocks the card, without a stamp. That keeps it
+reachable by keyboard and screen reader.
 
 ## 7. Music
 
-- One looping track per realm, from public-domain recordings:
-  - **Olympus:** Satie, *Gymnopédie No. 1* (named for a Greek ritual dance).
-  - **Underworld:** Gluck, *Dance of the Furies* (*Orfeo ed Euridice* — Orpheus at the gate of
-    Hades).
-  The **recording** must also be public domain / CC0 (e.g. Musopen, Wikimedia Commons), not just
-  the composition — verified in the plan, source and licence recorded in the art/audio manifest.
+- One looping track per realm. Both are Kevin MacLeod recordings, CC BY 3.0, taken from Wikimedia
+  Commons (licences checked on 2026-09-26):
+  - **Olympus:** Satie, *Gymnopédie No. 1*. The title comes from a Greek ritual dance.
+    `File:Gymnopedie No. 1 (ISRC USUAN1100787).mp3`
+  - **Underworld:** Saint-Saëns, *Danse macabre* (Death fiddles while the dead dance).
+    `File:Danse Macabre (ISRC USUAN1100546).mp3`
+  Gluck's *Dance of the Furies* was the first choice, but no public-domain or CC recording of it
+  exists on Commons. CC BY requires a credit: "Music: Kevin MacLeod (incompetech.com), CC BY 3.0"
+  goes in the footer meta on both realms and in `public/audio/manifest.json`.
 - Files in `public/audio/`, trimmed to clean loops, ~128 kbps, target ≤ 3 MB each. Loaded only
   after the visitor turns sound on.
 - **Off by default.** Sound toggle `♪ Off / On` in the nav of both realms; the choice persists.
