@@ -1,13 +1,17 @@
 "use client";
-import { useCallback, useMemo, useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { RIVER_Y, cameraAt, cloudOpacity, coldness, obolPose, olympusOpacity, shaftOpacity, streak, sanzuOpacity } from "@/lib/descent";
+import {
+  PORTAL_R, PORTAL_Y, RIVER_Y,
+  cameraAt, cloudOpacity, coldness, obolPose, olympusOpacity, portalOpacity, portalScale, sanzuOpacity, shaftOpacity, streak,
+} from "@/lib/descent";
 import { scene } from "@/lib/scene";
 import { createEngravingMaterial } from "./engraving-material";
 import { buildWisps } from "./wisps";
 import { Sanzu } from "./sanzu";
-import { INK } from "./sanzu/common";
+import { FOG_DENSITY, INK, SANZU, sanzuClock } from "./sanzu/common";
+import { createPortalMaterial } from "./sanzu/portal";
 
 const WARM = { ember: "#d0643b", bone: "#efe6d4" };
 
@@ -76,7 +80,8 @@ function buildRays(count = 120) {
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-  const material = new THREE.LineBasicMaterial({ color: WARM.bone, transparent: true, opacity: 0, depthWrite: false });
+  // fog: false — the view now carries the Sanzu's fog, and Olympus must look exactly as before.
+  const material = new THREE.LineBasicMaterial({ color: WARM.bone, transparent: true, opacity: 0, depthWrite: false, fog: false });
   return { lines: new THREE.LineSegments(g, material), material };
 }
 
@@ -115,7 +120,11 @@ const COLONNADE = Array.from({ length: 12 }, (_, i) => (i / 12) * Math.PI * 2)
   .map((a) => [Math.sin(a) * 5, Math.cos(a) * 5] as const)
   .filter(([, z]) => z < 3);
 
-/** The fall from Olympus to the Sanzu (spec §3). Reads scene.crossingT; owns the view's camera. */
+/**
+ * The fall from Olympus, down the engraved shaft, through the portal and out over the Sanzu (redesign spec §4).
+ * Reads scene.crossingT; owns the view's camera. The engraving and the lit Sanzu are never on screen together:
+ * the switch happens at GATE_CUT, under the flash (components/quest/crossing.tsx).
+ */
 export default function DescentScene() {
   const low = scene.tier === "low";
   const clouds = useMemo(() => buildClouds(low ? 4000 : 9000), [low]);
@@ -123,18 +132,38 @@ export default function DescentScene() {
   const marble = useMemo(() => createEngravingMaterial({ spacing: 4 }), []);
   const coin = useMemo(() => createEngravingMaterial({ ink: WARM.ember }), []);
   const stone = useMemo(() => createEngravingMaterial({ ink: INK.mist, ground: INK.abyss }), []);
-  // Every tier gets the full shaft: it is two instanced draw calls, and five levels end above the camera's abyss beat.
+  // Every tier gets the full shaft: it is two instanced draw calls.
   const shaft = useMemo(() => buildShaft(9, stone), [stone]);
   const wisps = useMemo(() => buildWisps(low ? 250 : 600, 6, 36, { color: INK.system }), [low]);
+  const portal = useMemo(() => createPortalMaterial(3.2), []); // calibration knob: approach-disc intensity, 2.4–4
   const warm = useMemo(() => new THREE.Color(WARM.ember), []);
   const cold = useMemo(() => new THREE.Color(INK.system), []);
   const obol = useRef<THREE.Mesh>(null);
+  const disc = useRef<THREE.Mesh>(null);
   const sanzuFade = useCallback(() => sanzuOpacity(scene.crossingT), []);
+  const { gl, scene: world, camera: viewCamera } = useThree();
+
+  // Compile the Sanzu's shaders at mount, not at the cut: a first-use compile at GATE_CUT would stall the flash.
+  // renderer.compile() skips invisible objects, and this effect runs before the Sanzu's first frame hides itself.
+  // Both variants: render-target programs (the composer path) and on-screen ACES programs (the direct path).
+  useEffect(() => {
+    const target = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType });
+    const previous = gl.getRenderTarget();
+    const tone = gl.toneMapping;
+    gl.setRenderTarget(target);
+    gl.compile(world, viewCamera);
+    gl.setRenderTarget(previous);
+    // eslint-disable-next-line react-hooks/immutability -- a one-off renderer setting for the pre-compile, restored below
+    gl.toneMapping = THREE.ACESFilmicToneMapping;
+    gl.compile(world, viewCamera);
+    gl.toneMapping = tone;
+    target.dispose();
+  }, [gl, world, viewCamera]);
 
   // eslint-disable-next-line react-hooks/immutability -- per-frame three.js mutation, not React state
   useFrame(({ camera, clock }) => {
     const t = scene.crossingT;
-    const { pos, pitch } = cameraAt(t);
+    const { pos, pitch } = cameraAt(t, window.innerWidth / window.innerHeight);
     camera.position.set(pos[0], pos[1], pos[2]);
     camera.rotation.set(pitch, 0, 0);
 
@@ -157,6 +186,16 @@ export default function DescentScene() {
     wisps.material.uniforms.uOpacity.value = shaftOpacity(t);
     wisps.material.uniforms.uTime.value = clock.elapsedTime;
 
+    // The portal far below the shaft: it swells from a spark and the fall does the rest.
+    const po = portalOpacity(t);
+    // eslint-disable-next-line react-hooks/immutability -- per-frame three.js mutation, not React state
+    portal.uniforms.uOpacity.value = po;
+    portal.uniforms.uTime.value = sanzuClock(clock.elapsedTime);
+    if (disc.current) {
+      disc.current.visible = po > 0.001;
+      disc.current.scale.setScalar(portalScale(t));
+    }
+
     const p = obolPose(t);
     // eslint-disable-next-line react-hooks/immutability -- per-frame three.js mutation, not React state
     coin.uniforms.uOpacity.value = p.opacity;
@@ -169,6 +208,8 @@ export default function DescentScene() {
 
   return (
     <>
+      {/* Fog attaches to this view's scene. The engraving, clouds, wisps and portal are ShaderMaterials with fog off. */}
+      <fogExp2 attach="fog" args={[SANZU.fog, FOG_DENSITY]} />
       <mesh ref={obol} position={[0, 1.5, 5]} material={coin}>
         <cylinderGeometry args={[0.35, 0.35, 0.06, 64]} />
       </mesh>
@@ -188,6 +229,9 @@ export default function DescentScene() {
       <group position={[0, -40, 0]}>
         <primitive object={wisps.points} />
       </group>
+      <mesh ref={disc} position={[0, PORTAL_Y, 0]} rotation={[-Math.PI / 2, 0, 0]} material={portal}>
+        <planeGeometry args={[PORTAL_R * 2, PORTAL_R * 2]} />
+      </mesh>
       <group position={[0, RIVER_Y, 0]}>
         <Sanzu fade={sanzuFade} />
       </group>

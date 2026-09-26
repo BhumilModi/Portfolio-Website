@@ -1,33 +1,45 @@
 "use client";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { PerspectiveCamera, View } from "@react-three/drei";
 import { CROSSING, SYSTEM } from "@/lib/content";
-import { DESCENT_FOV, DESCENT_S, backdropOpacity, coldness, isDone, noticeShown, timelineAt, type Direction } from "@/lib/descent";
+import {
+  DESCENT_FOV, DESCENT_S, GATE_CUT,
+  backdropOpacity, bloomBeat, coldness, flashOpacity, isDone, noticeShown, scanline, timelineAt, type Direction,
+} from "@/lib/descent";
 import { quest } from "@/lib/quest";
 import { CROSS_EVENT, scene } from "@/lib/scene";
 import { smoothstep } from "@/lib/timeline";
+import Bloom from "@/components/experience/bloom";
 import DescentScene from "@/components/experience/descent-scene";
 import SceneBoundary from "@/components/experience/scene-boundary";
+import SystemWindow from "@/components/underworld/system-window";
 import { setRealm } from "./sound";
 
 // Mirror --color-field and --color-abyss: the backdrop behind the canvas cools as the camera falls.
 const FIELD = [154, 42, 20];
 const ABYSS = [5, 7, 13];
 const FALLBACK_S = 1;
+/** Reduced motion: the notice opens halfway through the crossfade and is held this long before the page swaps in. */
+const NOTICE_HOLD_S = 1.1;
 let crossings = 0; // this session; a repeat crossing runs at 2×
 
 type Run = { direction: Direction; speed: number; fallback: boolean };
 const destination = (d: Direction) => (d === "down" ? { path: "/underworld", href: "/underworld" } : { path: "/", href: "/#hero" });
+// Bloom from the portal approach on; ACES only once the lit Sanzu is on screen, so the engraving keeps its flat colours.
+const bloomNow = () => bloomBeat(scene.crossingT);
+const acesNow = () => scene.crossingT >= GATE_CUT;
 
-/** The crossing between realms (spec §3). Listens for cross() from lib/scene.ts. */
+/** The crossing between realms (redesign spec §4). Listens for cross() from lib/scene.ts. */
 export default function Crossing() {
   const router = useRouter();
   const pathname = usePathname();
   const [run, setRun] = useState<Run | null>(null);
   const [pushedTo, setPushedTo] = useState<string | null>(null);
+  const [notice, setNotice] = useState(false);
   const backdrop = useRef<HTMLDivElement>(null);
-  const title = useRef<HTMLParagraphElement>(null);
+  const flash = useRef<HTMLDivElement>(null);
+  const scan = useRef<HTMLDivElement>(null);
   const skip = useRef(false);
   const leaving = run !== null && pushedTo === pathname;
 
@@ -53,6 +65,7 @@ export default function Crossing() {
     const root = document.documentElement;
     const t0 = performance.now();
     let switched = false;
+    let noticeOn = false;
     let raf = 0;
 
     const tick = (now: number) => {
@@ -60,15 +73,18 @@ export default function Crossing() {
       let t: number;
       let done: boolean;
       let cover: number;
+      let showNotice: boolean;
       if (fallback) {
         const f = Math.min(1, elapsed / FALLBACK_S);
         t = direction === "down" ? f * DESCENT_S : (1 - f) * DESCENT_S;
-        done = f >= 1;
         cover = direction === "down" ? smoothstep(0, 0.4, f) : 1;
+        showNotice = direction === "down" && f >= 0.5;
+        done = direction === "down" ? elapsed >= FALLBACK_S / 2 + NOTICE_HOLD_S : f >= 1;
       } else {
         t = timelineAt(elapsed, direction, speed);
         done = isDone(elapsed, direction, speed);
         cover = direction === "down" ? backdropOpacity(t) : 1;
+        showNotice = direction === "down" && noticeShown(t);
       }
       scene.crossingT = t;
 
@@ -77,7 +93,17 @@ export default function Crossing() {
         backdrop.current.style.backgroundColor = `rgb(${FIELD.map((v, i) => Math.round(v + (ABYSS[i] - v) * c)).join(",")})`;
         backdrop.current.style.opacity = String(cover);
       }
-      if (title.current) title.current.style.opacity = noticeShown(t) ? "1" : "0";
+      // The System boots: a blue flash peaking at the cut, with a scanline sweeping down under it.
+      const f = flashOpacity(t);
+      if (flash.current) flash.current.style.opacity = String(f);
+      if (scan.current) {
+        scan.current.style.opacity = f > 0.02 ? "1" : "0";
+        scan.current.style.transform = `translateY(${scanline(t) * window.innerHeight}px)`;
+      }
+      if (showNotice && !noticeOn) {
+        noticeOn = true;
+        setNotice(true);
+      }
       // Once the backdrop is opaque, take the page out of layout so its own 3D views stop drawing over the descent.
       if (cover >= 0.999) root.dataset.crossing = "";
       if (!switched && (direction === "down" ? t >= 1.8 : t <= 3)) {
@@ -85,6 +111,8 @@ export default function Crossing() {
         setRealm(direction === "down" ? "underworld" : "olympus");
       }
       if (done) {
+        // The overlay's notice sits exactly where the Arrival's will; tell the Arrival not to open a second one.
+        if (direction === "down") scene.noticeCarried = noticeOn;
         setPushedTo(path);
         router.push(href);
         return; // ponytail: no timeout if navigation never lands; add one if that is ever seen in the wild
@@ -112,6 +140,7 @@ export default function Crossing() {
     const id = setTimeout(() => {
       setRun(null);
       setPushedTo(null);
+      setNotice(false);
     }, 600);
     return () => clearTimeout(id);
   }, [leaving]);
@@ -121,20 +150,29 @@ export default function Crossing() {
     <div id="crossing" data-leaving={leaving ? "" : undefined}>
       <div ref={backdrop} className="crossing-backdrop" onClick={() => (skip.current = true)} />
       {!run.fallback && !leaving && (
-        <View className="crossing-view">
-          <PerspectiveCamera makeDefault fov={DESCENT_FOV} near={0.1} far={200} />
+        <View className="crossing-view" visible={false}>
+          <PerspectiveCamera makeDefault fov={DESCENT_FOV} near={0.1} far={400} />
+          <Bloom bloom={bloomNow} aces={acesNow} />
           <SceneBoundary fallback={null}>
-            <Suspense fallback={null}>
-              <DescentScene />
-            </Suspense>
+            <DescentScene />
           </SceneBoundary>
         </View>
       )}
       <div className="crossing-hud">
-        {run.direction === "down" && (
-          <p ref={title} aria-live="polite" className="system-glow cap-trim font-display text-[clamp(3rem,10vw,8rem)] uppercase leading-[0.9]" style={{ opacity: 0 }}>
-            {SYSTEM.entered}
-          </p>
+        {!run.fallback && (
+          <>
+            <div ref={flash} aria-hidden className="crossing-flash" />
+            <div ref={scan} aria-hidden className="crossing-scan" />
+          </>
+        )}
+        {notice && (
+          <div className="crossing-notice">
+            <div className="mx-auto w-full max-w-[1280px] px-4 md:px-8">
+              <SystemWindow notice className="w-fit max-w-[34rem]">
+                {SYSTEM.entered}
+              </SystemWindow>
+            </div>
+          </div>
         )}
         <button type="button" className="crossing-skip font-mono text-xs uppercase tracking-[0.2em]" onClick={() => (skip.current = true)}>
           {CROSSING.skip}

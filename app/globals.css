@@ -178,6 +178,33 @@ html[data-crossing] body > :not(#crossing, .stage) { display: none; }
 .crossing-skip { position: absolute; right: 1rem; bottom: 1rem; pointer-events: auto; color: color-mix(in srgb, var(--color-mist) 80%, transparent); }
 .crossing-skip:hover { color: var(--color-mist); }
 #crossing[data-leaving] .crossing-backdrop, #crossing[data-leaving] .crossing-hud { opacity: 0 !important; transition: opacity 600ms ease-out; }
+/* The System booting at the cut: a full-screen blue flash with a faint scan texture, and one bright line sweeping down. */
+.crossing-flash {
+  position: fixed;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%, #eaf4ff 0%, var(--color-system) 42%, color-mix(in srgb, var(--color-system) 55%, var(--color-abyss)) 100%);
+}
+.crossing-flash::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, rgb(255 255 255 / 0.07) 0 1px, transparent 1px 3px);
+}
+.crossing-scan {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  height: 2px;
+  opacity: 0;
+  pointer-events: none;
+  background: #eaf4ff;
+  box-shadow: 0 0 14px 3px color-mix(in srgb, var(--color-system) 80%, transparent);
+  will-change: transform;
+}
+/* Same container and bottom offset as the Arrival's notice (components/underworld/arrival.tsx), so the handoff lines up. */
+.crossing-notice { position: fixed; inset-inline: 0; bottom: 6rem; text-align: left; pointer-events: none; }
 
 /* Underworld buttons (arena, card). */
 .arena-btn {
