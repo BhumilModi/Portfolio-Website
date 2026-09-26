@@ -21,7 +21,7 @@ export default function Realm() {
           <Gate count={s.obols.length} />
         ) : (
           <>
-            <header className="mx-auto flex w-full max-w-[1280px] items-center justify-between px-4 py-4 md:px-8">
+            <header className="absolute inset-x-0 top-0 z-10 mx-auto flex w-full max-w-[1280px] items-center justify-between px-4 py-4 md:px-8">
               <span className="font-display text-3xl uppercase leading-none tracking-wide">{UNDERWORLD.brand}</span>
               <div className="flex items-center gap-5">
                 <SoundToggle className="text-mist/80 hover:text-mist" />

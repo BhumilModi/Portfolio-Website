@@ -194,3 +194,106 @@ html[data-crossing] body > :not(#crossing, .stage) { display: none; }
 .arena-btn:active { transform: scale(0.97); }
 .arena-btn-primary { background: var(--color-system); border-color: var(--color-system); color: var(--color-abyss); }
 .arena-btn-primary:hover { background: var(--color-mist); border-color: var(--color-mist); }
+
+/* System windows (components/underworld/system-window.tsx): translucent navy, 1px System-blue edge + glow, corner brackets. */
+.sys-window {
+  position: relative;
+  padding: 1.25rem 1.5rem;
+  color: var(--color-mist);
+  background: linear-gradient(180deg, rgb(10 22 48 / 0.8), rgb(6 12 28 / 0.74));
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  backdrop-filter: blur(12px) saturate(1.2);
+  border: 1px solid color-mix(in srgb, var(--color-system) 75%, transparent);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--color-system) 30%, transparent), inset 0 0 28px color-mix(in srgb, var(--color-system) 12%, transparent);
+}
+/* Corner brackets: eight 2px bars just outside the border. */
+.sys-window::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--color-system) 0 0) left top / 16px 2px,
+    linear-gradient(var(--color-system) 0 0) left top / 2px 16px,
+    linear-gradient(var(--color-system) 0 0) right top / 16px 2px,
+    linear-gradient(var(--color-system) 0 0) right top / 2px 16px,
+    linear-gradient(var(--color-system) 0 0) left bottom / 16px 2px,
+    linear-gradient(var(--color-system) 0 0) left bottom / 2px 16px,
+    linear-gradient(var(--color-system) 0 0) right bottom / 16px 2px,
+    linear-gradient(var(--color-system) 0 0) right bottom / 2px 16px;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 0 4px var(--color-system));
+}
+/* The opening line: a 1px System-blue rule across the middle. */
+.sys-window::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--color-system);
+  box-shadow: 0 0 8px var(--color-system);
+  opacity: 0;
+  pointer-events: none;
+}
+.sys-head {
+  margin-bottom: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-system);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--color-system) 60%, transparent);
+}
+.sys-notice { padding: 0.85rem 1.1rem; font-family: var(--font-serif); font-size: 1.125rem; line-height: 1.4; }
+.sys-tag { margin-right: 0.35rem; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.18em; color: var(--color-system); }
+.sys-window[data-phase="shut"] { clip-path: inset(50% 50% 50% 50%); }
+@media (prefers-reduced-motion: no-preference) {
+  /* 0–40% (120ms): the line draws out; 40–100% (180ms): the panel unfolds. Strong ease-out on both. */
+  .sys-window[data-phase="open"] { animation: sys-open 300ms both; }
+  .sys-window[data-phase="open"]::after { animation: sys-line 300ms both; }
+  .sys-window[data-phase="open"] .sys-body { animation: sys-fade 160ms 200ms ease-out both; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sys-window[data-phase="shut"] { clip-path: none; opacity: 0; }
+  .sys-window[data-phase="open"] { animation: sys-fade 150ms ease-out both; }
+}
+@keyframes sys-open {
+  0% { clip-path: inset(calc(50% - 1px) 50% calc(50% - 1px) 50%); animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); }
+  40% { clip-path: inset(calc(50% - 1px) -24px calc(50% - 1px) -24px); animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); }
+  100% { clip-path: inset(-24px); }
+}
+@keyframes sys-line {
+  0% { opacity: 1; transform: scaleX(0); animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); }
+  40% { opacity: 1; transform: scaleX(1); }
+  100% { opacity: 0; transform: scaleX(1); }
+}
+@keyframes sys-fade { from { opacity: 0; } }
+
+/* System buttons (trial, status, ARISE). 44px minimum hit area. */
+.sys-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.7rem 1.2rem;
+  border: 1px solid color-mix(in srgb, var(--color-system) 60%, transparent);
+  background: color-mix(in srgb, var(--color-system) 8%, transparent);
+  color: var(--color-mist);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  transition: background-color 150ms ease-out, border-color 150ms ease-out, box-shadow 150ms ease-out, transform 100ms ease-out;
+}
+.sys-btn:active { transform: scale(0.97); }
+.sys-btn-primary {
+  background: var(--color-system);
+  border-color: var(--color-system);
+  color: var(--color-abyss);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--color-system) 45%, transparent);
+}
+@media (hover: hover) {
+  .sys-btn:hover { background: color-mix(in srgb, var(--color-system) 20%, transparent); border-color: var(--color-system); box-shadow: 0 0 16px color-mix(in srgb, var(--color-system) 35%, transparent); }
+  .sys-btn-primary:hover { background: color-mix(in srgb, var(--color-system) 80%, white); color: var(--color-abyss); }
+}

@@ -6,6 +6,8 @@ export const scene = {
   reducedMotion: false,
   /** Crossing timeline position in seconds (lib/descent.ts), written by components/quest/crossing.tsx each frame. */
   crossingT: 0,
+  /** The crossing's [SYSTEM] notice was on screen at the handoff, so the Arrival shows its own in place without re-opening it. */
+  noticeCarried: false,
 };
 
 /** Browser-only. Detects tier and motion preference, flags missing WebGL on <html>. */

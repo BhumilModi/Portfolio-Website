@@ -99,6 +99,26 @@ export function playHit() {
   osc.stop(now + 0.13);
 }
 
+/** A short synthesized System chime: two sine partials a sixth apart, the upper one entering 60ms late. No audio file. */
+export function playChime() {
+  if (!engine || !state.on) return;
+  const { ctx } = engine;
+  const now = ctx.currentTime;
+  const out = ctx.createGain();
+  out.gain.setValueAtTime(0.0001, now);
+  out.gain.exponentialRampToValueAtTime(0.12, now + 0.01);
+  out.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
+  out.connect(ctx.destination);
+  for (const [freq, delay] of [[880, 0], [1480, 0.06]] as const) {
+    const osc = ctx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq, now + delay);
+    osc.connect(out);
+    osc.start(now + delay);
+    osc.stop(now + 0.65);
+  }
+}
+
 const subscribe = (l: () => void) => {
   listeners.add(l);
   return () => {
