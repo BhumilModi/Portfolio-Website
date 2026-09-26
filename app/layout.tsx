@@ -3,6 +3,7 @@ import { JetBrains_Mono, League_Gothic, Newsreader } from "next/font/google";
 import "lenis/dist/lenis.css";
 import "./globals.css";
 import SmoothScroll from "@/components/experience/smooth-scroll";
+import { SoundSync } from "@/components/quest/sound";
 import { SITE } from "@/lib/content";
 
 const display = League_Gothic({ variable: "--font-league-gothic", weight: "400", subsets: ["latin"], display: "swap" });
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" className={`${display.variable} ${serif.variable} ${mono.variable}`}>
       <body>
         <SmoothScroll />
+        <SoundSync />
         {children}
       </body>
     </html>

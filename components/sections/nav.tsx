@@ -1,3 +1,4 @@
+import { SoundToggle } from "@/components/quest/sound";
 import { NAV } from "@/lib/content";
 
 export default function Nav() {
@@ -9,12 +10,15 @@ export default function Nav() {
           <a key={l.href} href={l.href} className="text-bone/85 transition-colors hover:text-bone">{l.label}</a>
         ))}
       </nav>
-      <a
-        href={NAV.cta.href}
-        className="justify-self-end border border-bone px-4 py-2 font-mono text-xs uppercase tracking-[0.16em] transition-transform transition-colors duration-150 hover:bg-bone hover:text-field active:scale-[0.97]"
-      >
-        {NAV.cta.label}
-      </a>
+      <div className="flex items-center gap-5 justify-self-end">
+        <SoundToggle className="text-bone/85 hover:text-bone" />
+        <a
+          href={NAV.cta.href}
+          className="border border-bone px-4 py-2 font-mono text-xs uppercase tracking-[0.16em] transition-transform transition-colors duration-150 hover:bg-bone hover:text-field active:scale-[0.97]"
+        >
+          {NAV.cta.label}
+        </a>
+      </div>
     </header>
   );
 }
