@@ -49,6 +49,30 @@ body {
 @keyframes reveal { from { opacity: 0; transform: translateY(24px); } }
 
 @media (prefers-reduced-motion: reduce) { #onboarding { display: none; } }
+
+/* Load curtain: an iris opens from the center once the counter lands. Hidden when scripting is
+   off, since onboarding.tsx is what opens it. */
+@property --hole { syntax: "<length>"; inherits: false; initial-value: 0px; }
+.intro-curtain {
+  --hole: -16vmax;
+  /* The void leaves an ember rim on the opening edge, so dark-on-dark still reads as light arriving. */
+  background-image: radial-gradient(circle at 50% 50%, transparent var(--hole), color-mix(in srgb, var(--color-ember) 55%, var(--color-void)) calc(var(--hole) + 3vmax), var(--color-void) calc(var(--hole) + 10vmax));
+  mask-image: radial-gradient(circle at 50% 50%, transparent var(--hole), #000 calc(var(--hole) + 5vmax));
+  transition: --hole 1100ms cubic-bezier(0.77, 0, 0.175, 1) 250ms;
+}
+.intro-curtain-mark { transition: opacity 250ms ease-out, filter 250ms ease-out, transform 250ms ease-out; }
+#onboarding[data-revealed] .intro-curtain { --hole: 75vmax; pointer-events: none; }
+#onboarding[data-revealed] .intro-curtain-mark { opacity: 0; filter: blur(4px); transform: scale(1.03); }
+@media (scripting: none) { .intro-curtain { display: none; } }
+
+.scroll-hint { opacity: 0; transition: opacity 700ms cubic-bezier(0.23, 1, 0.32, 1) 900ms; }
+#onboarding[data-revealed] .scroll-hint { opacity: 1; }
+.scroll-hint-dot { animation: hint-dot 1.8s cubic-bezier(0.77, 0, 0.175, 1) infinite; }
+@keyframes hint-dot {
+  from { transform: translateY(0); opacity: 0; }
+  25%, 75% { opacity: 1; }
+  to { transform: translateY(35px); opacity: 0; }
+}
 .no-webgl #onboarding { display: none; }
 
 .case-dialog {
