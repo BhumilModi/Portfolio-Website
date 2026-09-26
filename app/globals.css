@@ -6,6 +6,10 @@
   --color-bone: #efe6d4;
   --color-ash: #6b5f52;
   --color-ember: #d0643b;
+  --color-abyss: #05080a;
+  --color-styx: #0e2626;
+  --color-asphodel: #cfd8d3;
+  --color-soulfire: #5ef2c2;
   --color-paper: var(--color-bone);
   --color-ink: var(--color-void);
   --font-display: var(--font-league-gothic), "Arial Narrow", sans-serif;
@@ -151,3 +155,12 @@ button:active > .obol { transform: scale(0.94); }
 @starting-style { .quest-chip { opacity: 0; transform: translateY(8px); } }
 button.quest-chip:active { transform: scale(0.97); }
 .quest-chip-ready { background: var(--color-ember); color: var(--color-void); border-color: var(--color-ember); }
+
+/* The Underworld (app/underworld): the cold inverse of Olympus. */
+html:has(.realm-underworld), html:has(.realm-underworld) body { background: var(--color-abyss); }
+.realm-underworld { color: var(--color-asphodel); }
+.realm-underworld ::selection { background: var(--color-soulfire); color: var(--color-abyss); }
+.realm-underworld :focus-visible { outline-color: var(--color-soulfire); }
+.soul-glow {
+  text-shadow: 0 0 2px color-mix(in srgb, var(--color-soulfire) 60%, transparent), 0 0 28px color-mix(in srgb, var(--color-soulfire) 32%, transparent);
+}
