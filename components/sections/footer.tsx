@@ -1,10 +1,12 @@
 import { FOOTER } from "@/lib/content";
+import Obol from "@/components/quest/obol";
 
 export default function Footer() {
   return (
-    <footer className="sticky bottom-0 z-0 isolate flex h-dvh flex-col justify-between overflow-hidden bg-field bg-[url(/art/stele.jpg)] bg-cover bg-center px-4 pb-6 pt-24 text-bone md:px-8">
+    <footer className="sticky bottom-0 z-0 isolate flex h-dvh flex-col justify-between overflow-hidden bg-field bg-[url(/art/stele.jpg)] bg-cover bg-center px-4 pb-20 pt-24 text-bone md:px-8 md:pb-24">
       {/* Relief wash (CC0 — The Met), Portal-style. Scrim keeps a contrast floor everywhere (never fully transparent) so link, title and meta text stay ≥4.5:1 even over the relief's brightest fold. */}
       <div aria-hidden className="absolute inset-0 -z-10 bg-linear-to-b from-field/70 via-field/35 via-45% to-field/70" />
+      <Obol id="footer" className="absolute right-[14%] top-[36%]" />
 
       <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-10">
         <p className="font-serif text-3xl italic leading-[1.15] md:text-5xl">{FOOTER.line}</p>

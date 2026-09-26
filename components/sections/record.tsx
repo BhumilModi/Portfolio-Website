@@ -1,4 +1,5 @@
 import { RECORD } from "@/lib/content";
+import Obol from "@/components/quest/obol";
 import SectionLabel from "./section-label";
 import Art from "./art";
 
@@ -23,12 +24,13 @@ export default function Record() {
           ))}
         </ol>
         <dl className="mt-16 grid grid-cols-2 gap-8 md:grid-cols-5">
-          {RECORD.toolkit.map((t) => (
+          {RECORD.toolkit.map((t, i) => (
             <div key={t.group} className="flex flex-col gap-3">
               <dt className="font-mono text-xs uppercase tracking-[0.16em]">{t.group}</dt>
               <dd>
                 <ul className="flex flex-col gap-1 font-mono text-sm text-ink/70">
-                  {t.items.map((i) => <li key={i}>{i}</li>)}
+                  {t.items.map((item) => <li key={item}>{item}</li>)}
+                  {i === RECORD.toolkit.length - 1 && <li><Obol id="record" /></li>}
                 </ul>
               </dd>
             </div>

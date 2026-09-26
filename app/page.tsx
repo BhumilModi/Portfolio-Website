@@ -9,6 +9,7 @@ import Cases from "@/components/sections/cases";
 import Record from "@/components/sections/record";
 import Together from "@/components/sections/together";
 import Footer from "@/components/sections/footer";
+import QuestChip from "@/components/quest/quest-chip";
 
 export default function Page() {
   return (
@@ -29,6 +30,7 @@ export default function Page() {
         </main>
         <Footer />
       </div>
+      <QuestChip />
     </>
   );
 }

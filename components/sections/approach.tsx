@@ -1,5 +1,6 @@
 import { APPROACH } from "@/lib/content";
 import CardArt from "@/components/experience/card-art";
+import Obol from "@/components/quest/obol";
 import SectionLabel from "./section-label";
 
 export default function Approach() {
@@ -10,7 +11,10 @@ export default function Approach() {
         <ul className="mt-12 grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
           {APPROACH.items.map((item) => (
             <li key={item.n} className="reveal flex flex-col gap-5">
-              <CardArt art={item.art} className="art-slot aspect-[2/1] w-full border border-ink" />
+              <div className="relative">
+                <CardArt art={item.art} className="art-slot aspect-[2/1] w-full border border-ink" />
+                {item.n === 4 && <Obol id="approach" className="absolute bottom-3 right-3" />}
+              </div>
               <p className="font-mono text-xs uppercase tracking-[0.16em] text-ink/70">#{item.n} {item.label}</p>
               <h3 className="cap-trim font-display text-4xl tracking-[-0.01em]">{item.title}</h3>
               <p className="text-ink/85">{item.body}</p>

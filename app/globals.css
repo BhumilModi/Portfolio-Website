@@ -112,3 +112,42 @@ body {
   background-image: radial-gradient(color-mix(in srgb, var(--color-ink) 7%, transparent) 0.7px, transparent 1.1px);
   background-size: 5px 5px;
 }
+
+/* Obol (components/quest/obol.tsx): a small struck coin; an ember glint crosses it every 8s. */
+.obol {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  overflow: hidden;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--color-bone) 85%, var(--color-ember)) 0 22%, var(--color-ember) 62%, color-mix(in srgb, var(--color-ember) 55%, var(--color-void)));
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--color-void) 50%, transparent), inset 0 0 0 4px color-mix(in srgb, var(--color-bone) 30%, transparent);
+  transition: transform 150ms ease-out;
+}
+button:hover > .obol { transform: scale(1.12); }
+button:active > .obol { transform: scale(0.94); }
+.obol::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 35%, rgb(255 255 255 / 0.7) 50%, transparent 65%);
+  transform: translateX(-120%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .obol::after { animation: obol-glint 8s ease-in-out infinite; }
+}
+@keyframes obol-glint { 0%, 88% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+
+/* Quest chip (components/quest/quest-chip.tsx). */
+.quest-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.6rem 0.9rem;
+  background: var(--color-void);
+  color: var(--color-bone);
+  border: 1px solid color-mix(in srgb, var(--color-bone) 35%, transparent);
+  transition: opacity 200ms ease-out, transform 200ms ease-out, background-color 150ms ease-out;
+}
+@starting-style { .quest-chip { opacity: 0; transform: translateY(8px); } }
+button.quest-chip:active { transform: scale(0.97); }
+.quest-chip-ready { background: var(--color-ember); color: var(--color-void); border-color: var(--color-ember); }
