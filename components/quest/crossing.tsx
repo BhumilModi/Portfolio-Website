@@ -20,8 +20,9 @@ import { setRealm } from "./sound";
 const FIELD = [154, 42, 20];
 const ABYSS = [5, 7, 13];
 const FALLBACK_S = 1;
-/** Reduced motion: the notice opens halfway through the crossfade and is held this long before the page swaps in. */
-const NOTICE_HOLD_S = 1.1;
+/** Reduced motion: the notice opens halfway through the crossfade and is held this long before the page swaps in.
+ * Must clear 1s of full opacity after its own 150ms fade-in (rd-constraints.md's "held fully visible for at least 1s"). */
+const NOTICE_HOLD_S = 1.2;
 let crossings = 0; // this session; a repeat crossing runs at 2×
 
 type Run = { direction: Direction; speed: number; fallback: boolean };
