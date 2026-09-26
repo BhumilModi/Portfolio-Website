@@ -42,7 +42,8 @@ void main() {
   float d = length(vWorld.xz - cameraPosition.xz);
   float fog = smoothstep(8.0, 70.0, d);
   float swell = sin(vWorld.x * 0.7 + uTime * 0.6) * sin(vWorld.z * 1.3 - uTime * 0.4) + sin(vWorld.z * 0.35 + uTime * 0.25);
-  float glint = smoothstep(1.2, 1.9, swell) * (1.0 - fog);
+  // Near fade keeps the foreground water (where the footer sits) dark and legible.
+  float glint = smoothstep(1.2, 1.9, swell) * (1.0 - fog) * smoothstep(8.0, 16.0, d);
   float cell = bayer8(floor(gl_FragCoord.xy / uSpacing));
   vec3 col = mix(mix(uStyx, uAbyss, fog), uGlint, step(cell + 0.02, glint * 0.9));
   gl_FragColor = vec4(col, uOpacity);
@@ -92,7 +93,8 @@ void main() {
   p.x += sin(uTime * 0.5 + aRand * 20.0) * 0.3;
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
-  gl_PointSize = uSize * uPixelRatio / -mv.z;
+  // Cap so wisps drifting past the lens stay motes, not blooms over the footer.
+  gl_PointSize = min(uSize * uPixelRatio / -mv.z, 4.0 * uPixelRatio);
   vAlpha = sin(3.14159 * p.y / uHeight);
 }
 `;
