@@ -2,7 +2,7 @@
 import { useCallback, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { STYX_Y, cameraAt, cloudOpacity, coldness, obolPose, olympusOpacity, shaftOpacity, streak, styxOpacity } from "@/lib/descent";
+import { RIVER_Y, cameraAt, cloudOpacity, coldness, obolPose, olympusOpacity, shaftOpacity, streak, sanzuOpacity } from "@/lib/descent";
 import { scene } from "@/lib/scene";
 import { createEngravingMaterial } from "./engraving-material";
 import { COLD, Styx, buildWisps } from "./styx";
@@ -127,7 +127,7 @@ export default function DescentScene() {
   const warm = useMemo(() => new THREE.Color(WARM.ember), []);
   const cold = useMemo(() => new THREE.Color(COLD.soulfire), []);
   const obol = useRef<THREE.Mesh>(null);
-  const styxFade = useCallback(() => styxOpacity(scene.crossingT), []);
+  const styxFade = useCallback(() => sanzuOpacity(scene.crossingT), []);
 
   // eslint-disable-next-line react-hooks/immutability -- per-frame three.js mutation, not React state
   useFrame(({ camera, clock }) => {
@@ -186,7 +186,7 @@ export default function DescentScene() {
       <group position={[0, -40, 0]}>
         <primitive object={wisps.points} />
       </group>
-      <group position={[0, STYX_Y, 0]}>
+      <group position={[0, RIVER_Y, 0]}>
         <Styx fade={styxFade} />
       </group>
     </>

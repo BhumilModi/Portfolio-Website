@@ -3,7 +3,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { PerspectiveCamera, View } from "@react-three/drei";
 import { CROSSING } from "@/lib/content";
-import { DESCENT_FOV, DESCENT_S, backdropOpacity, coldness, isDone, timelineAt, titleOpacity, type Direction } from "@/lib/descent";
+import { DESCENT_FOV, DESCENT_S, backdropOpacity, coldness, isDone, noticeShown, timelineAt, type Direction } from "@/lib/descent";
 import { quest } from "@/lib/quest";
 import { CROSS_EVENT, scene } from "@/lib/scene";
 import { smoothstep } from "@/lib/timeline";
@@ -77,7 +77,7 @@ export default function Crossing() {
         backdrop.current.style.backgroundColor = `rgb(${FIELD.map((v, i) => Math.round(v + (ABYSS[i] - v) * c)).join(",")})`;
         backdrop.current.style.opacity = String(cover);
       }
-      if (title.current) title.current.style.opacity = String(titleOpacity(t));
+      if (title.current) title.current.style.opacity = noticeShown(t) ? "1" : "0";
       // Once the backdrop is opaque, take the page out of layout so its own 3D views stop drawing over the descent.
       if (cover >= 0.999) root.dataset.crossing = "";
       if (!switched && (direction === "down" ? t >= 1.8 : t <= 3)) {

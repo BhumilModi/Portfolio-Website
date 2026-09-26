@@ -3,7 +3,7 @@ import { Suspense, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Billboard, PerspectiveCamera, View, useTexture } from "@react-three/drei";
 import * as THREE from "three";
-import { DESCENT_FOV, STYX_CAMERA } from "@/lib/descent";
+import { DESCENT_FOV, RIVER_CAMERA } from "@/lib/descent";
 import { scene } from "@/lib/scene";
 import { createEngravingMaterial } from "./engraving-material";
 import SceneBoundary from "./scene-boundary";
@@ -159,7 +159,7 @@ function buildHull(): THREE.BufferGeometry {
 
 const one = () => 1;
 
-/** The Styx: water, the Isle of the Dead, Charon's boat, rising wisps. Local origin is the waterline; STYX_CAMERA frames it. */
+/** The Styx: water, the Isle of the Dead, Charon's boat, rising wisps. Local origin is the waterline; RIVER_CAMERA frames it. */
 export function Styx({ fade = one }: { fade?: () => number }) {
   const isleMap = useTexture(ISLE);
   const low = scene.tier === "low";
@@ -281,7 +281,7 @@ export function StyxBackdrop() {
   return (
     <div aria-hidden className="fixed inset-0 z-0">
       <View className="size-full">
-        <PerspectiveCamera makeDefault position={STYX_CAMERA.position} rotation={[STYX_CAMERA.pitch, 0, 0]} fov={DESCENT_FOV} near={0.1} far={200} />
+        <PerspectiveCamera makeDefault position={RIVER_CAMERA.position} rotation={[RIVER_CAMERA.pitch, 0, 0]} fov={DESCENT_FOV} near={0.1} far={200} />
         <SceneBoundary fallback={null}>
           <Suspense fallback={null}>
             <Styx />
