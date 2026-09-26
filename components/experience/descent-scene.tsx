@@ -5,7 +5,9 @@ import * as THREE from "three";
 import { RIVER_Y, cameraAt, cloudOpacity, coldness, obolPose, olympusOpacity, shaftOpacity, streak, sanzuOpacity } from "@/lib/descent";
 import { scene } from "@/lib/scene";
 import { createEngravingMaterial } from "./engraving-material";
-import { COLD, Styx, buildWisps } from "./styx";
+import { buildWisps } from "./wisps";
+import { Sanzu } from "./sanzu";
+import { INK } from "./sanzu/common";
 
 const WARM = { ember: "#d0643b", bone: "#efe6d4" };
 
@@ -113,21 +115,21 @@ const COLONNADE = Array.from({ length: 12 }, (_, i) => (i / 12) * Math.PI * 2)
   .map((a) => [Math.sin(a) * 5, Math.cos(a) * 5] as const)
   .filter(([, z]) => z < 3);
 
-/** The fall from Olympus to the Styx (spec §3). Reads scene.crossingT; owns the view's camera. */
+/** The fall from Olympus to the Sanzu (spec §3). Reads scene.crossingT; owns the view's camera. */
 export default function DescentScene() {
   const low = scene.tier === "low";
   const clouds = useMemo(() => buildClouds(low ? 4000 : 9000), [low]);
   const rays = useMemo(() => buildRays(), []);
   const marble = useMemo(() => createEngravingMaterial({ spacing: 4 }), []);
   const coin = useMemo(() => createEngravingMaterial({ ink: WARM.ember }), []);
-  const stone = useMemo(() => createEngravingMaterial({ ink: COLD.asphodel, ground: COLD.abyss }), []);
+  const stone = useMemo(() => createEngravingMaterial({ ink: INK.mist, ground: INK.abyss }), []);
   // Every tier gets the full shaft: it is two instanced draw calls, and five levels end above the camera's abyss beat.
   const shaft = useMemo(() => buildShaft(9, stone), [stone]);
-  const wisps = useMemo(() => buildWisps(low ? 250 : 600, 6, 36), [low]);
+  const wisps = useMemo(() => buildWisps(low ? 250 : 600, 6, 36, { color: INK.system }), [low]);
   const warm = useMemo(() => new THREE.Color(WARM.ember), []);
-  const cold = useMemo(() => new THREE.Color(COLD.soulfire), []);
+  const cold = useMemo(() => new THREE.Color(INK.system), []);
   const obol = useRef<THREE.Mesh>(null);
-  const styxFade = useCallback(() => sanzuOpacity(scene.crossingT), []);
+  const sanzuFade = useCallback(() => sanzuOpacity(scene.crossingT), []);
 
   // eslint-disable-next-line react-hooks/immutability -- per-frame three.js mutation, not React state
   useFrame(({ camera, clock }) => {
@@ -187,7 +189,7 @@ export default function DescentScene() {
         <primitive object={wisps.points} />
       </group>
       <group position={[0, RIVER_Y, 0]}>
-        <Styx fade={styxFade} />
+        <Sanzu fade={sanzuFade} />
       </group>
     </>
   );
