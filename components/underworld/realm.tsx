@@ -7,6 +7,7 @@ import { SoundToggle } from "@/components/quest/sound";
 import { StyxBackdrop } from "@/components/experience/styx";
 import Gate from "./gate";
 import Arrival from "./arrival";
+import Arena from "./arena";
 
 export default function Realm() {
   const hydrated = useHydrated();
@@ -34,6 +35,7 @@ export default function Realm() {
               </div>
             </header>
             <Arrival />
+            <Arena />
             <footer className="mx-auto flex w-full max-w-[1280px] flex-wrap justify-between gap-x-6 gap-y-2 px-4 pb-8 pt-16 font-mono text-xs uppercase tracking-[0.14em] text-asphodel/70 md:px-8">
               {UNDERWORLD.credit.map((c) => <span key={c}>{c}</span>)}
             </footer>

@@ -176,3 +176,19 @@ html[data-crossing] body > :not(#crossing, .stage) { display: none; }
 .crossing-skip { position: absolute; right: 1rem; bottom: 1rem; pointer-events: auto; color: color-mix(in srgb, var(--color-asphodel) 80%, transparent); }
 .crossing-skip:hover { color: var(--color-asphodel); }
 #crossing[data-leaving] .crossing-backdrop, #crossing[data-leaving] .crossing-hud { opacity: 0 !important; transition: opacity 600ms ease-out; }
+
+/* Underworld buttons (arena, card). */
+.arena-btn {
+  display: inline-block;
+  border: 1px solid color-mix(in srgb, var(--color-asphodel) 50%, transparent);
+  padding: 0.75rem 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: background-color 150ms ease-out, color 150ms ease-out, border-color 150ms ease-out, transform 100ms ease-out;
+}
+.arena-btn:hover { background: var(--color-asphodel); color: var(--color-abyss); }
+.arena-btn:active { transform: scale(0.97); }
+.arena-btn-primary { background: var(--color-soulfire); border-color: var(--color-soulfire); color: var(--color-abyss); }
+.arena-btn-primary:hover { background: var(--color-asphodel); border-color: var(--color-asphodel); }
