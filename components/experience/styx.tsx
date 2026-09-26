@@ -5,8 +5,11 @@ import { Billboard, PerspectiveCamera, View, useTexture } from "@react-three/dre
 import * as THREE from "three";
 import { DESCENT_FOV, RIVER_CAMERA } from "@/lib/descent";
 import { scene } from "@/lib/scene";
+import Bloom from "./bloom";
 import { createEngravingMaterial } from "./engraving-material";
 import SceneBoundary from "./scene-boundary";
+
+const flat = () => false; // the Styx is dithered: keep its colours exact
 
 // Mirror the --color-abyss/styx/asphodel/soulfire tokens in app/globals.css.
 export const COLD = { abyss: "#05070d", styx: "#0b1222", asphodel: "#cfd8e3", soulfire: "#4aa8ff" };
@@ -280,8 +283,9 @@ export function Styx({ fade = one }: { fade?: () => number }) {
 export function StyxBackdrop() {
   return (
     <div aria-hidden className="fixed inset-0 z-0">
-      <View className="size-full">
+      <View className="size-full" visible={false}>
         <PerspectiveCamera makeDefault position={RIVER_CAMERA.position} rotation={[RIVER_CAMERA.pitch, 0, 0]} fov={DESCENT_FOV} near={0.1} far={200} />
+        <Bloom aces={flat} />
         <SceneBoundary fallback={null}>
           <Suspense fallback={null}>
             <Styx />
