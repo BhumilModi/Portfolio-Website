@@ -31,4 +31,5 @@ npm run build
 ## Credits
 
 3D models: [Poly Haven](https://polyhaven.com), CC0.
-Music: Kevin MacLeod (incompetech.com), CC BY 3.0 — see public/audio/manifest.json.
+Art (Olympus only): The Met Open Access, CC0 — see public/art/manifest.json.
+Music: Kevin MacLeod (incompetech.com), CC BY 3.0 — "Gymnopédie No. 1" (Erik Satie) on Olympus and "Oppressive Gloom" on the Underworld; see public/audio/manifest.json.

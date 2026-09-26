@@ -6,7 +6,8 @@ import { mkdir, rm, writeFile } from "node:fs/promises";
 // start/length: the loop window in seconds — calibration knobs; tune by ear so the loop lands on a phrase.
 const TRACKS = [
   { name: "olympus", file: "Gymnopedie No. 1 (ISRC USUAN1100787).mp3", title: "Gymnopédie No. 1", composer: "Erik Satie", start: 0, length: 150 },
-  { name: "underworld", file: "Danse Macabre (ISRC USUAN1100546).mp3", title: "Danse macabre", composer: "Camille Saint-Saëns", start: 30, length: 150 },
+  // Verified 2026-09-26 on Commons: LicenseShortName "CC BY 3.0", 199.4s, Soundtrack music from Incompetech.
+  { name: "underworld", file: "Oppressive Gloom (ISRC USUAN1100885).mp3", title: "Oppressive Gloom", composer: "Kevin MacLeod", start: 8, length: 150 },
 ];
 const API = "https://commons.wikimedia.org/w/api.php";
 const HEADERS = { "User-Agent": "bhumil-portfolio-asset-fetch/1.0 (https://github.com/BhumilModi)" };

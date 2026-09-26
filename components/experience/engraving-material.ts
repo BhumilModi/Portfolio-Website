@@ -52,7 +52,7 @@ void main() {
 export type EngravingOptions = { spacing?: number; reveal?: number; opacity?: number; ink?: string; ground?: string };
 
 // spacing is the dither cell size in device pixels — calibration knob for dot size.
-// ink/ground default to Olympus bone on void; the Underworld passes asphodel on abyss.
+// ink/ground default to Olympus bone on void; the Underworld passes mist on abyss.
 export function createEngravingMaterial({ spacing = 3, reveal = 100, opacity = 1, ink = "#efe6d4", ground = "#0b0907" }: EngravingOptions = {}) {
   return new THREE.ShaderMaterial({
     uniforms: {

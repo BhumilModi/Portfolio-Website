@@ -213,7 +213,15 @@ export const QUEST = {
   console: "ΒΜ — three obols are hidden on this page. The ferryman takes coin.",
 };
 
-export const CROSSING = { title: "You have crossed", skip: "Skip ↵" };
+export const CROSSING = { skip: "Skip ↵" };
+
+// The System (redesign spec §5). Evokes the genre only: no logos, names or exact in-show titles.
+export const SYSTEM = {
+  tag: "[SYSTEM]",
+  entered: "You have entered the Gate.",
+  levelUp: "LEVEL UP! A new personal best.",
+  arise: "ARISE",
+};
 
 export const UNDERWORLD = {
   metaTitle: "Ryuma — The Underworld",
@@ -224,45 +232,70 @@ export const UNDERWORLD = {
   name: "Ryuma",
   line: "By day, agents in production. By night —",
   gate: {
-    eyebrow: "The Styx",
+    eyebrow: "The Sanzu",
     title: "No fare, no crossing.",
     body: "The ferryman counts {n} of 3 obols. They are hidden above.",
     back: "← Back to Olympus",
   },
-  credit: ["Music: Kevin MacLeod (incompetech.com), CC BY 3.0", "Art: The Met, Open Access (CC0)", "© 2026"],
+  // No art credit: no figurative art remains on the Underworld (the Met credit stays on Olympus's footer).
+  credit: ["Music: Kevin MacLeod (incompetech.com), CC BY 3.0", "© 2026"],
 };
 
 export const ARENA = {
-  label: "The Trial",
+  label: "The Gate",
   title: "Trial of Ryuma",
-  lede: "30 seconds. Banish the shades.",
-  start: "Start",
+  briefing: { heading: "QUEST", lines: ["Clear the Gate.", "Banish the shades.", "Time limit: 30s."] },
+  start: "Enter",
   skip: "Skip the trial",
   again: "Run it back",
-  claim: "Claim your card →",
+  arise: "ARISE",
+  resultHeading: "GATE CLEARED",
+  rank: "Rank",
   you: "You",
   ryuma: "Ryuma",
-  held: "Ryuma still holds the arena.",
-  taken: "You took the arena.",
-  newBest: "New personal best.",
+  held: "Ryuma still holds the Gate.",
+  taken: "You took the Gate.",
   yourBest: "Your best",
   stats: { hits: "Hits", accuracy: "Accuracy", reaction: "Avg reaction" },
-  canvasLabel: "Arena. Click or tap the shades before they fade.",
+  canvasLabel: "The Gate. Click or tap the sigils before they fade.",
   // Bhumil's own best. Placeholder until he plays the trial once (spec §5).
   ryumaBest: 5300,
 };
 
-export const CARD = {
-  label: "The card",
+// The Status Window (redesign spec §6). Replaces the old CARD.
+export const STATUS = {
+  heading: "STATUS",
+  locked: "Clear the Gate to unlock.",
+  toGate: "To the Gate ↑",
   name: "Ryuma",
-  aka: "a.k.a. Bhumil Modi",
-  playsLabel: "Plays",
-  plays: ["PvP", "Battle royale", "FPS"],
-  onLabel: "On",
-  on: ["PC", "Mobile"],
-  quote: "I play the same way I ship: drop hot, rotate early.",
-  stamp: "Challenger",
-  locked: "Face the trial to claim this card.",
-  toTrial: "To the trial ↑",
-  cta: { label: "Squad up →", href: `mailto:${SITE.email}?subject=${encodeURIComponent("Squad up — from the arena")}` },
+  // Placeholders for Bhumil to fill (spec §6), like ARENA.ryumaBest: level, job and the five stats.
+  level: 27,
+  job: "Entry Fragger",
+  title: "One Who Drops Hot",
+  labels: { name: "Name", level: "Level", job: "Job", title: "Title" },
+  stats: [
+    { k: "STR", v: 41 },
+    { k: "AGI", v: 88 },
+    { k: "PER", v: 92 },
+    { k: "VIT", v: 47 },
+    { k: "INT", v: 76 },
+  ],
+  // From the old card's quote ("drop hot, rotate early") and its PvP / Battle royale / FPS list.
+  skills: {
+    heading: "SKILLS",
+    list: [
+      { kind: "Active", name: "Drop Hot" },
+      { kind: "Passive", name: "Rotate Early" },
+      { kind: "PvP", name: "Battle royale · FPS" },
+    ],
+  },
+  equipment: { heading: "EQUIPMENT", list: ["PC", "Mobile"] },
+  recordHeading: "YOUR RECORD",
+  rankLabel: "Rank",
+  unranked: "Unranked",
+  invite: {
+    text: "Ryuma has sent you a party invite.",
+    accept: "[ Accept ]",
+    href: `mailto:${SITE.email}?subject=${encodeURIComponent("Squad up — from the arena")}`,
+  },
 };

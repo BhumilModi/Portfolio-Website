@@ -2,7 +2,7 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { PerspectiveCamera, View } from "@react-three/drei";
-import { CROSSING } from "@/lib/content";
+import { CROSSING, SYSTEM } from "@/lib/content";
 import { DESCENT_FOV, DESCENT_S, backdropOpacity, coldness, isDone, noticeShown, timelineAt, type Direction } from "@/lib/descent";
 import { quest } from "@/lib/quest";
 import { CROSS_EVENT, scene } from "@/lib/scene";
@@ -13,7 +13,7 @@ import { setRealm } from "./sound";
 
 // Mirror --color-field and --color-abyss: the backdrop behind the canvas cools as the camera falls.
 const FIELD = [154, 42, 20];
-const ABYSS = [5, 8, 10];
+const ABYSS = [5, 7, 13];
 const FALLBACK_S = 1;
 let crossings = 0; // this session; a repeat crossing runs at 2×
 
@@ -132,8 +132,8 @@ export default function Crossing() {
       )}
       <div className="crossing-hud">
         {run.direction === "down" && (
-          <p ref={title} aria-live="polite" className="soul-glow cap-trim font-display text-[clamp(3rem,10vw,8rem)] uppercase leading-[0.9]" style={{ opacity: 0 }}>
-            {CROSSING.title}
+          <p ref={title} aria-live="polite" className="system-glow cap-trim font-display text-[clamp(3rem,10vw,8rem)] uppercase leading-[0.9]" style={{ opacity: 0 }}>
+            {SYSTEM.entered}
           </p>
         )}
         <button type="button" className="crossing-skip font-mono text-xs uppercase tracking-[0.2em]" onClick={() => (skip.current = true)}>

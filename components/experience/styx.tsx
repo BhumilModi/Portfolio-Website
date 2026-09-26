@@ -9,7 +9,7 @@ import { createEngravingMaterial } from "./engraving-material";
 import SceneBoundary from "./scene-boundary";
 
 // Mirror the --color-abyss/styx/asphodel/soulfire tokens in app/globals.css.
-export const COLD = { abyss: "#05080a", styx: "#0e2626", asphodel: "#cfd8d3", soulfire: "#5ef2c2" };
+export const COLD = { abyss: "#05070d", styx: "#0b1222", asphodel: "#cfd8e3", soulfire: "#4aa8ff" };
 const ISLE = "/art/isle.png";
 const ISLE_ASPECT = 1.656; // calibration knob: width / height of public/art/isle.png (2000×1208)
 

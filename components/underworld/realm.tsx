@@ -24,11 +24,11 @@ export default function Realm() {
             <header className="mx-auto flex w-full max-w-[1280px] items-center justify-between px-4 py-4 md:px-8">
               <span className="font-display text-3xl uppercase leading-none tracking-wide">{UNDERWORLD.brand}</span>
               <div className="flex items-center gap-5">
-                <SoundToggle className="text-asphodel/80 hover:text-asphodel" />
+                <SoundToggle className="text-mist/80 hover:text-mist" />
                 <button
                   type="button"
                   onClick={() => cross("up")}
-                  className="border border-asphodel/60 px-4 py-2 font-mono text-xs uppercase tracking-[0.16em] transition-colors duration-150 hover:bg-asphodel hover:text-abyss active:scale-[0.97]"
+                  className="border border-mist/60 px-4 py-2 font-mono text-xs uppercase tracking-[0.16em] transition-colors duration-150 hover:bg-mist hover:text-abyss active:scale-[0.97]"
                 >
                   {UNDERWORLD.ascend}
                 </button>
@@ -36,7 +36,7 @@ export default function Realm() {
             </header>
             <Arrival />
             <Arena />
-            <footer className="mx-auto flex w-full max-w-[1280px] flex-wrap justify-between gap-x-6 gap-y-2 px-4 pb-8 pt-16 font-mono text-xs uppercase tracking-[0.14em] text-asphodel/70 md:px-8">
+            <footer className="mx-auto flex w-full max-w-[1280px] flex-wrap justify-between gap-x-6 gap-y-2 px-4 pb-8 pt-16 font-mono text-xs uppercase tracking-[0.14em] text-mist/70 md:px-8">
               {UNDERWORLD.credit.map((c) => <span key={c}>{c}</span>)}
             </footer>
           </>
