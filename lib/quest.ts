@@ -1,13 +1,13 @@
-// Side-quest progress (spec §2): obols found, the crossing, the trial, the sound preference.
+// Side-quest progress (spec §2, redesign §6): obols found, the crossing, the trial, ARISE, the sound preference.
 // Storage is optional — every access is guarded, and a failure leaves a working in-memory store.
 export type ObolId = "approach" | "record" | "footer";
 export const OBOLS: readonly ObolId[] = ["approach", "record", "footer"];
 
 export type Best = { score: number; hits: number; accuracy: number; reactionMs: number };
-export type QuestState = { obols: ObolId[]; crossed: boolean; tried: boolean; best: Best | null; sound: boolean };
+export type QuestState = { obols: ObolId[]; crossed: boolean; tried: boolean; best: Best | null; sound: boolean; arisen: boolean };
 export type KeyValue = Pick<Storage, "getItem" | "setItem">;
 
-export const INITIAL: QuestState = { obols: [], crossed: false, tried: false, best: null, sound: false };
+export const INITIAL: QuestState = { obols: [], crossed: false, tried: false, best: null, sound: false, arisen: false };
 const KEY = "bm.quest.v1";
 
 const isBest = (b: unknown): b is Best =>
@@ -26,6 +26,7 @@ export function parse(raw: string | null): QuestState {
       tried: v.tried === true,
       best: isBest(v.best) ? v.best : null,
       sound: v.sound === true,
+      arisen: v.arisen === true,
     };
   } catch {
     return INITIAL;
@@ -71,6 +72,10 @@ export function createQuest(storage: KeyValue | null) {
     },
     skipTrial() {
       if (!state.tried) set({ ...state, tried: true });
+    },
+    /** ARISE (redesign §6): plays once per visitor; later visits find the shadows already standing. */
+    arise() {
+      if (!state.arisen) set({ ...state, arisen: true });
     },
     setSound(on: boolean) {
       if (state.sound !== on) set({ ...state, sound: on });

@@ -72,3 +72,34 @@ test("subscribers hear each change and can unsubscribe", () => {
   q.pick("record");
   assert.equal(calls, 1);
 });
+
+test("arise is once only, notifies once and survives a reload", () => {
+  const s = memory();
+  const q = createQuest(s);
+  let calls = 0;
+  q.subscribe(() => calls++);
+  assert.equal(q.get().arisen, false);
+  q.arise();
+  q.arise();
+  assert.equal(q.get().arisen, true);
+  assert.equal(calls, 1);
+  assert.equal(createQuest(s).get().arisen, true);
+});
+
+test("arise still works in memory when storage throws", () => {
+  const broken: KeyValue = {
+    getItem() { throw new Error("blocked"); },
+    setItem() { throw new Error("quota"); },
+  };
+  const q = createQuest(broken);
+  q.arise();
+  assert.equal(q.get().arisen, true);
+});
+
+test("parse only accepts a literal true for arisen", () => {
+  assert.equal(INITIAL.arisen, false);
+  assert.equal(parse(JSON.stringify({ arisen: "yes" })).arisen, false);
+  assert.equal(parse(JSON.stringify({ arisen: 1 })).arisen, false);
+  assert.equal(parse(JSON.stringify({ arisen: true })).arisen, true);
+  assert.equal(parse(JSON.stringify({ obols: ["footer"] })).arisen, false); // a v1 save from before ARISE
+});
