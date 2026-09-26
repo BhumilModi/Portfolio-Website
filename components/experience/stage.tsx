@@ -22,6 +22,7 @@ export default function Stage() {
   return (
     <SceneBoundary fallback={<NoWebglFallback />}>
       <Canvas
+        className="stage"
         flat
         gl={{ alpha: true, antialias: true }}
         dpr={[1, scene.tier === "low" ? 1.5 : 2]}

@@ -43,14 +43,15 @@ void main() {
 }
 `;
 
-export type EngravingOptions = { spacing?: number; reveal?: number; opacity?: number };
+export type EngravingOptions = { spacing?: number; reveal?: number; opacity?: number; ink?: string; ground?: string };
 
 // spacing is the dither cell size in device pixels — calibration knob for dot size.
-export function createEngravingMaterial({ spacing = 3, reveal = 100, opacity = 1 }: EngravingOptions = {}) {
+// ink/ground default to Olympus bone on void; the Underworld passes asphodel on abyss.
+export function createEngravingMaterial({ spacing = 3, reveal = 100, opacity = 1, ink = "#efe6d4", ground = "#0b0907" }: EngravingOptions = {}) {
   return new THREE.ShaderMaterial({
     uniforms: {
-      uBone: { value: new THREE.Color("#efe6d4") },
-      uVoid: { value: new THREE.Color("#0b0907") },
+      uBone: { value: new THREE.Color(ink) },
+      uVoid: { value: new THREE.Color(ground) },
       uLight: { value: new THREE.Vector3(0.55, 0.65, 0.8) },
       uSpacing: { value: spacing },
       uReveal: { value: reveal },

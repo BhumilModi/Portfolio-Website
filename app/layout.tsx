@@ -3,6 +3,7 @@ import { JetBrains_Mono, League_Gothic, Newsreader } from "next/font/google";
 import "lenis/dist/lenis.css";
 import "./globals.css";
 import SmoothScroll from "@/components/experience/smooth-scroll";
+import StageLoader from "@/components/experience/stage-loader";
 import { SoundSync } from "@/components/quest/sound";
 import { SITE } from "@/lib/content";
 
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <SmoothScroll />
         <SoundSync />
+        <StageLoader />
         {children}
       </body>
     </html>

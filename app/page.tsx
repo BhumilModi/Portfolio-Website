@@ -1,4 +1,3 @@
-import StageLoader from "@/components/experience/stage-loader";
 import Onboarding from "@/components/experience/onboarding";
 import Nav from "@/components/sections/nav";
 import Hero from "@/components/sections/hero";
@@ -14,7 +13,6 @@ import QuestChip from "@/components/quest/quest-chip";
 export default function Page() {
   return (
     <>
-      <StageLoader />
       <Onboarding />
       {/* Wrapper bounds the sticky footer's containing block so it never slides up over the onboarding. */}
       <div>

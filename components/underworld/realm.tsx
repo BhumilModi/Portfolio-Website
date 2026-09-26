@@ -4,6 +4,7 @@ import { cross } from "@/lib/scene";
 import { UNDERWORLD } from "@/lib/content";
 import { useHydrated, useQuest } from "@/components/quest/use-quest";
 import { SoundToggle } from "@/components/quest/sound";
+import { StyxBackdrop } from "@/components/experience/styx";
 import Gate from "./gate";
 import Arrival from "./arrival";
 
@@ -12,6 +13,7 @@ export default function Realm() {
   const s = useQuest();
   return (
     <div className="realm-underworld min-h-dvh">
+      <StyxBackdrop />
       {/* z-30: the fixed WebGL canvas sits at z-20, and realm content must stay above it. */}
       <main className="relative z-30">
         {!hydrated ? null : !paid(s) ? (
