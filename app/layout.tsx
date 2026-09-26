@@ -4,6 +4,7 @@ import "lenis/dist/lenis.css";
 import "./globals.css";
 import SmoothScroll from "@/components/experience/smooth-scroll";
 import StageLoader from "@/components/experience/stage-loader";
+import Crossing from "@/components/quest/crossing";
 import { SoundSync } from "@/components/quest/sound";
 import { SITE } from "@/lib/content";
 
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <SoundSync />
         <StageLoader />
         {children}
+        <Crossing />
       </body>
     </html>
   );

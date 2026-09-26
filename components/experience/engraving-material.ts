@@ -4,8 +4,14 @@ const vertexShader = /* glsl */ `
 varying vec3 vNormal;
 varying float vWorldY;
 void main() {
-  vNormal = normalize(normalMatrix * normal);
-  vec4 world = modelMatrix * vec4(position, 1.0);
+  vec3 p = position;
+  vec3 n = normal;
+  #ifdef USE_INSTANCING
+    p = (instanceMatrix * vec4(p, 1.0)).xyz;
+    n = mat3(instanceMatrix) * n;
+  #endif
+  vNormal = normalize(normalMatrix * n);
+  vec4 world = modelMatrix * vec4(p, 1.0);
   vWorldY = world.y;
   gl_Position = projectionMatrix * viewMatrix * world;
 }

@@ -164,3 +164,15 @@ html:has(.realm-underworld), html:has(.realm-underworld) body { background: var(
 .soul-glow {
   text-shadow: 0 0 2px color-mix(in srgb, var(--color-soulfire) 60%, transparent), 0 0 28px color-mix(in srgb, var(--color-soulfire) 32%, transparent);
 }
+
+/* The crossing (components/quest/crossing.tsx). #crossing is display:contents so the backdrop can sit under the
+   canvas (z-15 < z-20) while the title sits over it (z-40). Once the backdrop is opaque, the page is taken out of
+   layout, which also stops the page's other 3D views from drawing over the descent. */
+html[data-crossing] body > :not(#crossing, .stage) { display: none; }
+#crossing { display: contents; }
+.crossing-backdrop { position: fixed; inset: 0; z-index: 15; opacity: 0; cursor: pointer; }
+.crossing-view { position: fixed; inset: 0; z-index: 15; pointer-events: none; }
+.crossing-hud { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 1rem; color: var(--color-asphodel); text-align: center; pointer-events: none; }
+.crossing-skip { position: absolute; right: 1rem; bottom: 1rem; pointer-events: auto; color: color-mix(in srgb, var(--color-asphodel) 80%, transparent); }
+.crossing-skip:hover { color: var(--color-asphodel); }
+#crossing[data-leaving] .crossing-backdrop, #crossing[data-leaving] .crossing-hud { opacity: 0 !important; transition: opacity 600ms ease-out; }
