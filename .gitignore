@@ -49,3 +49,4 @@ next-env.d.ts
 # generated at build/asset-fetch time
 /.profile-font.css
 /.models-tmp/
+/.audio-tmp/

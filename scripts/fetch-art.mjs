@@ -17,6 +17,9 @@ const ART = [
   { name: "sant-angelo", id: 360267, ink: "dark", levels: [40, 150], width: 1000, crop: { left: 0.01, top: 0.01, right: 0.01, bottom: 0.12 } },
   { name: "bust", id: 248118, ink: "light", levels: [45, 235], width: 600 },
   { name: "krater", id: 248904, ink: "dark", levels: [30, 115], width: 360, crop: { left: 0.08, top: 0.02, right: 0.08, bottom: 0.14 } },
+  // Böcklin, Island of the Dead (1880). Audited 2026-09-26: one shrouded figure, no nudity.
+  // Lit rock and the figure become ink; sky and water fall away. Tune levels until the sky is empty.
+  { name: "isle", id: 435683, ink: "light", levels: [50, 150], width: 1000, crop: { left: 0.012, top: 0.02, right: 0.012, bottom: 0.02 } },
   // ground/ink mirror --color-field/--color-bone; re-run this script if either token changes.
   { name: "stele", id: 253505, levels: [20, 235], width: 1600, blur: 1.2, crop: { left: 0.2, top: 0.22, right: 0.2, bottom: 0.3 }, tone: { ground: "#9a2a14", ink: "#efe6d4", strength: 0.24 } },
 ];

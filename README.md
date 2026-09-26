@@ -31,3 +31,4 @@ npm run build
 ## Credits
 
 3D models: [Poly Haven](https://polyhaven.com), CC0.
+Music: Kevin MacLeod (incompetech.com), CC BY 3.0 — see public/audio/manifest.json.

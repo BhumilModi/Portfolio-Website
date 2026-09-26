@@ -197,5 +197,72 @@ export const FOOTER = {
     { title: "Site", links: NAV.links },
     { title: "Resume", links: [{ label: "Resume (PDF)", href: SITE.resume, external: true }] },
   ] as { title: string; links: Link[] }[],
-  meta: [SITE.location, "Art: The Met, Open Access (CC0)", "© 2026"] as const,
+  meta: [SITE.location, "The ferryman takes coin.", "Art: The Met, Open Access (CC0)", "Music: Kevin MacLeod (incompetech.com), CC BY 3.0", "© 2026"] as const,
+};
+
+// ── The Underworld side quest (spec: docs/superpowers/specs/2026-09-26-underworld-side-quest-design.md).
+// Not a fact section: the facts-only rule does not apply here.
+
+export const SOUND = { on: "♪ On", off: "♪ Off", label: "Background music" };
+
+export const QUEST = {
+  obol: "Obol",
+  counter: "◇ Obols",
+  pay: "Pay the ferryman →",
+  enter: "◆ Underworld",
+  console: "ΒΜ — three obols are hidden on this page. The ferryman takes coin.",
+};
+
+export const CROSSING = { title: "You have crossed", skip: "Skip ↵" };
+
+export const UNDERWORLD = {
+  metaTitle: "Ryuma — The Underworld",
+  metaDescription: "Off duty. A side quest beneath the portfolio of Bhumil Modi.",
+  brand: "Ryuma",
+  ascend: "Ascend ↑",
+  eyebrow: "The Underworld",
+  name: "Ryuma",
+  line: "By day, agents in production. By night —",
+  gate: {
+    eyebrow: "The Styx",
+    title: "No fare, no crossing.",
+    body: "The ferryman counts {n} of 3 obols. They are hidden above.",
+    back: "← Back to Olympus",
+  },
+  credit: ["Music: Kevin MacLeod (incompetech.com), CC BY 3.0", "Art: The Met, Open Access (CC0)", "© 2026"],
+};
+
+export const ARENA = {
+  label: "The Trial",
+  title: "Trial of Ryuma",
+  lede: "30 seconds. Banish the shades.",
+  start: "Start",
+  skip: "Skip the trial",
+  again: "Run it back",
+  claim: "Claim your card →",
+  you: "You",
+  ryuma: "Ryuma",
+  held: "Ryuma still holds the arena.",
+  taken: "You took the arena.",
+  newBest: "New personal best.",
+  yourBest: "Your best",
+  stats: { hits: "Hits", accuracy: "Accuracy", reaction: "Avg reaction" },
+  canvasLabel: "Arena. Click or tap the shades before they fade.",
+  // Bhumil's own best. Placeholder until he plays the trial once (spec §5).
+  ryumaBest: 5300,
+};
+
+export const CARD = {
+  label: "The card",
+  name: "Ryuma",
+  aka: "a.k.a. Bhumil Modi",
+  playsLabel: "Plays",
+  plays: ["PvP", "Battle royale", "FPS"],
+  onLabel: "On",
+  on: ["PC", "Mobile"],
+  quote: "I play the same way I ship: drop hot, rotate early.",
+  stamp: "Challenger",
+  locked: "Face the trial to claim this card.",
+  toTrial: "To the trial ↑",
+  cta: { label: "Squad up →", href: `mailto:${SITE.email}?subject=${encodeURIComponent("Squad up — from the arena")}` },
 };

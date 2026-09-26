@@ -1,0 +1,18 @@
+[
+  {
+    "name": "olympus",
+    "title": "Gymnopédie No. 1",
+    "composer": "Erik Satie",
+    "performer": "Kevin MacLeod (incompetech.com)",
+    "source": "https://commons.wikimedia.org/wiki/File:Gymnopedie_No._1_(ISRC_USUAN1100787).mp3",
+    "license": "CC BY 3.0 — https://creativecommons.org/licenses/by/3.0/"
+  },
+  {
+    "name": "underworld",
+    "title": "Danse macabre",
+    "composer": "Camille Saint-Saëns",
+    "performer": "Kevin MacLeod (incompetech.com)",
+    "source": "https://commons.wikimedia.org/wiki/File:Danse_Macabre_(ISRC_USUAN1100546).mp3",
+    "license": "CC BY 3.0 — https://creativecommons.org/licenses/by/3.0/"
+  }
+]

@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 
-export type ArtName = "colosseum" | "carceri" | "sant-angelo" | "bust" | "krater";
+export type ArtName = "colosseum" | "carceri" | "sant-angelo" | "bust" | "krater" | "isle";
 
 // Decorative dithered engraving (public/art, CC0 — The Met). The PNG is an alpha mask inked in
 // currentColor: colour it with text-*, fade with opacity-*, size/place with [mask-size:…]/[mask-position:…].
