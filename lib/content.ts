@@ -258,8 +258,9 @@ export const ARENA = {
   yourBest: "Your best",
   stats: { hits: "Hits", accuracy: "Accuracy", reaction: "Avg reaction" },
   canvasLabel: "The Gate. Click or tap the sigils before they fade.",
-  // Bhumil's own best. Placeholder until he plays the trial once (spec §5).
-  ryumaBest: 5300,
+  // Stand-in for Bhumil's own best until he plays a round. A simulated steady player (~520ms reactions, a stray
+  // click 1 time in 12) scores a median of ~13.5k; 5300 was below a casual run, so almost everyone ranked S.
+  ryumaBest: 13860,
 };
 
 // The Status Window (redesign spec §6). Replaces the old CARD.
@@ -268,24 +269,25 @@ export const STATUS = {
   locked: "Clear the Gate to unlock.",
   toGate: "To the Gate ↑",
   name: "Ryuma",
-  // Placeholders for Bhumil to fill (spec §6), like ARENA.ryumaBest: level, job and the five stats.
+  // Bhumil's own read on how he plays: leads the team, anchors it, fills whatever role is open.
+  // The numbers are flavor, shaped to that (steady and aware over fast), not measured.
   level: 27,
-  job: "Entry Fragger",
-  title: "One Who Drops Hot",
+  job: "Anchor",
+  title: "One Who Holds the Line",
   labels: { name: "Name", level: "Level", job: "Job", title: "Title" },
   stats: [
-    { k: "STR", v: 41 },
-    { k: "AGI", v: 88 },
-    { k: "PER", v: 92 },
-    { k: "VIT", v: 47 },
-    { k: "INT", v: 76 },
+    { k: "STR", v: 58 },
+    { k: "AGI", v: 64 },
+    { k: "PER", v: 90 },
+    { k: "VIT", v: 88 },
+    { k: "INT", v: 91 },
   ],
-  // From the old card's quote ("drop hot, rotate early") and its PvP / Battle royale / FPS list.
   skills: {
     heading: "SKILLS",
     list: [
-      { kind: "Active", name: "Drop Hot" },
-      { kind: "Passive", name: "Rotate Early" },
+      { kind: "Active", name: "Shotcall" },
+      { kind: "Passive", name: "Hold the Line" },
+      { kind: "Passive", name: "Fill Any Role" },
       { kind: "PvP", name: "Battle royale · FPS" },
     ],
   },

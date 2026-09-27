@@ -59,7 +59,7 @@ export default function StatusWindow() {
             <Block heading={STATUS.skills.heading}>
               <ul className="flex flex-wrap gap-x-8 gap-y-2 font-serif text-lg">
                 {STATUS.skills.list.map((s) => (
-                  <li key={s.kind}>
+                  <li key={s.name}>
                     <span className="font-mono text-xs uppercase tracking-[0.16em] text-mist/60">{s.kind}</span> · {s.name}
                   </li>
                 ))}
