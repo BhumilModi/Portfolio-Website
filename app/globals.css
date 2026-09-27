@@ -206,22 +206,6 @@ html[data-crossing] body > :not(#crossing, .stage) { display: none; }
 /* Same container and bottom offset as the Arrival's notice (components/underworld/arrival.tsx), so the handoff lines up. */
 .crossing-notice { position: fixed; inset-inline: 0; bottom: 6rem; text-align: left; pointer-events: none; }
 
-/* Underworld buttons (arena, card). */
-.arena-btn {
-  display: inline-block;
-  border: 1px solid color-mix(in srgb, var(--color-mist) 50%, transparent);
-  padding: 0.75rem 1.25rem;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  transition: background-color 150ms ease-out, color 150ms ease-out, border-color 150ms ease-out, transform 100ms ease-out;
-}
-.arena-btn:hover { background: var(--color-mist); color: var(--color-abyss); }
-.arena-btn:active { transform: scale(0.97); }
-.arena-btn-primary { background: var(--color-system); border-color: var(--color-system); color: var(--color-abyss); }
-.arena-btn-primary:hover { background: var(--color-mist); border-color: var(--color-mist); }
-
 /* System windows (components/underworld/system-window.tsx): translucent navy, 1px System-blue edge + glow, corner brackets. */
 .sys-window {
   position: relative;
@@ -352,3 +336,20 @@ html[data-crossing] body > :not(#crossing, .stage) { display: none; }
   100% { opacity: 0; transform: scale(1.04); }
 }
 @media (prefers-reduced-motion: reduce) { .arise-word { animation-name: arise-veil; } }
+
+/* The Trial (components/underworld/arena.tsx): a dark field for the sigils, and the rank letter. */
+.arena-field {
+  border: 1px solid color-mix(in srgb, var(--color-system) 30%, transparent);
+  background: radial-gradient(ellipse at center, rgb(10 22 48 / 0.55), rgb(5 7 13 / 0.82));
+  box-shadow: inset 0 0 60px color-mix(in srgb, var(--color-system) 8%, transparent);
+}
+.rank-letter {
+  font-size: clamp(5rem, 16vw, 8rem);
+  line-height: 0.8;
+  color: var(--color-system);
+  text-shadow: 0 0 2px var(--color-system), 0 0 30px color-mix(in srgb, var(--color-system) 55%, transparent);
+}
+.rank-letter[data-rank="S"] {
+  color: var(--color-mist);
+  text-shadow: 0 0 2px var(--color-monarch), 0 0 36px color-mix(in srgb, var(--color-monarch) 80%, transparent);
+}

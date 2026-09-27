@@ -2,65 +2,111 @@
 import { useEffect, useRef, useState } from "react";
 import { ARENA, SYSTEM } from "@/lib/content";
 import { EMPTY_TALLY, ROUND_MS, hitScore, isHit, lifespanMs, spawn, summarize, targetRadius, verdict, type Point, type Tally } from "@/lib/arena";
+import { rankFor } from "@/lib/rank";
 import { quest, type Best } from "@/lib/quest";
 import { useQuest } from "@/components/quest/use-quest";
 import { playHit } from "@/components/quest/sound";
+import SystemWindow from "./system-window";
 import { summon } from "./arise";
 
 type Screen = "lobby" | "countdown" | "live" | "done";
 type Target = Point & { born: number; life: number };
 type Burst = Point & { born: number };
-const SOULFIRE = "#4aa8ff";
-const ASPHODEL = "#cfd8e3";
-const ABYSS = "#05070d";
+// Mirror --color-system, --color-monarch and --color-mist.
+const SYSTEM_BLUE = "#4aa8ff";
+const MONARCH = "#8b5cf6";
+const MIST = "#cfd8e3";
+const TAU = Math.PI * 2;
+const BURST_MS = 220;
 
-/** A shade: a pale mask with hollow eyes in a system haze, fading and ringed by its remaining life. */
+/** A sigil: a violet haze, a System-blue ring with turning ticks, a counter-turning violet hexagram, a mist core; the outer arc drains with its life. */
 function draw(ctx: CanvasRenderingContext2D, w: number, h: number, target: Target, clock: number, bursts: Burst[], r: number) {
   ctx.clearRect(0, 0, w, h);
   const life = Math.max(0, 1 - (clock - target.born) / target.life);
   const { x, y } = target;
+  const spin = clock * 0.0015;
   ctx.save();
-  ctx.globalAlpha = 0.25 + 0.75 * life;
-  const haze = ctx.createRadialGradient(x, y, r * 0.2, x, y, r * 1.6);
-  haze.addColorStop(0, "rgba(74, 168, 255, 0.5)");
+  ctx.globalAlpha = 0.3 + 0.7 * life;
+  const haze = ctx.createRadialGradient(x, y, r * 0.1, x, y, r * 1.7);
+  haze.addColorStop(0, "rgba(139, 92, 246, 0.55)");
+  haze.addColorStop(0.5, "rgba(74, 168, 255, 0.18)");
   haze.addColorStop(1, "rgba(74, 168, 255, 0)");
   ctx.fillStyle = haze;
   ctx.beginPath();
-  ctx.arc(x, y, r * 1.6, 0, Math.PI * 2);
+  ctx.arc(x, y, r * 1.7, 0, TAU);
   ctx.fill();
-  ctx.fillStyle = ASPHODEL;
-  ctx.beginPath();
-  ctx.ellipse(x, y, r * 0.78, r, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = ABYSS;
-  for (const s of [-1, 1]) {
-    ctx.beginPath();
-    ctx.ellipse(x + s * r * 0.32, y - r * 0.18, r * 0.17, r * 0.24, s * 0.25, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.beginPath();
-  ctx.ellipse(x, y + r * 0.42, r * 0.14, r * 0.08, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = SOULFIRE;
+  ctx.shadowColor = SYSTEM_BLUE;
+  ctx.shadowBlur = 12;
+  ctx.strokeStyle = SYSTEM_BLUE;
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.arc(x, y, r * 1.15, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * life);
+  ctx.arc(x, y, r, 0, TAU);
+  ctx.stroke();
+  for (let i = 0; i < 8; i++) {
+    const a = spin + (i * TAU) / 8;
+    ctx.beginPath();
+    ctx.moveTo(x + Math.cos(a) * r * 0.78, y + Math.sin(a) * r * 0.78);
+    ctx.lineTo(x + Math.cos(a) * r * 0.92, y + Math.sin(a) * r * 0.92);
+    ctx.stroke();
+  }
+  ctx.strokeStyle = MONARCH;
+  ctx.shadowColor = MONARCH;
+  ctx.lineWidth = 1.5;
+  for (const off of [0, Math.PI]) {
+    ctx.beginPath();
+    for (let k = 0; k < 3; k++) {
+      const a = -spin * 0.6 + off + (k * TAU) / 3 - Math.PI / 2;
+      const px = x + Math.cos(a) * r * 0.62;
+      const py = y + Math.sin(a) * r * 0.62;
+      if (k === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.stroke();
+  }
+  ctx.fillStyle = MIST;
+  ctx.beginPath();
+  ctx.arc(x, y, r * 0.12, 0, TAU);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = MIST;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(x, y, r * 1.18, -Math.PI / 2, -Math.PI / 2 + TAU * life);
   ctx.stroke();
   ctx.restore();
-  // Banished: an expanding system ring over 250ms.
+  // Banished: a white-hot core, a sharp ring and eight shards flying out, all in BURST_MS with a strong ease-out.
   for (let i = bursts.length - 1; i >= 0; i--) {
     const b = bursts[i];
-    const k = (clock - b.born) / 250;
+    const k = (clock - b.born) / BURST_MS;
     if (k >= 1) {
       bursts.splice(i, 1);
       continue;
     }
+    const e = 1 - Math.pow(1 - k, 3);
     ctx.globalAlpha = 1 - k;
-    ctx.strokeStyle = SOULFIRE;
+    ctx.strokeStyle = SYSTEM_BLUE;
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(b.x, b.y, r * (1 + k * 1.5), 0, Math.PI * 2);
+    ctx.arc(b.x, b.y, r * (0.9 + e * 1.1), 0, TAU);
     ctx.stroke();
+    ctx.strokeStyle = MIST;
+    for (let s = 0; s < 8; s++) {
+      const a = (s * TAU) / 8 + 0.2;
+      const r0 = r * (0.4 + e * 1.2);
+      const r1 = r0 + r * 0.45 * (1 - k);
+      ctx.beginPath();
+      ctx.moveTo(b.x + Math.cos(a) * r0, b.y + Math.sin(a) * r0);
+      ctx.lineTo(b.x + Math.cos(a) * r1, b.y + Math.sin(a) * r1);
+      ctx.stroke();
+    }
+    if (k < 0.35) {
+      ctx.globalAlpha = 1 - k / 0.35;
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, r * 0.5 * (1 - k), 0, TAU);
+      ctx.fill();
+    }
   }
   ctx.globalAlpha = 1;
 }
@@ -78,6 +124,10 @@ export default function Arena() {
     setHud({ timeLeft: ROUND_MS / 1000, score: 0, streak: 0 });
     setCount(3);
     setScreen("countdown");
+  };
+  const skip = () => {
+    quest.skipTrial();
+    summon();
   };
 
   useEffect(() => {
@@ -177,13 +227,15 @@ export default function Arena() {
     };
   }, [screen]);
 
+  const rank = result ? rankFor(result.score, ARENA.ryumaBest) : null;
+
   return (
     <section id="trial" aria-labelledby="trial-title" className="mx-auto w-full max-w-[1280px] px-4 py-24 md:px-8">
       <div className="flex flex-col gap-4">
         <p className="font-mono text-xs uppercase tracking-[0.18em] text-system">{ARENA.label}</p>
         <h2 id="trial-title" className="cap-trim font-display text-[clamp(3rem,7vw,6rem)] uppercase leading-[0.9]">{ARENA.title}</h2>
       </div>
-      <div className="relative mt-10 aspect-[3/4] w-full overflow-hidden border border-mist/25 bg-abyss/80 sm:aspect-[16/10]">
+      <div className="arena-field relative mt-10 aspect-[3/4] w-full overflow-hidden sm:aspect-[16/10]">
         <canvas
           ref={canvas}
           aria-label={ARENA.canvasLabel}
@@ -192,27 +244,35 @@ export default function Arena() {
         />
 
         {screen === "live" && (
-          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 flex justify-between p-4 font-mono text-xs uppercase tracking-[0.16em]">
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 flex justify-between p-4 font-mono text-xs uppercase tracking-[0.16em] text-mist">
             <span>{hud.timeLeft}s</span>
-            <span>{hud.score.toLocaleString()}</span>
+            <span className="tabular-nums">{hud.score.toLocaleString()}</span>
             <span>×{hud.streak}</span>
           </div>
         )}
 
         {screen === "lobby" && (
-          <div className="absolute inset-0 grid place-items-center p-6 text-center">
-            <div className="flex flex-col items-center gap-6">
-              <p className="font-serif text-2xl italic">{ARENA.briefing.lines.join(" ")}</p>
-              <div className="flex flex-wrap justify-center gap-3">
-                <button type="button" className="arena-btn arena-btn-primary" onClick={start}>{ARENA.start}</button>
-                <button type="button" className="arena-btn" onClick={() => { quest.skipTrial(); summon(); }}>{ARENA.skip}</button>
+          <div className="absolute inset-0 grid place-items-center p-4 sm:p-6">
+            <SystemWindow heading={ARENA.briefing.heading} level={3} className="w-full max-w-[26rem]">
+              <ul className="flex flex-col gap-1.5 font-serif text-xl">
+                {ARENA.briefing.lines.map((line) => (
+                  <li key={line}>{line}</li>
+                ))}
+              </ul>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button type="button" className="sys-btn sys-btn-primary" onClick={start}>
+                  {ARENA.start}
+                </button>
+                <button type="button" className="sys-btn" onClick={skip}>
+                  {ARENA.skip}
+                </button>
               </div>
               {best && (
-                <p className="font-mono text-xs uppercase tracking-[0.16em] text-mist/70">
-                  {ARENA.yourBest} {best.score.toLocaleString()}
+                <p className="mt-5 font-mono text-xs uppercase tracking-[0.16em] text-mist/70">
+                  {ARENA.yourBest} · {ARENA.rank} {rankFor(best.score, ARENA.ryumaBest)} · <span className="tabular-nums">{best.score.toLocaleString()}</span>
                 </p>
               )}
-            </div>
+            </SystemWindow>
           </div>
         )}
 
@@ -222,32 +282,52 @@ export default function Arena() {
           </div>
         )}
 
-        {screen === "done" && result && (
-          <div className="absolute inset-0 grid place-items-center p-6 text-center">
-            <div aria-live="polite" className="flex flex-col items-center gap-6">
-              <p className="font-display text-[clamp(2.5rem,7vw,5rem)] uppercase leading-none">
-                {ARENA.you} {result.score.toLocaleString()} <span className="text-mist/40">·</span> {ARENA.ryuma} {ARENA.ryumaBest.toLocaleString()}
-              </p>
-              <p className="font-serif text-xl italic">{verdict(result.score, ARENA.ryumaBest) === "taken" ? ARENA.taken : ARENA.held}</p>
-              <dl className="grid grid-cols-3 gap-6 font-mono text-xs uppercase tracking-[0.14em]">
-                <div>
-                  <dt className="text-mist/60">{ARENA.stats.hits}</dt>
-                  <dd className="mt-1 text-base">{result.hits}</dd>
+        {screen === "done" && result && rank && (
+          <div className="absolute inset-0 grid place-items-center overflow-y-auto p-4 sm:p-6">
+            <div aria-live="polite" className="flex w-full max-w-[30rem] flex-col gap-3">
+              {result.newBest && <SystemWindow notice>{SYSTEM.levelUp}</SystemWindow>}
+              <SystemWindow heading={ARENA.resultHeading} level={3}>
+                <div className="flex items-end justify-between gap-6">
+                  <div>
+                    <p className="font-mono text-xs uppercase tracking-[0.18em] text-mist/70">{ARENA.rank}</p>
+                    <p className="rank-letter font-display" data-rank={rank}>
+                      {rank}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-display text-5xl leading-none tabular-nums">
+                      <span className="sr-only">{ARENA.you} </span>
+                      {result.score.toLocaleString()}
+                    </p>
+                    <p className="mt-2 font-mono text-xs uppercase tracking-[0.14em] text-mist/70">
+                      {ARENA.ryuma} <span className="tabular-nums">{ARENA.ryumaBest.toLocaleString()}</span>
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <dt className="text-mist/60">{ARENA.stats.accuracy}</dt>
-                  <dd className="mt-1 text-base">{Math.round(result.accuracy * 100)}%</dd>
+                <p className="mt-4 font-serif text-lg italic">{verdict(result.score, ARENA.ryumaBest) === "taken" ? ARENA.taken : ARENA.held}</p>
+                <dl className="mt-4 grid grid-cols-3 gap-4 border-t border-system/25 pt-4 font-mono text-xs uppercase tracking-[0.14em]">
+                  <div>
+                    <dt className="text-mist/60">{ARENA.stats.hits}</dt>
+                    <dd className="mt-1 text-base tabular-nums">{result.hits}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-mist/60">{ARENA.stats.accuracy}</dt>
+                    <dd className="mt-1 text-base tabular-nums">{Math.round(result.accuracy * 100)}%</dd>
+                  </div>
+                  <div>
+                    <dt className="text-mist/60">{ARENA.stats.reaction}</dt>
+                    <dd className="mt-1 text-base tabular-nums">{result.reactionMs} ms</dd>
+                  </div>
+                </dl>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <button type="button" className="sys-btn" onClick={start}>
+                    {ARENA.again}
+                  </button>
+                  <button type="button" className="sys-btn sys-btn-primary" onClick={summon}>
+                    {ARENA.arise}
+                  </button>
                 </div>
-                <div>
-                  <dt className="text-mist/60">{ARENA.stats.reaction}</dt>
-                  <dd className="mt-1 text-base">{result.reactionMs} ms</dd>
-                </div>
-              </dl>
-              {result.newBest && <p className="font-mono text-xs uppercase tracking-[0.16em] text-system">{SYSTEM.levelUp}</p>}
-              <div className="flex flex-wrap justify-center gap-3">
-                <button type="button" className="arena-btn" onClick={start}>{ARENA.again}</button>
-                <button type="button" className="arena-btn arena-btn-primary" onClick={summon}>{ARENA.arise}</button>
-              </div>
+              </SystemWindow>
             </div>
           </div>
         )}
