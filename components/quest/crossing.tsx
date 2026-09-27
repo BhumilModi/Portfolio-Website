@@ -8,7 +8,7 @@ import {
   backdropOpacity, bloomBeat, coldness, flashOpacity, isDone, noticeShown, scanline, timelineAt, type Direction,
 } from "@/lib/descent";
 import { quest } from "@/lib/quest";
-import { CROSS_EVENT, scene } from "@/lib/scene";
+import { BACKDROP_READY_EVENT, CROSS_EVENT, scene } from "@/lib/scene";
 import { smoothstep } from "@/lib/timeline";
 import Bloom from "@/components/experience/bloom";
 import DescentScene from "@/components/experience/descent-scene";
@@ -23,9 +23,12 @@ const FALLBACK_S = 1;
 /** Reduced motion: the notice opens halfway through the crossfade and is held this long before the page swaps in.
  * Must clear 1s of full opacity after its own 150ms fade-in (rd-constraints.md's "held fully visible for at least 1s"). */
 const NOTICE_HOLD_S = 1.2;
+/** ponytail: the longest the crossing waits for /underworld to compile before revealing it anyway. */
+const BACKDROP_WAIT_MS = 4000;
 let crossings = 0; // this session; a repeat crossing runs at 2×
 
-type Run = { direction: Direction; speed: number; fallback: boolean };
+/** awaitBackdrop: the destination draws WebGL, so hold the overlay until its programs are compiled. */
+type Run = { direction: Direction; speed: number; fallback: boolean; awaitBackdrop: boolean };
 const destination = (d: Direction) => (d === "down" ? { path: "/underworld", href: "/underworld" } : { path: "/", href: "/#hero" });
 // Bloom from the portal approach on; ACES only once the lit Sanzu is on screen, so the engraving keeps its flat colours.
 const bloomNow = () => bloomBeat(scene.crossingT);
@@ -38,25 +41,49 @@ export default function Crossing() {
   const [run, setRun] = useState<Run | null>(null);
   const [pushedTo, setPushedTo] = useState<string | null>(null);
   const [notice, setNotice] = useState(false);
+  const [viewReady, setViewReady] = useState(false);
+  const [backdropReady, setBackdropReady] = useState(false);
+  const running = useRef(false);
   const backdrop = useRef<HTMLDivElement>(null);
   const flash = useRef<HTMLDivElement>(null);
   const scan = useRef<HTMLDivElement>(null);
   const skip = useRef(false);
-  const leaving = run !== null && pushedTo === pathname;
+  const arrived = run !== null && pushedTo === pathname;
+  const leaving = arrived && (!run.awaitBackdrop || backdropReady);
+  // Compiling at the start, or at the end waiting on the destination: say so, rather than look frozen.
+  const loading = run !== null && ((!run.fallback && !viewReady) || (arrived && !leaving));
+  useEffect(() => {
+    running.current = run !== null;
+  }, [run]);
 
   useEffect(() => {
     const onCross = (e: Event) => {
       const direction = (e as CustomEvent<Direction>).detail;
-      const fallback = scene.reducedMotion || document.documentElement.classList.contains("no-webgl");
-      setRun((current) => current ?? { direction, speed: crossings > 0 ? 2 : 1, fallback });
+      const noWebgl = document.documentElement.classList.contains("no-webgl");
+      const fallback = scene.reducedMotion || noWebgl;
+      setRun((current) => current ?? { direction, speed: crossings > 0 ? 2 : 1, fallback, awaitBackdrop: direction === "down" && !noWebgl });
     };
+    // Only a backdrop mounted by this crossing counts; a direct visit to /underworld fires it with no run.
+    const onBackdrop = () => running.current && setBackdropReady(true);
     window.addEventListener(CROSS_EVENT, onCross);
-    return () => window.removeEventListener(CROSS_EVENT, onCross);
+    window.addEventListener(BACKDROP_READY_EVENT, onBackdrop);
+    return () => {
+      window.removeEventListener(CROSS_EVENT, onCross);
+      window.removeEventListener(BACKDROP_READY_EVENT, onBackdrop);
+    };
   }, []);
 
-  // Drive the timeline, paint the DOM layers, switch the music, and navigate at the end.
+  // A backdrop that never reports ready (a GPU error) must not trap the visitor under the overlay.
   useEffect(() => {
-    if (!run) return;
+    if (!arrived || leaving) return;
+    const id = setTimeout(() => setBackdropReady(true), BACKDROP_WAIT_MS);
+    return () => clearTimeout(id);
+  }, [arrived, leaving]);
+
+  // Drive the timeline, paint the DOM layers, switch the music, and navigate at the end.
+  // It starts once the descent's programs are compiled (Bloom's onReady), so t=0 is a real first frame.
+  useEffect(() => {
+    if (!run || (!run.fallback && !viewReady)) return;
     const { direction, speed, fallback } = run;
     const { path, href } = destination(direction);
     crossings += 1;
@@ -130,7 +157,7 @@ export default function Crossing() {
       cancelAnimationFrame(raf);
       window.removeEventListener("keydown", onKey);
     };
-  }, [run, router]);
+  }, [run, viewReady, router]);
 
   // The destination has mounted under the overlay: reveal it, fade the overlay, then unmount.
   useEffect(() => {
@@ -142,6 +169,8 @@ export default function Crossing() {
       setRun(null);
       setPushedTo(null);
       setNotice(false);
+      setViewReady(false);
+      setBackdropReady(false);
     }, 600);
     return () => clearTimeout(id);
   }, [leaving]);
@@ -153,7 +182,7 @@ export default function Crossing() {
       {!run.fallback && !leaving && (
         <View className="crossing-view" visible={false}>
           <PerspectiveCamera makeDefault fov={DESCENT_FOV} near={0.1} far={400} />
-          <Bloom bloom={bloomNow} aces={acesNow} />
+          <Bloom bloom={bloomNow} aces={acesNow} onReady={() => setViewReady(true)} />
           <SceneBoundary fallback={null}>
             <DescentScene />
           </SceneBoundary>
@@ -175,6 +204,13 @@ export default function Crossing() {
             </div>
           </div>
         )}
+        <div aria-hidden className="crossing-loader" data-on={loading ? "" : undefined}>
+          <span className="flex items-baseline gap-3 font-mono text-xs uppercase tracking-[0.2em]">
+            <span className="system-glow text-system">{SYSTEM.tag}</span>
+            {CROSSING.loading}
+          </span>
+          <span className="crossing-loader-bar" />
+        </div>
         <button type="button" className="crossing-skip font-mono text-xs uppercase tracking-[0.2em]" onClick={() => (skip.current = true)}>
           {CROSSING.skip}
         </button>

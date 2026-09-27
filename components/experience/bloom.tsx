@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
 import * as THREE from "three";
@@ -8,6 +8,7 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 import { scene } from "@/lib/scene";
+import { precompile, warm } from "./prepare";
 
 // Task 4 spike (2026-09-26): composer passed, 1440x900 mean frame 16.67 ms vs 16.67 ms without (both vsync-capped, no drops).
 const COMPOSER_OK = true;
@@ -26,6 +27,10 @@ type Props = {
   aces?: () => boolean;
   /** Draw nothing this frame, e.g. while the page sits hidden under the crossing. */
   paused?: () => boolean;
+  /** Every program this view draws is compiled and its buffers uploaded; it draws from the next frame on. */
+  onReady?: () => void;
+  /** Cap on the composer's pixel ratio; the final pass still fills the canvas at its own ratio. */
+  maxDpr?: number;
 };
 const yes = () => true;
 const no = () => false;
@@ -35,8 +40,14 @@ const no = () => false;
  * ponytail: draws the whole canvas, not the View's rect — right for the two Sanzu views, which are fixed inset-0.
  * Make it rect-aware if a Sanzu view ever becomes a partial panel.
  */
-export default function Bloom({ bloom = yes, aces = yes, paused = no }: Props) {
+export default function Bloom({ bloom = yes, aces = yes, paused = no, onReady, maxDpr = Infinity }: Props) {
   const renderer = useThree((s) => s.gl);
+  const get = useThree((s) => s.get);
+  const ready = useRef(false);
+  const readyCallback = useRef(onReady);
+  useEffect(() => {
+    readyCallback.current = onReady;
+  }, [onReady]);
   const post = useMemo(() => {
     if (!bloomOn()) return null;
     const composer = new EffectComposer(renderer); // HalfFloat targets keep emissives above 1.0 for the threshold
@@ -45,9 +56,10 @@ export default function Bloom({ bloom = yes, aces = yes, paused = no }: Props) {
     composer.addPass(render);
     composer.addPass(pass);
     composer.addPass(new OutputPass()); // tone mapping + sRGB, read from the renderer on every render
-    return { composer, render, pass, size: new THREE.Vector2(), dpr: 0 };
+    return { composer, render, pass, size: new THREE.Vector2() };
   }, [renderer]);
   const size = useMemo(() => new THREE.Vector2(), []);
+  const fittedDpr = useRef(0);
   useEffect(
     () => () => {
       post?.pass.dispose();
@@ -56,8 +68,54 @@ export default function Bloom({ bloom = yes, aces = yes, paused = no }: Props) {
     [post],
   );
 
+  /** Match the composer's targets to the canvas. Resizing reallocates them, so the warm-up does it before frame one. */
+  const fit = useCallback(
+    (gl: THREE.WebGLRenderer) => {
+      if (!post) return;
+      gl.getSize(size);
+      const dpr = Math.min(gl.getPixelRatio(), maxDpr); // uncapped by default: the engraved shaft's dither stays pixel-exact
+      if (post.size.equals(size) && fittedDpr.current === dpr) return;
+      post.size.copy(size);
+      fittedDpr.current = dpr;
+      post.composer.setPixelRatio(dpr);
+      post.composer.setSize(size.x, size.y);
+    },
+    [post, size, maxDpr],
+  );
+
+  // Nothing draws until every program is compiled: a first-use compile stalls the frame it lands in.
+  useEffect(() => {
+    let live = true;
+    const { gl, scene: world, camera } = get();
+    precompile(gl, world, camera).then(() => {
+      if (!live) return;
+      const scratch = new THREE.WebGLRenderTarget(64, 64, { type: THREE.HalfFloatType });
+      warm(gl, world, () => {
+        if (post) {
+          fit(gl);
+          post.render.scene = world;
+          post.render.camera = camera;
+          post.composer.renderToScreen = false;
+          post.composer.render(0);
+          post.composer.renderToScreen = true;
+        }
+        const rt = gl.getRenderTarget();
+        gl.setRenderTarget(scratch);
+        gl.render(world, camera);
+        gl.setRenderTarget(rt);
+      });
+      scratch.dispose();
+      ready.current = true;
+      readyCallback.current?.();
+    });
+    return () => {
+      live = false;
+    };
+  }, [get, post, fit]);
+
+  // eslint-disable-next-line react-hooks/immutability -- per-frame three.js mutation, not React state
   useFrame((state, delta) => {
-    if (paused()) return;
+    if (!ready.current || paused()) return;
     const { gl, scene: world, camera } = state;
     gl.getSize(size);
     const cam = camera as THREE.PerspectiveCamera;
@@ -71,14 +129,7 @@ export default function Bloom({ bloom = yes, aces = yes, paused = no }: Props) {
     gl.toneMappingExposure = EXPOSURE;
     gl.setViewport(0, 0, size.x, size.y); // another View may have left its scissored viewport behind
     if (post && bloom()) {
-      const dpr = gl.getPixelRatio(); // the full ratio: the engraved shaft's dither must stay pixel-exact
-      if (!post.size.equals(size) || post.dpr !== dpr) {
-        post.size.copy(size);
-        // eslint-disable-next-line react-hooks/immutability -- per-frame three.js mutation, not React state
-        post.dpr = dpr;
-        post.composer.setPixelRatio(dpr);
-        post.composer.setSize(size.x, size.y);
-      }
+      fit(gl);
       // eslint-disable-next-line react-hooks/immutability -- per-frame three.js mutation, not React state
       post.render.scene = world;
       post.render.camera = camera;

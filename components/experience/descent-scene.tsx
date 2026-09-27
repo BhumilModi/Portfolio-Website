@@ -1,6 +1,6 @@
 "use client";
-import { useCallback, useEffect, useMemo, useRef } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useCallback, useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import {
   PORTAL_R, PORTAL_Y, RIVER_Y,
@@ -141,24 +141,6 @@ export default function DescentScene() {
   const obol = useRef<THREE.Mesh>(null);
   const disc = useRef<THREE.Mesh>(null);
   const sanzuFade = useCallback(() => sanzuOpacity(scene.crossingT), []);
-  const { gl, scene: world, camera: viewCamera } = useThree();
-
-  // Compile the Sanzu's shaders at mount, not at the cut: a first-use compile at GATE_CUT would stall the flash.
-  // renderer.compile() skips invisible objects, and this effect runs before the Sanzu's first frame hides itself.
-  // Both variants: render-target programs (the composer path) and on-screen ACES programs (the direct path).
-  useEffect(() => {
-    const target = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType });
-    const previous = gl.getRenderTarget();
-    const tone = gl.toneMapping;
-    gl.setRenderTarget(target);
-    gl.compile(world, viewCamera);
-    gl.setRenderTarget(previous);
-    // eslint-disable-next-line react-hooks/immutability -- a one-off renderer setting for the pre-compile, restored below
-    gl.toneMapping = THREE.ACESFilmicToneMapping;
-    gl.compile(world, viewCamera);
-    gl.toneMapping = tone;
-    target.dispose();
-  }, [gl, world, viewCamera]);
 
   // eslint-disable-next-line react-hooks/immutability -- per-frame three.js mutation, not React state
   useFrame(({ camera, clock }) => {

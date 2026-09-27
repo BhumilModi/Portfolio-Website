@@ -12,9 +12,6 @@ export const scene = {
   ariseAt: 0,
 };
 
-/** The Canvas pixel-ratio range: full retina on the normal tier, where the engraving's dither must stay pixel-exact. */
-export const stageDpr = (): [number, number] => [1, scene.tier === "low" ? 1.5 : 2];
-
 /** Browser-only. Detects tier and motion preference, flags missing WebGL on <html>. */
 export function initScene(): boolean {
   const matches = (q: string) => window.matchMedia(q).matches;
@@ -28,6 +25,8 @@ export function initScene(): boolean {
 }
 
 export const CROSS_EVENT = "bm:cross";
+/** Fired by the /underworld backdrop once its programs are compiled; the crossing holds its last frame until then. */
+export const BACKDROP_READY_EVENT = "bm:backdrop-ready";
 /** Starts the crossing between realms. components/quest/crossing.tsx listens; nothing happens until it is mounted. */
 export function cross(direction: "down" | "up") {
   window.dispatchEvent(new CustomEvent(CROSS_EVENT, { detail: direction }));

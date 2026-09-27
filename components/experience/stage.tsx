@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { View } from "@react-three/drei";
-import { initScene, stageDpr } from "@/lib/scene";
+import { initScene, scene } from "@/lib/scene";
 import SceneBoundary from "./scene-boundary";
 
 // Runs once, client-only (this module is loaded with ssr:false).
@@ -25,8 +25,13 @@ export default function Stage() {
         className="stage"
         flat
         gl={{ alpha: true, antialias: true }}
-        dpr={stageDpr()}
+        dpr={[1, scene.tier === "low" ? 1.5 : 2]}
         style={{ position: "fixed", inset: 0, zIndex: 20, pointerEvents: "none" }}
+        onCreated={({ gl }) => {
+          // Reading back each program's info log costs ~25ms on Chrome/ANGLE, once per program on first use: 52
+          // programs a crossing froze the descent. Dev keeps the check so shader errors still surface.
+          gl.debug.checkShaderErrors = process.env.NODE_ENV !== "production";
+        }}
       >
         <View.Port />
       </Canvas>

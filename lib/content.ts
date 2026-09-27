@@ -213,7 +213,7 @@ export const QUEST = {
   console: "ΒΜ — three obols are hidden on this page. The ferryman takes coin.",
 };
 
-export const CROSSING = { skip: "Skip ↵" };
+export const CROSSING = { skip: "Skip ↵", loading: "Opening the Gate" };
 
 // The System (redesign spec §5). Evokes the genre only: no logos, names or exact in-show titles.
 export const SYSTEM = {
