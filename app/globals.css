@@ -201,6 +201,8 @@ html[data-crossing] body > :not(#crossing, .stage) { display: none; }
 .crossing-hud { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 1rem; color: var(--color-mist); text-align: center; pointer-events: none; }
 .crossing-skip { position: absolute; right: 1rem; bottom: 1rem; pointer-events: auto; color: color-mix(in srgb, var(--color-mist) 80%, transparent); }
 .crossing-skip:hover { color: var(--color-mist); }
+/* The crossing's Skip sits where the intro's Enter does; a crossing started from the top would stack them. */
+body:has(#crossing) .intro-skip { visibility: hidden; }
 #crossing[data-leaving] .crossing-backdrop, #crossing[data-leaving] .crossing-hud { opacity: 0 !important; transition: opacity 600ms ease-out; }
 /* Shown only when a compile wait outlasts 150ms: the System says what it is doing, and the bar keeps moving on the
    compositor even while the main thread is busy. Centered like a System window; the abyss panel reads over Olympus. */

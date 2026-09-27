@@ -167,7 +167,7 @@ export default function Onboarding() {
         </div>
         <a
           href="#hero"
-          className="absolute z-30 bottom-4 right-4 font-mono text-xs uppercase tracking-[0.2em] text-bone/85 hover:text-bone md:bottom-8 md:right-8"
+          className="intro-skip absolute z-30 bottom-4 right-4 font-mono text-xs uppercase tracking-[0.2em] text-bone/85 hover:text-bone md:bottom-8 md:right-8"
           style={TEXT_SHADOW}
         >
           {ONBOARDING.skip}
