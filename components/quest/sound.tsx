@@ -15,7 +15,8 @@ const FADE_IN_S = 1;
 type Track = { el: HTMLAudioElement; gain: GainNode };
 let engine: { ctx: AudioContext; tracks: Record<Realm, Track> } | null = null;
 let realm: Realm = "olympus";
-let state = { on: false, available: true };
+// `on` is the preference (on unless muted), so the toggle reads On before the first gesture starts playback.
+let state = { on: typeof window !== "undefined" && !quest.get().muted, available: true };
 const listeners = new Set<() => void>();
 const emit = (next: Partial<typeof state>) => {
   state = { ...state, ...next };
@@ -128,7 +129,7 @@ const subscribe = (l: () => void) => {
 const SERVER = { on: false, available: true };
 export const useSound = () => useSyncExternalStore(subscribe, () => state, () => SERVER);
 
-/** Matches the track to the route, pauses with the tab, and honours a saved "on" at the visitor's first gesture. */
+/** Matches the track to the route, pauses with the tab, and starts the music at the visitor's first gesture unless muted. */
 export function SoundSync() {
   const pathname = usePathname();
   useEffect(() => {
@@ -140,19 +141,21 @@ export function SoundSync() {
       if (document.hidden) void engine.ctx.suspend();
       else if (state.on) void engine.ctx.resume();
     };
-    // Browsers block autoplay, so a saved "on" resumes at the first gesture — unless that gesture is the toggle itself.
+    // Browsers block audible autoplay, so the music starts at the first gesture — unless that gesture is the toggle
+    // itself. pointerup, not pointerdown: a touch only grants activation when it lifts. Wheel and Escape never do.
     const resume = (e: Event) => {
-      window.removeEventListener("pointerdown", resume);
+      if (e instanceof KeyboardEvent && e.key === "Escape") return;
+      window.removeEventListener("pointerup", resume);
       window.removeEventListener("keydown", resume);
       if ((e.target as Element | null)?.closest?.("[data-sound-toggle]")) return;
-      if (quest.get().sound && !state.on) setSound(true);
+      if (state.on && !engine) setSound(true);
     };
     document.addEventListener("visibilitychange", onVisibility);
-    window.addEventListener("pointerdown", resume);
+    window.addEventListener("pointerup", resume);
     window.addEventListener("keydown", resume);
     return () => {
       document.removeEventListener("visibilitychange", onVisibility);
-      window.removeEventListener("pointerdown", resume);
+      window.removeEventListener("pointerup", resume);
       window.removeEventListener("keydown", resume);
     };
   }, []);

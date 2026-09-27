@@ -24,8 +24,13 @@ test("progress survives a reload through storage", () => {
   const a = createQuest(s);
   a.pick("approach");
   a.cross();
-  a.setSound(true);
-  assert.deepEqual(createQuest(s).get(), { ...INITIAL, obols: ["approach"], crossed: true, sound: true });
+  a.setSound(false);
+  assert.deepEqual(createQuest(s).get(), { ...INITIAL, obols: ["approach"], crossed: true, muted: true });
+});
+
+test("music starts unmuted, including for a visitor saved under the old opt-in field", () => {
+  assert.equal(createQuest(memory()).get().muted, false);
+  assert.equal(parse(JSON.stringify({ sound: false })).muted, false);
 });
 
 test("record keeps the higher score and marks the trial tried", () => {
