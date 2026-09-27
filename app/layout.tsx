@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { JetBrains_Mono, League_Gothic, Newsreader } from "next/font/google";
 import "lenis/dist/lenis.css";
 import "./globals.css";
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <StageLoader />
         {children}
         <Crossing />
+        <Analytics />
       </body>
     </html>
   );
