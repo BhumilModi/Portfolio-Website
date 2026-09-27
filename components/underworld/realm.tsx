@@ -9,6 +9,7 @@ import AriseFlash from "./arise";
 import Gate from "./gate";
 import Arrival from "./arrival";
 import Arena from "./arena";
+import StatusWindow from "./status-window";
 
 export default function Realm() {
   const hydrated = useHydrated();
@@ -37,6 +38,7 @@ export default function Realm() {
             </header>
             <Arrival />
             <Arena />
+            <StatusWindow />
             <footer className="mx-auto flex w-full max-w-[1280px] flex-wrap justify-between gap-x-6 gap-y-2 px-4 pb-8 pt-16 font-mono text-xs uppercase tracking-[0.14em] text-mist/70 md:px-8">
               {UNDERWORLD.credit.map((c) => <span key={c}>{c}</span>)}
             </footer>
