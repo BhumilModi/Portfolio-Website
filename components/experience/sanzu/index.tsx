@@ -17,6 +17,7 @@ import Shadows from "./shadows";
 import { MOON_POS, buildMoon, buildSky } from "./sky";
 import { TORII, buildTorii } from "./torii";
 import { buildWater } from "./water";
+import { buildWraith } from "./wraith";
 
 const one = () => 1;
 const LEAN = 0.1; // calibration knob: pointer lean in radians, 0.03–0.15 (spec §3 caps it at ±0.15)
@@ -43,6 +44,7 @@ function buildHull(): THREE.BufferGeometry {
 /** The ferryman's boat: lit wood, a hooded figure with a pole at the stern, a paper lamp at the bow. */
 function Boat() {
   const hull = useMemo(() => buildHull(), []);
+  const ferryman = useMemo(() => buildWraith({ segments: 32 }), []);
   const wood = useMemo(() => new THREE.MeshStandardMaterial({ color: SANZU.wood, roughness: 0.78, side: THREE.DoubleSide }), []);
   const cloth = useMemo(() => new THREE.MeshStandardMaterial({ color: SANZU.cloth, roughness: 0.95 }), []);
   const lamp = useMemo(() => new THREE.MeshBasicMaterial({ color: new THREE.Color(SANZU.lantern).multiplyScalar(3) }), []);
@@ -51,11 +53,12 @@ function Boat() {
   useEffect(
     () => () => {
       hull.dispose();
+      ferryman.dispose();
       wood.dispose();
       cloth.dispose();
       lamp.dispose();
     },
-    [hull, wood, cloth, lamp],
+    [hull, ferryman, wood, cloth, lamp],
   );
   const yaw = Math.atan2(-(BOAT.to.x - BOAT.from.x), -(BOAT.to.z - BOAT.from.z)); // bow (-z) along the drift
 
@@ -73,15 +76,8 @@ function Boat() {
     <group ref={drift} position={BOAT.from.toArray()} rotation={[0, yaw, 0]}>
       <group ref={rock}>
         <mesh geometry={hull} material={wood} position={[0, 0.28, 0]} />
-        <mesh position={[0, 0.83, 1.05]} material={cloth}>
-          <coneGeometry args={[0.3, 1.2, 24]} />
-        </mesh>
-        <mesh position={[0, 1.48, 1.02]} material={cloth}>
-          <sphereGeometry args={[0.17, 24, 16]} />
-        </mesh>
-        <mesh position={[0, 1.68, 1.08]} rotation={[-0.35, 0, 0]} material={cloth}>
-          <coneGeometry args={[0.2, 0.46, 24]} />
-        </mesh>
+        {/* The ferryman: the shades' cloak, lit like the boat, facing the bow (-z). */}
+        <mesh geometry={ferryman} material={cloth} position={[0, 0.23, 1.05]} rotation={[0, Math.PI, 0]} scale={0.72} />
         <mesh position={[0.3, 1.18, 0.9]} rotation={[0.3, 0, -0.35]} material={wood}>
           <cylinderGeometry args={[0.025, 0.025, 2.8, 8]} />
         </mesh>

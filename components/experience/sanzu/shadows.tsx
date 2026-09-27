@@ -6,8 +6,9 @@ import { quest } from "@/lib/quest";
 import { scene } from "@/lib/scene";
 import { clamp01, easeOutCubic } from "@/lib/timeline";
 import { buildWisps } from "../wisps";
-import { INK, SANZU, sanzuClock, sanzuRand } from "./common";
+import { INK, NOISE, SANZU, sanzuClock, sanzuRand } from "./common";
 import { TORII } from "./torii";
+import { buildWraith, wraithFace } from "./wraith";
 
 const RISE_DELAY_S = 0.35; // the word lands first
 const RISE_S = 1.5;
@@ -24,12 +25,22 @@ const FORMATION = [-3, -2, -1, 0, 1, 2, 3].map((k) => ({
 }));
 
 const vertex = /* glsl */ `
+uniform float uTime;
+uniform float uFray; // 1 for cloth, 0 for the blade: steel neither stirs nor frays
 varying vec3 vNormalW;
 varying vec3 vWorld;
+varying vec3 vLocal;
 #include <common>
 #include <fog_pars_vertex>
 void main() {
-  vec4 w = modelMatrix * vec4(position, 1.0);
+  vec3 p = position;
+  // The hem stirs in the current; the shoulders and hood stay put. Each soldier's x in the world offsets its phase.
+  float loose = (1.0 - smoothstep(0.0, 1.0, p.y)) * uFray;
+  float phase = modelMatrix[3].x * 1.7;
+  p.x += sin(uTime * 1.3 + p.y * 3.0 + phase) * 0.05 * loose;
+  p.z += cos(uTime * 1.1 + p.x * 4.0 + phase) * 0.04 * loose;
+  vLocal = p;
+  vec4 w = modelMatrix * vec4(p, 1.0);
   vWorld = w.xyz;
   vNormalW = normalize(mat3(modelMatrix) * normal);
   vec4 mvPosition = viewMatrix * w;
@@ -38,26 +49,36 @@ void main() {
 }
 `;
 
-// Near-black bodies with a Monarch-violet rim where the surface turns away: shadows, not statues.
+// Near-black cloaks with a Monarch-violet rim where the surface turns away: shadows, not statues. Below the waist the
+// cloth frays into smoke: opacity falls off toward the hem through drifting noise, and the violet glows where it thins.
 const fragment = /* glsl */ `
 uniform vec3 uBody;
 uniform vec3 uRim;
 uniform float uOpacity;
+uniform float uTime;
+uniform float uFray;
 varying vec3 vNormalW;
 varying vec3 vWorld;
+varying vec3 vLocal;
 #include <common>
 #include <fog_pars_fragment>
+${NOISE}
 void main() {
   float facing = clamp(dot(normalize(vNormalW), normalize(cameraPosition - vWorld)), 0.0, 1.0);
+  float angle = atan(vLocal.x, vLocal.z);
+  float n = noise2(vec2(angle * 2.5, vLocal.y * 3.0 - uTime * 0.6));
+  float solid = mix(1.0, smoothstep(-0.1, 0.85, vLocal.y + (n - 0.5) * 0.5), uFray);
+  if (solid * uOpacity < 0.02) discard;
   vec3 col = uBody + uRim * pow(1.0 - facing, 2.5) * 1.8;
-  gl_FragColor = vec4(col, uOpacity);
+  col += uRim * (1.0 - solid) * 0.9;
+  gl_FragColor = vec4(col, uOpacity * solid);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
   #include <fog_fragment>
 }
 `;
 
-/** Seven soldiers from primitives (legs, tapered torso, pauldrons, arms, head under a pointed hood, cloak), System-blue eyes. */
+/** Seven hooded shades (a stooped, fraying cloak from ./wraith), System-blue eyes in the dark of the hood. */
 function buildArmy(low: boolean) {
   const body = new THREE.ShaderMaterial({
     uniforms: {
@@ -65,46 +86,49 @@ function buildArmy(low: boolean) {
       uBody: { value: new THREE.Color(SANZU.shadow) },
       uRim: { value: new THREE.Color(INK.monarch) },
       uOpacity: { value: 1 },
+      uTime: { value: 0 },
+      uFray: { value: 1 },
     },
     vertexShader: vertex,
     fragmentShader: fragment,
     fog: true,
     transparent: true,
   });
+  // Same program, fray off. uOpacity and uTime are shared with the cloth, so the blade fades in with its bearer.
+  const steel = body.clone();
+  steel.uniforms = { ...body.uniforms, uFray: { value: 0 } };
   // HDR System blue: the eyes are the only part of a soldier that blooms.
   const eye = new THREE.MeshBasicMaterial({ color: new THREE.Color(INK.system).multiplyScalar(5), transparent: true });
+  const void_ = new THREE.MeshBasicMaterial({ color: SANZU.shadow, transparent: true });
+  const segments = low ? 24 : 40;
   const geo = {
-    leg: new THREE.CapsuleGeometry(0.11, 0.7, 4, 8),
-    torso: new THREE.CylinderGeometry(0.34, 0.2, 0.8, 10),
-    pauldron: new THREE.SphereGeometry(0.17, 12, 8),
-    arm: new THREE.CapsuleGeometry(0.08, 0.62, 4, 8),
-    head: new THREE.SphereGeometry(0.17, 16, 12),
-    hood: new THREE.ConeGeometry(0.2, 0.36, 10),
-    cloak: new THREE.ConeGeometry(0.5, 1.55, 12, 1, true),
-    eye: new THREE.SphereGeometry(0.03, 8, 6),
-    blade: new THREE.BoxGeometry(0.05, 1.3, 0.02),
+    cloak: buildWraith({ segments }),
+    bearer: buildWraith({ segments, reach: true }), // the centre knight's hands meet on the hilt
+    face: new THREE.SphereGeometry(0.13, 16, 12),
+    eye: new THREE.SphereGeometry(0.028, 8, 6),
+    blade: new THREE.BoxGeometry(0.07, 1.05, 0.015),
+    guard: new THREE.BoxGeometry(0.3, 0.035, 0.05),
+    grip: new THREE.CylinderGeometry(0.022, 0.022, 0.22, 8),
   };
+  const face = wraithFace();
   const group = new THREE.Group();
   const soldiers = FORMATION.map((f, i) => {
     const s = new THREE.Group();
-    const put = (g: THREE.BufferGeometry, m: THREE.Material, x: number, y: number, z: number, rz = 0, sy = 1) => {
+    const put = (g: THREE.BufferGeometry, m: THREE.Material, x: number, y: number, z: number, sx = 1, sy = 1, sz = 1) => {
       const mesh = new THREE.Mesh(g, m);
       mesh.position.set(x, y, z);
-      mesh.rotation.z = rz;
-      mesh.scale.y = sy;
+      mesh.scale.set(sx, sy, sz);
       s.add(mesh);
     };
-    for (const side of [-1, 1]) {
-      put(geo.leg, body, side * 0.14, 0.46, 0);
-      put(geo.pauldron, body, side * 0.38, 1.56, 0, 0, 0.7);
-      put(geo.arm, body, side * 0.43, 1.13, 0.02, side * 0.12);
-      put(geo.eye, eye, side * 0.06, 1.84, 0.16);
+    const bearer = i === 3;
+    put(bearer ? geo.bearer : geo.cloak, body, 0, 0, 0);
+    put(geo.face, void_, 0, face.y, face.z - 0.02, 1.1, 1.25, 0.6); // the dark inside the hood
+    for (const side of [-1, 1]) put(geo.eye, eye, side * 0.055, face.y + 0.01, face.z + 0.045, 1.3, 0.7, 1);
+    if (bearer) {
+      put(geo.grip, steel, 0, 0.98, 0.52);
+      put(geo.guard, steel, 0, 0.86, 0.52);
+      put(geo.blade, steel, 0, 0.32, 0.52);
     }
-    put(geo.torso, body, 0, 1.22, 0);
-    put(geo.head, body, 0, 1.82, 0);
-    put(geo.hood, body, 0, 2.06, -0.02);
-    put(geo.cloak, body, 0, 0.98, -0.12);
-    if (i === 3) put(geo.blade, body, 0.62, 0.95, 0.12, 0.08); // the knight in the centre carries a blade
     s.scale.setScalar(f.scale);
     s.position.set(f.x, -DEPTH, f.z);
     group.add(s);
@@ -120,11 +144,14 @@ function buildArmy(low: boolean) {
     soldiers,
     body,
     eye,
+    void_,
     smoke,
     dispose() {
       Object.values(geo).forEach((g) => g.dispose());
       body.dispose();
+      steel.dispose();
       eye.dispose();
+      void_.dispose();
       smoke.points.geometry.dispose();
       smoke.material.dispose();
     },
@@ -149,7 +176,9 @@ export default function Shadows() {
     const still = scene.reducedMotion;
     const fade = still ? clamp01(since / FADE_S) : 1;
     army.body.uniforms.uOpacity.value = fade;
+    army.body.uniforms.uTime.value = time;
     army.eye.opacity = fade;
+    army.void_.opacity = fade;
     army.smoke.material.uniforms.uOpacity.value = still ? fade : clamp01((since - RISE_DELAY_S) / RISE_S);
     army.smoke.material.uniforms.uTime.value = time;
     army.soldiers.forEach((s, i) => {
