@@ -105,7 +105,7 @@ export function buildWater(low: boolean) {
     return { mesh, uniforms: material.uniforms, dispose: () => (geometry.dispose(), material.dispose()) };
   }
   const dpr = Math.min(window.devicePixelRatio, 2);
-  const scale = 0.5; // calibration knob: reflection resolution vs the screen, 0.35–0.75 (the ripples soften it anyway)
+  const scale = 0.35; // calibration knob: reflection resolution vs the screen, 0.35–0.75 (the ripples soften it anyway)
   const mesh = new Reflector(geometry, {
     textureWidth: Math.round(window.innerWidth * dpr * scale),
     textureHeight: Math.round(window.innerHeight * dpr * scale),

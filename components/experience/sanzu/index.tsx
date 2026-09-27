@@ -128,8 +128,8 @@ export function Sanzu({ fade = one }: { fade?: () => number }) {
   const portal = useMemo(() => createPortalMaterial(), []);
   // calibration knob: counts — the low tier halves each (spec §3: ~40 lanterns, ~600 lilies).
   const lanterns = useMemo(() => buildLanterns(low ? 20 : 40), [low]);
-  const lilies = useMemo(() => buildLilies(low ? 300 : 600), [low]);
-  const mist = useMemo(() => buildMist(low ? 2 : 4), [low]);
+  const lilies = useMemo(() => buildLilies(low ? 300 : 450), [low]);
+  const mist = useMemo(() => buildMist(low ? 2 : 3), [low]);
   const hitodama = useMemo(
     () => buildWisps(low ? 12 : 24, 24, 5, { color: SANZU.hitodama, size: 70, maxSize: 12, speed: 0.25, intensity: 2.2 }),
     [low],
