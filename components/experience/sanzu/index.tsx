@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useMemo, useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { PerspectiveCamera, View } from "@react-three/drei";
 import * as THREE from "three";
 import { DESCENT_FOV, riverCamera } from "@/lib/descent";
-import { scene } from "@/lib/scene";
+import { scene, stageDpr } from "@/lib/scene";
 import Bloom, { GlowSprite, bloomOn } from "../bloom";
 import SceneBoundary from "../scene-boundary";
 import { buildWisps } from "../wisps";
@@ -237,6 +237,19 @@ function Rig() {
 /** While the crossing covers the page, the crossing's own view draws; the backdrop sits out. */
 const crossingActive = () => "crossing" in document.documentElement.dataset;
 
+// calibration knob: pixel-ratio cap while the backdrop is up, 1–2. The Sanzu is fill-bound: on an M4 at 1440x900, DPR 2
+// means ~23ms a frame, 1.5 ~18ms, 1.25 ~15.7ms. Nothing here is dithered, and the glow and mist hide the lower ratio.
+const BACKDROP_DPR = 1.25;
+
+function DprCap() {
+  const setDpr = useThree((s) => s.setDpr);
+  useEffect(() => {
+    setDpr(Math.min(window.devicePixelRatio, BACKDROP_DPR));
+    return () => setDpr(stageDpr());
+  }, [setDpr]);
+  return null;
+}
+
 /** The /underworld backdrop: the Sanzu from exactly where the descent lands. */
 export function SanzuBackdrop() {
   return (
@@ -244,6 +257,7 @@ export function SanzuBackdrop() {
       <View className="size-full" visible={false}>
         <PerspectiveCamera makeDefault fov={DESCENT_FOV} near={0.1} far={400} />
         <Rig />
+        <DprCap />
         <fogExp2 attach="fog" args={[SANZU.fog, FOG_DENSITY]} />
         <Bloom paused={crossingActive} />
         <SceneBoundary fallback={null}>

@@ -12,6 +12,9 @@ export const scene = {
   ariseAt: 0,
 };
 
+/** The Canvas pixel-ratio range: full retina on the normal tier, where the engraving's dither must stay pixel-exact. */
+export const stageDpr = (): [number, number] => [1, scene.tier === "low" ? 1.5 : 2];
+
 /** Browser-only. Detects tier and motion preference, flags missing WebGL on <html>. */
 export function initScene(): boolean {
   const matches = (q: string) => window.matchMedia(q).matches;

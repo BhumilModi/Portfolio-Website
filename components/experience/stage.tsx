@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { View } from "@react-three/drei";
-import { initScene, scene } from "@/lib/scene";
+import { initScene, stageDpr } from "@/lib/scene";
 import SceneBoundary from "./scene-boundary";
 
 // Runs once, client-only (this module is loaded with ssr:false).
@@ -25,7 +25,7 @@ export default function Stage() {
         className="stage"
         flat
         gl={{ alpha: true, antialias: true }}
-        dpr={[1, scene.tier === "low" ? 1.5 : 2]}
+        dpr={stageDpr()}
         style={{ position: "fixed", inset: 0, zIndex: 20, pointerEvents: "none" }}
       >
         <View.Port />
