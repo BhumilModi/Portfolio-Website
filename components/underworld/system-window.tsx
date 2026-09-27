@@ -59,8 +59,9 @@ export default function SystemWindow({ heading, level = 2, notice = false, insta
   }
   const Heading = level === 3 ? "h3" : "h2";
   return (
-    <div ref={wrap} className={className}>
-      <section id={id} aria-labelledby={heading ? headingId : undefined} data-phase={phase} className="sys-window">
+    // id (and so scroll-margin, e.g. scroll-mt-8 in className) lives here: this is what scrollIntoView finds.
+    <div ref={wrap} id={id} className={className}>
+      <section aria-labelledby={heading ? headingId : undefined} data-phase={phase} className="sys-window">
         {heading && (
           <Heading id={headingId} className="sys-head">
             <span aria-hidden>[ </span>
