@@ -38,11 +38,12 @@ function build() {
   return { ctx, tracks: { olympus: make("olympus"), underworld: make("underworld") } };
 }
 
-function ramp(g: GainNode, to: number, seconds: number) {
+function ramp(g: GainNode, to: number, seconds: number, delay = 0) {
   const now = g.context.currentTime;
   g.gain.cancelScheduledValues(now);
   g.gain.setValueAtTime(g.gain.value, now);
-  g.gain.linearRampToValueAtTime(to, now + seconds);
+  if (delay) g.gain.setValueAtTime(g.gain.value, now + delay);
+  g.gain.linearRampToValueAtTime(to, now + delay + seconds);
 }
 
 /** Must run inside a user gesture the first time: it creates the AudioContext. */
@@ -67,20 +68,22 @@ export function setSound(on: boolean) {
   }
 }
 
-/** Crossfades to the other realm's track. Always records the realm, so turning sound on later picks the right one. */
-export function setRealm(next: Realm, seconds = 2.5) {
+/** Hands over to the other realm's track: the old one fades out, then the new one fades in, so the two never play
+ * together. Always records the realm, so turning sound on later picks the right one. */
+export function setRealm(next: Realm, seconds = 3) {
   if (next === realm) return;
   const prev = realm;
   realm = next;
   if (!engine || !state.on) return;
   const a = engine.tracks[prev];
   const b = engine.tracks[next];
+  const out = seconds * 0.4; // calibration knob: share of the handover spent fading out, before the new track enters
   b.el.play().catch(() => {});
-  ramp(b.gain, LEVEL, seconds);
-  ramp(a.gain, 0, seconds);
+  ramp(a.gain, 0, out);
+  ramp(b.gain, LEVEL, seconds - out, out);
   setTimeout(() => {
     if (realm !== prev) a.el.pause();
-  }, seconds * 1000 + 50);
+  }, out * 1000 + 50);
 }
 
 /** A short plucked blip for a trial hit. */
