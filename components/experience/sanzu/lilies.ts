@@ -96,24 +96,24 @@ void main() {
 `;
 
 /** A bank of red spider lilies on dark wet stone, lower-left foreground. One instanced draw; sway in the vertex shader. */
-export function buildLilies(count: number) {
+export function buildLilies(count: number, rand: () => number = Math.random) {
   const offsets = new Float32Array(count * 3);
   const seeds = new Float32Array(count);
   const scales = new Float32Array(count);
   // Clumps, not a carpet: each lily picks one of 28 clump centres and scatters round it.
-  const clumps = Array.from({ length: 28 }, () => [BANK.minX + Math.random() * (BANK.maxX - BANK.minX), BANK.minZ + Math.random() * (BANK.maxZ - BANK.minZ)]);
+  const clumps = Array.from({ length: 28 }, () => [BANK.minX + rand() * (BANK.maxX - BANK.minX), BANK.minZ + rand() * (BANK.maxZ - BANK.minZ)]);
   for (let i = 0; i < count; i++) {
     let x = 0;
     let z = 0;
     for (let k = 0; k < 8; k++) {
-      const [cx, cz] = clumps[Math.floor(Math.random() * clumps.length)];
-      x = Math.min(BANK.maxX, Math.max(BANK.minX, cx + (Math.random() - 0.5) * 1.2));
-      z = Math.min(BANK.maxZ, Math.max(BANK.minZ, cz + (Math.random() - 0.5) * 1.2));
+      const [cx, cz] = clumps[Math.floor(rand() * clumps.length)];
+      x = Math.min(BANK.maxX, Math.max(BANK.minX, cx + (rand() - 0.5) * 1.2));
+      z = Math.min(BANK.maxZ, Math.max(BANK.minZ, cz + (rand() - 0.5) * 1.2));
       if (bankHeight(x, z) > 0.03) break; // retry until it lands on dry bank
     }
     offsets.set([x, Math.max(0, bankHeight(x, z)), z], i * 3);
-    seeds[i] = Math.random();
-    scales[i] = 0.8 + Math.random() * 0.45;
+    seeds[i] = rand();
+    scales[i] = 0.8 + rand() * 0.45;
   }
 
   const lily = lilyGeometry();

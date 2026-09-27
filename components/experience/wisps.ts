@@ -35,19 +35,19 @@ void main() {
 }
 `;
 
-export type WispOptions = { color: string; size?: number; maxSize?: number; speed?: number; intensity?: number };
+export type WispOptions = { color: string; size?: number; maxSize?: number; speed?: number; intensity?: number; rand?: () => number };
 
 /** Motes rising through a width×height×width box (x, z centred on 0; y from 0 up): shaft wisps, hitodama, shadow smoke. */
-export function buildWisps(count: number, width: number, height: number, { color, size = 28, maxSize = 4, speed = 1, intensity = 1 }: WispOptions) {
+export function buildWisps(count: number, width: number, height: number, { color, size = 28, maxSize = 4, speed = 1, intensity = 1, rand = Math.random }: WispOptions) {
   const pos = new Float32Array(count * 3);
-  const rand = new Float32Array(count);
+  const seeds = new Float32Array(count);
   for (let i = 0; i < count; i++) {
-    pos.set([(Math.random() - 0.5) * width, Math.random() * height, (Math.random() - 0.5) * width], i * 3);
-    rand[i] = Math.random();
+    pos.set([(rand() - 0.5) * width, rand() * height, (rand() - 0.5) * width], i * 3);
+    seeds[i] = rand();
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-  g.setAttribute("aRand", new THREE.BufferAttribute(rand, 1));
+  g.setAttribute("aRand", new THREE.BufferAttribute(seeds, 1));
   const material = new THREE.ShaderMaterial({
     uniforms: {
       uTime: { value: 0 },

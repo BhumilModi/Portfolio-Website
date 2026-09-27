@@ -98,12 +98,12 @@ export type Lanterns = {
 };
 
 /** Tōrō nagashi: paper lanterns drifting downstream and bobbing, all in one instanced draw. Motion is in the shader. */
-export function buildLanterns(count: number): Lanterns {
+export function buildLanterns(count: number, rand: () => number = Math.random): Lanterns {
   const offsets = new Float32Array(count * 3);
   const seeds = new Float32Array(count);
   for (let i = 0; i < count; i++) {
-    offsets.set([LANTERN.centerX + (Math.random() - 0.5) * LANTERN.span, LANTERN.y, LANTERN.near + Math.random() * (LANTERN.far - LANTERN.near)], i * 3);
-    seeds[i] = Math.random();
+    offsets.set([LANTERN.centerX + (rand() - 0.5) * LANTERN.span, LANTERN.y, LANTERN.near + rand() * (LANTERN.far - LANTERN.near)], i * 3);
+    seeds[i] = rand();
   }
   // Slots 0 and 1 carry the two real point lights: start them near, where their light lands on water in frame.
   offsets.set([-1, LANTERN.y, -6], 0);

@@ -8,7 +8,7 @@ import { scene } from "@/lib/scene";
 import Bloom, { GlowSprite, bloomOn } from "../bloom";
 import SceneBoundary from "../scene-boundary";
 import { buildWisps } from "../wisps";
-import { FOG_DENSITY, INK, SANZU, sanzuClock } from "./common";
+import { FOG_DENSITY, INK, SANZU, sanzuClock, sanzuRand } from "./common";
 import { buildLanterns, lanternCenter, type Lanterns } from "./lanterns";
 import { buildLilies } from "./lilies";
 import { buildMist } from "./mist";
@@ -126,12 +126,12 @@ export function Sanzu({ fade = one }: { fade?: () => number }) {
   const water = useMemo(() => buildWater(low), [low]);
   const torii = useMemo(() => buildTorii(), []);
   const portal = useMemo(() => createPortalMaterial(), []);
-  // calibration knob: counts — the low tier halves each (spec §3: ~40 lanterns, ~600 lilies).
-  const lanterns = useMemo(() => buildLanterns(low ? 20 : 40), [low]);
-  const lilies = useMemo(() => buildLilies(low ? 300 : 450), [low]);
+  // calibration knob: counts — the low tier halves each (spec §3: ~40 lanterns, ~450 lilies after Task 12's perf pass).
+  const lanterns = useMemo(() => buildLanterns(low ? 20 : 40, sanzuRand(1)), [low]);
+  const lilies = useMemo(() => buildLilies(low ? 225 : 450, sanzuRand(2)), [low]);
   const mist = useMemo(() => buildMist(low ? 2 : 3), [low]);
   const hitodama = useMemo(
-    () => buildWisps(low ? 12 : 24, 24, 5, { color: SANZU.hitodama, size: 70, maxSize: 12, speed: 0.25, intensity: 2.2 }),
+    () => buildWisps(low ? 12 : 24, 24, 5, { color: SANZU.hitodama, size: 70, maxSize: 12, speed: 0.25, intensity: 2.2, rand: sanzuRand(3) }),
     [low],
   );
   const moonTarget = useMemo(() => new THREE.Object3D(), []);

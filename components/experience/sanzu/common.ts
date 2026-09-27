@@ -1,3 +1,4 @@
+import { mulberry32 } from "@/lib/rng";
 import { scene } from "@/lib/scene";
 
 // Mirror the --color-abyss/mist/system/monarch/lily tokens in app/globals.css (redesign spec §8).
@@ -45,6 +46,12 @@ float fbm(vec2 p) {
   return v;
 }
 `;
+
+/**
+ * A fresh seeded generator per builder (salt keeps their sequences apart). The descent's Sanzu and the backdrop's are
+ * separate mounts; a fixed seed gives both the same lantern, lily and mote layout, so the handoff doesn't pop.
+ */
+export const sanzuRand = (salt: number) => mulberry32(0x5a2e + salt);
 
 let epoch = -1;
 /**

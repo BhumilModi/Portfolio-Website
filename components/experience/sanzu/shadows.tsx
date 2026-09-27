@@ -6,7 +6,7 @@ import { quest } from "@/lib/quest";
 import { scene } from "@/lib/scene";
 import { clamp01, easeOutCubic } from "@/lib/timeline";
 import { buildWisps } from "../wisps";
-import { INK, SANZU, sanzuClock } from "./common";
+import { INK, SANZU, sanzuClock, sanzuRand } from "./common";
 import { TORII } from "./torii";
 
 const RISE_DELAY_S = 0.35; // the word lands first
@@ -111,7 +111,7 @@ function buildArmy(low: boolean) {
     return s;
   });
   // Violet smoke curling up round their feet.
-  const smoke = buildWisps(low ? 110 : 220, 9, 2.4, { color: INK.monarch, size: 40, maxSize: 8, speed: 0.35, intensity: 1.6 });
+  const smoke = buildWisps(low ? 110 : 220, 9, 2.4, { color: INK.monarch, size: 40, maxSize: 8, speed: 0.35, intensity: 1.6, rand: sanzuRand(4) });
   smoke.points.position.set(TORII.x, 0, TORII.z + 3.2);
   group.add(smoke.points);
   // Left visible on purpose: the descent pre-compiles visible objects at mount, and the first frame hides it if not arisen.
