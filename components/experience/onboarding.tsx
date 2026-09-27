@@ -1,7 +1,7 @@
 "use client";
 import { Suspense, useEffect, useRef } from "react";
 import { PerspectiveCamera, View, useProgress } from "@react-three/drei";
-import { ONBOARDING } from "@/lib/content";
+import { NAV, ONBOARDING } from "@/lib/content";
 import { scene } from "@/lib/scene";
 import { clamp01, fadeInOut, local, smoothstep } from "@/lib/timeline";
 import OnboardingScene, { BustOnboarding, FALLBACK_SPHERE } from "./onboarding-scene";
@@ -16,7 +16,58 @@ const TEXT_SHADOW = {
 
 export default function Onboarding() {
   const track = useRef<HTMLElement>(null);
-  const loaded = Math.round(useProgress((s) => s.progress));
+  const curtain = useRef<HTMLDivElement>(null);
+  const counter = useRef<HTMLParagraphElement>(null);
+
+  // Load curtain: count up to the real asset progress, then open. Scroll stays locked until it opens
+  // (SmoothScroll runs Lenis with autoToggle, so the inline overflow on <html> stops it too).
+  useEffect(() => {
+    const el = track.current;
+    const veil = curtain.current;
+    const count = counter.current;
+    if (!el || !veil || !count) return;
+    const open = () => {
+      el.dataset.revealed = "";
+      return window.setTimeout(() => (veil.hidden = true), 1400); // after the iris transition in globals.css
+    };
+    // Landing mid-page (a hash, a restored scroll) skips the intro, so skip its curtain too.
+    if (location.hash || window.scrollY > 0) {
+      veil.hidden = true;
+      el.dataset.revealed = "";
+      return;
+    }
+    const root = document.documentElement.style;
+    root.setProperty("overflow", "clip");
+    const t0 = performance.now();
+    let shown = 0;
+    let raf = 0;
+    let timer = 0;
+    const tick = (now: number) => {
+      // Hidden (reduced motion, no WebGL): nothing will load here, so never hold the page.
+      if (el.offsetHeight === 0) {
+        root.removeProperty("overflow");
+        veil.hidden = true;
+        return;
+      }
+      const target = useProgress.getState().progress;
+      shown += (target - shown) * 0.08;
+      if (target - shown < 0.5) shown = target;
+      count.textContent = `${String(Math.floor(shown)).padStart(3, "0")}%`;
+      // ponytail: 15s cap so a stalled asset can't lock the page; the counter just stops short.
+      if (shown >= 100 || now - t0 > 15000) {
+        root.removeProperty("overflow");
+        timer = open();
+        return;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(timer);
+      root.removeProperty("overflow");
+    };
+  }, []);
 
   useEffect(() => {
     const el = track.current;
@@ -31,7 +82,7 @@ export default function Onboarding() {
         if (Math.abs(p - last) > 1e-4) {
           last = p;
           scene.progress = p;
-          set("--counter", 1 - smoothstep(0, 0.4, local(p, "coalesce")));
+          set("--hint", 1 - smoothstep(0, 0.03, p));
           set("--whisper-in", fadeInOut(local(p, "radiance")));
           set("--name", smoothstep(0, 0.5, local(p, "name")) * (1 - smoothstep(0.2, 0.6, local(p, "descent"))));
           set("--whisper-out", fadeInOut(local(p, "descent")));
@@ -58,9 +109,16 @@ export default function Onboarding() {
       id="onboarding"
       ref={track}
       aria-label="Introduction"
-      className="relative h-[400vh] bg-void text-bone"
-      style={{ "--counter": 1, "--whisper-in": 0, "--name": 0, "--whisper-out": 0, "--flood": 0 } as React.CSSProperties}
+      className="relative h-[250vh] bg-void text-bone"
+      style={{ "--hint": 1, "--whisper-in": 0, "--name": 0, "--whisper-out": 0, "--flood": 0 } as React.CSSProperties}
     >
+      <div ref={curtain} aria-hidden className="intro-curtain fixed inset-0 z-40 grid place-items-center bg-void text-bone">
+        <div className="intro-curtain-mark flex flex-col items-center gap-5">
+          <p className="cap-trim font-display text-[clamp(5rem,14vw,10rem)] uppercase leading-none tracking-wide">{NAV.brand}</p>
+          <p ref={counter} className="font-mono text-xs tracking-[0.2em] tabular-nums text-bone/70">000%</p>
+        </div>
+      </div>
+
       <div className="sticky top-0 z-30 h-dvh overflow-hidden">
         <div aria-hidden className="absolute inset-0">
           <View className="size-full">
@@ -73,12 +131,6 @@ export default function Onboarding() {
           </View>
         </div>
 
-        <p
-          className="absolute z-30 left-4 top-4 font-mono text-xs uppercase tracking-[0.2em] md:left-8 md:top-8"
-          style={{ opacity: "var(--counter)", ...TEXT_SHADOW }}
-        >
-          {ONBOARDING.mark} · {String(loaded).padStart(3, "0")}%
-        </p>
         <p
           className="absolute z-30 inset-x-4 top-[18%] text-center font-serif text-2xl italic md:text-4xl"
           style={{ opacity: "var(--whisper-in)", ...TEXT_SHADOW }}
@@ -103,6 +155,16 @@ export default function Onboarding() {
           {ONBOARDING.whisperOut}
         </p>
         <div aria-hidden className="pointer-events-none absolute inset-0 bg-field" style={{ opacity: "var(--flood)" }} />
+        <div aria-hidden className="scroll-hint absolute z-30 inset-x-0 bottom-4 flex justify-center md:bottom-8">
+          <div className="flex flex-col items-center gap-3" style={{ opacity: "var(--hint)" }}>
+            <span className="font-mono text-xs uppercase tracking-[0.2em] text-bone/85" style={TEXT_SHADOW}>
+              {ONBOARDING.scroll}
+            </span>
+            <span className="relative h-10 w-px bg-bone/30">
+              <span className="scroll-hint-dot absolute -left-[2px] top-0 size-[5px] rounded-full bg-bone" />
+            </span>
+          </div>
+        </div>
         <a
           href="#hero"
           className="absolute z-30 bottom-4 right-4 font-mono text-xs uppercase tracking-[0.2em] text-bone/85 hover:text-bone md:bottom-8 md:right-8"

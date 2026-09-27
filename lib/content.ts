@@ -28,12 +28,12 @@ export const SITE = {
 };
 
 export const ONBOARDING = {
-  mark: "ΒΜ",
   whisperIn: "From the customer's first call —",
   name: "Bhumil Modi",
   role: "Forward Deployed AI Engineer",
   whisperOut: "— to agents in production.",
   skip: "Enter ↵",
+  scroll: "Scroll",
 };
 
 export const NAV = {
