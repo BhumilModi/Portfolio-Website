@@ -5,6 +5,7 @@ import { UNDERWORLD } from "@/lib/content";
 import { useHydrated, useQuest } from "@/components/quest/use-quest";
 import { SoundToggle } from "@/components/quest/sound";
 import { SanzuBackdrop } from "@/components/experience/sanzu";
+import AriseFlash from "./arise";
 import Gate from "./gate";
 import Arrival from "./arrival";
 import Arena from "./arena";
@@ -39,6 +40,7 @@ export default function Realm() {
             <footer className="mx-auto flex w-full max-w-[1280px] flex-wrap justify-between gap-x-6 gap-y-2 px-4 pb-8 pt-16 font-mono text-xs uppercase tracking-[0.14em] text-mist/70 md:px-8">
               {UNDERWORLD.credit.map((c) => <span key={c}>{c}</span>)}
             </footer>
+            <AriseFlash />
           </>
         )}
       </main>

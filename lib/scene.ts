@@ -8,6 +8,8 @@ export const scene = {
   crossingT: 0,
   /** The crossing's [SYSTEM] notice was on screen at the handoff, so the Arrival shows its own in place without re-opening it. */
   noticeCarried: false,
+  /** performance.now() when ARISE was pressed this session; 0 = not this session (the shadows are then already standing). */
+  ariseAt: 0,
 };
 
 /** Browser-only. Detects tier and motion preference, flags missing WebGL on <html>. */

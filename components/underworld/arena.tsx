@@ -5,6 +5,7 @@ import { EMPTY_TALLY, ROUND_MS, hitScore, isHit, lifespanMs, spawn, summarize, t
 import { quest, type Best } from "@/lib/quest";
 import { useQuest } from "@/components/quest/use-quest";
 import { playHit } from "@/components/quest/sound";
+import { summon } from "./arise";
 
 type Screen = "lobby" | "countdown" | "live" | "done";
 type Target = Point & { born: number; life: number };
@@ -204,7 +205,7 @@ export default function Arena() {
               <p className="font-serif text-2xl italic">{ARENA.briefing.lines.join(" ")}</p>
               <div className="flex flex-wrap justify-center gap-3">
                 <button type="button" className="arena-btn arena-btn-primary" onClick={start}>{ARENA.start}</button>
-                <a href="#card" className="arena-btn" onClick={() => quest.skipTrial()}>{ARENA.skip}</a>
+                <button type="button" className="arena-btn" onClick={() => { quest.skipTrial(); summon(); }}>{ARENA.skip}</button>
               </div>
               {best && (
                 <p className="font-mono text-xs uppercase tracking-[0.16em] text-mist/70">
@@ -245,7 +246,7 @@ export default function Arena() {
               {result.newBest && <p className="font-mono text-xs uppercase tracking-[0.16em] text-system">{SYSTEM.levelUp}</p>}
               <div className="flex flex-wrap justify-center gap-3">
                 <button type="button" className="arena-btn" onClick={start}>{ARENA.again}</button>
-                <a href="#card" className="arena-btn arena-btn-primary">{ARENA.arise}</a>
+                <button type="button" className="arena-btn arena-btn-primary" onClick={summon}>{ARENA.arise}</button>
               </div>
             </div>
           </div>

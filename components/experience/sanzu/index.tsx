@@ -13,6 +13,7 @@ import { buildLanterns, lanternCenter, type Lanterns } from "./lanterns";
 import { buildLilies } from "./lilies";
 import { buildMist } from "./mist";
 import { createPortalMaterial } from "./portal";
+import Shadows from "./shadows";
 import { MOON_POS, buildMoon, buildSky } from "./sky";
 import { TORII, buildTorii } from "./torii";
 import { buildWater } from "./water";
@@ -190,6 +191,7 @@ export function Sanzu({ fade = one }: { fade?: () => number }) {
         <primitive object={hitodama.points} />
       </group>
       <Boat />
+      <Shadows />
       {/* The light's target lives in this group, so the moonlight keeps its angle when the descent offsets the Sanzu. */}
       <primitive object={moonTarget} />
       {/* calibration knob: light intensities — moon 0.6–1.2, fill 0.2–0.6, portal 15–45. */}
