@@ -109,7 +109,7 @@ export default function Onboarding() {
       id="onboarding"
       ref={track}
       aria-label="Introduction"
-      className="relative h-[400vh] bg-void text-bone"
+      className="relative h-[250vh] bg-void text-bone"
       style={{ "--hint": 1, "--whisper-in": 0, "--name": 0, "--whisper-out": 0, "--flood": 0 } as React.CSSProperties}
     >
       <div ref={curtain} aria-hidden className="intro-curtain fixed inset-0 z-40 grid place-items-center bg-void text-bone">
