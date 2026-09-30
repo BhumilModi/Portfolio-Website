@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   title: `${SITE.name} — ${SITE.role}`,
   description: SITE.description,
   openGraph: { title: `${SITE.name} — ${SITE.role}`, description: SITE.description, type: "website" },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

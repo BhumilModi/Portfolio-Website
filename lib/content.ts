@@ -223,6 +223,14 @@ export const SYSTEM = {
   arise: "ARISE",
 };
 
+export const NOT_FOUND = {
+  metaTitle: `Page not found — ${SITE.name}`,
+  title: "Lost in the labyrinth.",
+  body: "This page isn't on the map. Even Daedalus needed a thread to find his way out.",
+  back: "← Back to the entrance",
+  code: "404 · Page not found",
+};
+
 export const UNDERWORLD = {
   metaTitle: "Ryuma — The Underworld",
   metaDescription: "Off duty. A side quest beneath the portfolio of Bhumil Modi.",
