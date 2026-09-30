@@ -1,0 +1,45 @@
+<!doctype html>
+<!-- LinkedIn cover, 1584x396. Mirrors the site hero (components/sections/hero.tsx).
+     Render: python3 -m http.server from the repo root, then screenshot /linkedin/banner.html at 1584x396 (2x). -->
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=League+Gothic&family=JetBrains+Mono:wght@400;500&display=block" rel="stylesheet">
+<style>
+  :root { --void: #0b0907; --field: #9a2a14; --bone: #efe6d4; }
+  * { margin: 0; box-sizing: border-box; }
+  html, body { width: 1584px; height: 396px; overflow: hidden; background: var(--field); }
+  .banner { position: relative; width: 1584px; height: 396px; color: var(--bone); isolation: isolate; }
+  .ink { position: absolute; background-color: var(--void); pointer-events: none; }
+  /* Same sunburst as .hero-rays, centred behind the bust. */
+  .rays {
+    inset: 0; background: none; opacity: .35; color: var(--void);
+    background-image: repeating-conic-gradient(from 0deg at 84% 45%, currentColor 0deg .5deg, transparent .5deg 5deg);
+    mask: radial-gradient(circle at 84% 45%, #000 0 6%, transparent 48%);
+  }
+  .colosseum { inset: -40px 0 -40px 0; opacity: .3; mask: url(../public/art/colosseum.png) center 58% / cover no-repeat; }
+  /* Bust stands on the bottom edge, right side: clear of the profile photo at bottom-left. */
+  .bust { right: 70px; bottom: -70px; width: 360px; height: 480px; mask: url(../public/art/bust.png) center / contain no-repeat; }
+  .copy { position: absolute; left: 470px; top: 64px; display: flex; flex-direction: column; gap: 22px; }
+  .eyebrow { font: 500 15px/1 "JetBrains Mono", monospace; letter-spacing: .18em; text-transform: uppercase; opacity: .85; }
+  h1 { font: 400 104px/.9 "League Gothic", sans-serif; letter-spacing: -.01em; text-transform: none; max-width: 760px; }
+  .url { font: 400 15px/1 "JetBrains Mono", monospace; letter-spacing: .14em; text-transform: uppercase; display: flex; gap: 14px; align-items: center; }
+  .url b { font-weight: 400; background: var(--bone); color: var(--field); padding: 8px 12px; }
+  .url span { opacity: .85; }
+  .rule { position: absolute; left: 0; right: 0; bottom: 0; height: 8px; background: var(--void); }
+</style>
+</head>
+<body>
+<div class="banner">
+  <div class="ink rays"></div>
+  <div class="ink colosseum"></div>
+  <div class="ink bust" style="background-color: var(--void); opacity: .9"></div>
+  <div class="copy">
+    <p class="eyebrow">Forward Deployed AI Engineer · Agentic systems</p>
+    <h1>I deploy agentic systems inside the customer.</h1>
+    <p class="url"><b>bhumil-modi.vercel.app</b><span>POC in 2 weeks · live beta in 5 months</span></p>
+  </div>
+  <div class="rule"></div>
+</div>
+</body>
+</html>
