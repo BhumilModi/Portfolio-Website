@@ -50,3 +50,6 @@ next-env.d.ts
 /.profile-font.css
 /.models-tmp/
 /.audio-tmp/
+
+# impeccable per-session hook cache (machine paths)
+.impeccable/hook.cache.json

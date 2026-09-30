@@ -1,0 +1,35 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "clipped-overflow-container",
+        "value": "*",
+        "files": [
+          "linkedin/banner.html"
+        ],
+        "createdAt": "2026-09-30T17:11:59.165Z",
+        "reason": "Claude: fixed 1584x396 image canvas; bust intentionally bleeds off the bottom edge, no popovers exist"
+      },
+      {
+        "rule": "all-caps-body",
+        "value": "*",
+        "files": [
+          "linkedin/banner.html"
+        ],
+        "createdAt": "2026-09-30T17:12:26.470Z",
+        "reason": "Claude: uppercase is only short mono labels (eyebrow, URL chip), same as site hero"
+      },
+      {
+        "rule": "oversized-h1",
+        "value": "*",
+        "files": [
+          "linkedin/banner.html"
+        ],
+        "createdAt": "2026-09-30T17:12:26.490Z",
+        "reason": "Claude: static 1584x396 cover image; the headline is the whole content, same size ratio as site hero"
+      }
+    ]
+  }
+}
