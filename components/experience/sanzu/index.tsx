@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useRef } from "react";
+import { Suspense, useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { PerspectiveCamera, View } from "@react-three/drei";
 import * as THREE from "three";
@@ -10,14 +10,14 @@ import { BACKDROP_READY_EVENT, scene } from "@/lib/scene";
 import Spirit from "../spirit";
 import SceneBoundary from "../scene-boundary";
 import { buildWisps } from "../wisps";
+import { useModelGeometry, type ModelId } from "../models";
 import { FOG_DENSITY, INK, SANZU, sanzuClock, sanzuRand } from "./common";
-import { buildLanterns, lanternCenter, type Lanterns } from "./lanterns";
-import { buildLilies } from "./lilies";
 import { buildMist } from "./mist";
 import { createPortalMaterial } from "./portal";
 import Shadows from "./shadows";
 import { MOON_POS, buildMoon, buildSky } from "./sky";
-import { TORII, buildTorii } from "./torii";
+import { BRAZIER, buildTemple } from "./temple";
+import { TORII } from "./torii";
 import { buildWater } from "./water";
 import { buildWraith } from "./wraith";
 
@@ -27,7 +27,7 @@ const LEAN_RATE = 3; // calibration knob: how fast the lean eases toward the poi
 // calibration knob: the boat's path toward the Gate, left of the shadows' formation, and the stretch of the broadcast
 // track (scene.ferry) it travels over, so it slides past the camera during the ride.
 const BOAT = { from: new THREE.Vector3(-5, 0, -6.5), to: new THREE.Vector3(-1.4, 0, -11.2), start: 0.25, end: 0.85 };
-const LANTERN_LIGHT = 2.2; // calibration knob: candela for each of the two lit lanterns, 1–4
+const BRAZIER_LIGHT = 6; // calibration knob: candela for each brazier's light, 3–12
 
 /** Half a cylinder, open side up, stretched along z and pinched to a point at bow and stern: a skiff. */
 function buildHull(): THREE.BufferGeometry {
@@ -95,39 +95,42 @@ function Boat() {
   );
 }
 
-/** The two real lantern lights (spec §3: at most two), riding lanterns 0 and 1. Normal tier only. */
-function LanternLights({ lanterns }: { lanterns: Lanterns }) {
-  const a = useRef<THREE.PointLight>(null);
-  const b = useRef<THREE.PointLight>(null);
-  const at = useMemo(() => new THREE.Vector3(), []);
-  useFrame(({ clock }) => {
-    const time = sanzuClock(clock.elapsedTime);
-    [a.current, b.current].forEach((light, i) => {
-      if (!light) return;
-      const scale = lanternCenter(lanterns, i, time, at);
-      light.position.set(at.x, at.y + 0.3, at.z);
-      light.intensity = LANTERN_LIGHT * scale;
-    });
-  });
+// calibration knob: the scanned guardians and relics (spirit spec §3.2, amended 2026-10-02) as [model, position, scale, yaw].
+const GUARDIANS: [ModelId, [number, number, number], number, number][] = [
+  ["lion", [TORII.x, 4.4, TORII.z - 3.2], 4.2, 0], // the great head behind the Gate, Cerberus's stand-in
+  ["lion", [TORII.x - 5.6, 3.1, TORII.z - 4], 2.6, 0.6], // on the plinths either side
+  ["lion", [TORII.x + 5.6, 3.1, TORII.z - 4], 2.6, -0.6],
+  ["bust", [-3, 1.6, -4], 1.6, 0.5],
+  ["horse", [9.5, 1.7, -9], 1.7, -0.7],
+  ["vase", [-2.6, 0.9, -11], 0.9, 0],
+];
+
+function Guardian({ id, position, scale, yaw, material }: { id: ModelId; position: [number, number, number]; scale: number; yaw: number; material: THREE.Material }) {
+  const geometry = useModelGeometry(id);
+  return <mesh geometry={geometry} material={material} position={position} scale={scale} rotation={[0, yaw, 0]} />;
+}
+
+/** Real scans in grey stone: their carved detail is what the spirit pass draws, under the raking light. */
+function Guardians() {
+  const stone = useMemo(() => new THREE.MeshStandardMaterial({ color: "#8a8a86", roughness: 0.8 }), []);
+  useEffect(() => () => stone.dispose(), [stone]);
   return (
-    <>
-      <pointLight ref={a} color={SANZU.lantern} distance={7} decay={2} />
-      <pointLight ref={b} color={SANZU.lantern} distance={7} decay={2} />
-    </>
+    <Suspense fallback={null}>
+      {GUARDIANS.map(([id, position, scale, yaw], i) => (
+        <Guardian key={i} id={id} position={position} scale={scale} yaw={yaw} material={stone} />
+      ))}
+    </Suspense>
   );
 }
 
-/** The Sanzu (redesign spec §3). Local origin on the waterline; riverCamera() frames it. fade() === 0 hides it (the descent's cut). */
+/** The river of the dead: the Styx temple on black water (spirit spec §3.2). Local origin on the waterline; riverCamera() frames it. fade() === 0 hides it (the descent's cut). */
 export function Sanzu({ fade = one }: { fade?: () => number }) {
   const low = scene.tier === "low";
   const sky = useMemo(() => buildSky(), []);
   const moon = useMemo(() => buildMoon(), []);
   const water = useMemo(() => buildWater(low), [low]);
-  const torii = useMemo(() => buildTorii(), []);
+  const temple = useMemo(() => buildTemple(), []);
   const portal = useMemo(() => createPortalMaterial(), []);
-  // calibration knob: counts — the low tier halves each (spec §3: ~40 lanterns, ~450 lilies after Task 12's perf pass).
-  const lanterns = useMemo(() => buildLanterns(low ? 20 : 40, sanzuRand(1)), [low]);
-  const lilies = useMemo(() => buildLilies(low ? 225 : 450, sanzuRand(2)), [low]);
   const mist = useMemo(() => buildMist(low ? 2 : 3), [low]);
   const hitodama = useMemo(
     () => buildWisps(low ? 12 : 24, 24, 5, { color: SANZU.hitodama, size: 70, maxSize: 12, speed: 0.25, intensity: 2.2, rand: sanzuRand(3) }),
@@ -140,15 +143,13 @@ export function Sanzu({ fade = one }: { fade?: () => number }) {
       sky.dispose();
       moon.dispose();
       water.dispose();
-      torii.dispose();
+      temple.dispose();
       portal.dispose();
-      lanterns.dispose();
-      lilies.dispose();
       mist.dispose();
       hitodama.points.geometry.dispose();
       hitodama.material.dispose();
     },
-    [sky, moon, water, torii, portal, lanterns, lilies, mist, hitodama],
+    [sky, moon, water, temple, portal, mist, hitodama],
   );
 
   // eslint-disable-next-line react-hooks/immutability -- per-frame three.js mutation, not React state
@@ -163,10 +164,7 @@ export function Sanzu({ fade = one }: { fade?: () => number }) {
     water.uniforms.uTime.value = time;
     // eslint-disable-next-line react-hooks/immutability -- per-frame three.js mutation, not React state
     portal.uniforms.uTime.value = time;
-    // eslint-disable-next-line react-hooks/immutability -- per-frame three.js mutation, not React state
-    lanterns.uniforms.uTime.value = time;
-    // eslint-disable-next-line react-hooks/immutability -- per-frame three.js mutation, not React state
-    lilies.uniforms.uTime.value = time;
+    temple.flames.forEach((f, i) => f.scale.set(1, 0.85 + 0.15 * Math.sin(time * 9 + i * 2) * Math.sin(time * 3.7 + i), 1));
     // eslint-disable-next-line react-hooks/immutability -- per-frame three.js mutation, not React state
     mist.uniforms.uTime.value = time;
     // eslint-disable-next-line react-hooks/immutability -- per-frame three.js mutation, not React state
@@ -178,12 +176,11 @@ export function Sanzu({ fade = one }: { fade?: () => number }) {
       <primitive object={sky.mesh} />
       <primitive object={moon.mesh} />
       <primitive object={water.mesh} />
-      <primitive object={torii.group} />
+      <primitive object={temple.group} />
+      <Guardians />
       <mesh position={[TORII.x, TORII.portalY, TORII.z]} material={portal} renderOrder={2}>
         <planeGeometry args={[TORII.portalW, TORII.portalH]} />
       </mesh>
-      <primitive object={lanterns.mesh} />
-      <primitive object={lilies.group} />
       <primitive object={mist.group} />
       <group position={[1, 0.4, -12]}>
         <primitive object={hitodama.points} />
@@ -192,13 +189,17 @@ export function Sanzu({ fade = one }: { fade?: () => number }) {
       <Shadows />
       {/* The light's target lives in this group, so the moonlight keeps its angle when the descent offsets the Sanzu. */}
       <primitive object={moonTarget} />
-      {/* calibration knob: light intensities — moon 0.6–1.2, fill 0.2–0.6, portal 15–45. */}
-      {/* Moonlight from behind the torii: the Gate reads as a silhouette with a lit rim. */}
+      {/* calibration knob: light intensities — moon 0.6–1.2, raking key 0.6–2, fill 0.2–0.6, portal 15–45. */}
+      {/* Moonlight from behind the Gate gives a lit rim; the low raking key from the left draws the scans' carving. */}
       <directionalLight position={MOON_POS} target={moonTarget} color={SANZU.moonlight} intensity={0.9} />
       {!low && <hemisphereLight args={[SANZU.skyFill, INK.void, 0.55]} />}
       {/* The portal's violet spill on the pillars: the one light the low tier keeps besides the moon. */}
       <pointLight position={[TORII.x, TORII.portalY, TORII.z + 0.8]} color={INK.spirit} intensity={30} distance={34} decay={2} />
-      {!low && <LanternLights lanterns={lanterns} />}
+      <directionalLight position={[-14, 5, 12]} target={moonTarget} color="#e8eeff" intensity={1.2} />
+      {!low &&
+        [-1, 1].map((s) => (
+          <pointLight key={s} position={[TORII.x + s * BRAZIER.dx, BRAZIER.y + 1, TORII.z + BRAZIER.dz]} color="#ff6a2a" intensity={BRAZIER_LIGHT} distance={10} decay={2} />
+        ))}
     </group>
   );
 }

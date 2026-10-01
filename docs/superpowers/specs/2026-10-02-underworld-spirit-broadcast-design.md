@@ -30,7 +30,7 @@ As a technique this contrasts with Olympus: Olympus is a printed plate (dithered
 
 ## 2. Decisions taken by default (the user can overrule)
 
-- **Setting:** keep the Sanzu content (torii, spider lilies, floating lanterns, the ferryman, the hooded shades), because that is what the approved spike shows. The obol and rokumonsen bridge from the 2026-09-26 spec stands.
+- **Setting (amended 2026-10-02):** the user rejected the Sanzu scenery as "off" and chose a Greek Styx (spike `42f1ab8`). It has a pedimented gate of two columns around the portal, a colonnade along both banks, scanned guardians (lion heads standing in for Cerberus, a bust, a horse head, a vase), and two braziers whose flames are the ember accent. The river, moon, portal, Charon's boat and the hooded shades stay. The torii, lilies and lanterns are gone.
 - **Mark colour:** bone-white dots. **Case:** mixed, "Ryuma". Both are as approved on screen.
 - **Display face:** Grenze Gotisch 800, from Google Fonts via `next/font`, used inside the mark's SVG only. This is the one new font, and the user approved the look built with it.
 
