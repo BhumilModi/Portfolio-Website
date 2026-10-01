@@ -6,8 +6,6 @@ export const scene = {
   reducedMotion: false,
   /** Crossing timeline position in seconds (lib/descent.ts), written by components/quest/crossing.tsx each frame. */
   crossingT: 0,
-  /** The crossing's [SYSTEM] notice was on screen at the handoff, so the Arrival shows its own in place without re-opening it. */
-  noticeCarried: false,
   /** performance.now() when ARISE was pressed this session; 0 = not this session (the shadows are then already standing). */
   ariseAt: 0,
   /** Scroll progress through the Underworld's broadcast track (lib/ferry.ts), 0–1; written by components/underworld/ferry.tsx. */

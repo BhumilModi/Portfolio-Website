@@ -54,7 +54,7 @@ export default function RyumaMark({ className = "" }: { className?: string }) {
     <svg viewBox="0 0 1000 400" role="img" aria-label="Ryuma" className={className}>
       <defs>
         <pattern id={`${id}-dots`} width="6" height="6" patternUnits="userSpaceOnUse">
-          <circle cx="3" cy="3" fill="currentColor" style={{ r: "calc(2.3px * var(--dot, 1))" } as React.CSSProperties} />
+          <circle cx="3" cy="3" r="2.3" fill="currentColor" style={{ r: "calc(2.3px * var(--dot, 1))" } as React.CSSProperties} />
         </pattern>
         <mask id={`${id}-shape`} maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="400">
           {PATHS.map((d, i) => (

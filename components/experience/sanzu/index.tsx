@@ -177,7 +177,10 @@ export function Sanzu({ fade = one }: { fade?: () => number }) {
       <primitive object={moon.mesh} />
       <primitive object={water.mesh} />
       <primitive object={temple.group} />
-      <Guardians />
+      {/* A failed scan download drops the guardians, not the whole river (or the whole descent). */}
+      <SceneBoundary fallback={null}>
+        <Guardians />
+      </SceneBoundary>
       <mesh position={[TORII.x, TORII.portalY, TORII.z]} material={portal} renderOrder={2}>
         <planeGeometry args={[TORII.portalW, TORII.portalH]} />
       </mesh>
@@ -238,7 +241,7 @@ const crossingActive = () => "crossing" in document.documentElement.dataset;
 // calibration knob: the spirit target's pixel-ratio cap while the backdrop is up, 1–2. The Sanzu is fill-bound (on an
 // M4 at 1440x900, DPR 2: ~23ms a frame uncapped, ~13ms capped at 1.25). Only the spirit target drops: the canvas keeps its ratio, since
 // resizing an antialiased canvas costs ~200ms on the main thread. Nothing here is dithered; the paper grain hides the rest.
-const BACKDROP_DPR = 1.25;
+export const BACKDROP_DPR = 1.25;
 
 const backdropReady = () => window.dispatchEvent(new Event(BACKDROP_READY_EVENT));
 

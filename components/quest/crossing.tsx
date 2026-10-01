@@ -5,23 +5,22 @@ import { PerspectiveCamera, View } from "@react-three/drei";
 import { CROSSING, SYSTEM } from "@/lib/content";
 import {
   DESCENT_FOV, DESCENT_S, GATE_CUT,
-  backdropOpacity, coldness, flashOpacity, isDone, noticeShown, scanline, timelineAt, type Direction,
+  backdropOpacity, coldness, flashOpacity, isDone, scanline, timelineAt, type Direction,
 } from "@/lib/descent";
 import { quest } from "@/lib/quest";
 import { BACKDROP_READY_EVENT, CROSS_EVENT, scene } from "@/lib/scene";
 import { smoothstep } from "@/lib/timeline";
 import Spirit from "@/components/experience/spirit";
+import { BACKDROP_DPR } from "@/components/experience/sanzu";
 import DescentScene from "@/components/experience/descent-scene";
 import SceneBoundary from "@/components/experience/scene-boundary";
-import SystemWindow from "@/components/underworld/system-window";
 import { setRealm } from "./sound";
 
 // --color-field fading to the broadcast's black: the backdrop behind the canvas darkens as the camera falls.
 const FIELD = [154, 42, 20];
 const ABYSS = [0, 0, 0];
 const FALLBACK_S = 1;
-/** Reduced motion: the notice opens halfway through the crossfade and is held this long before the page swaps in.
- * Must clear 1s of full opacity after its own 150ms fade-in (rd-constraints.md's "held fully visible for at least 1s"). */
+/** Reduced motion: the crossfade holds this long past its midpoint before the page swaps in, so it reads as a beat. */
 const NOTICE_HOLD_S = 1.2;
 /** ponytail: the longest the crossing waits for /underworld to compile before revealing it anyway. */
 const BACKDROP_WAIT_MS = 4000;
@@ -39,7 +38,6 @@ export default function Crossing() {
   const pathname = usePathname();
   const [run, setRun] = useState<Run | null>(null);
   const [pushedTo, setPushedTo] = useState<string | null>(null);
-  const [notice, setNotice] = useState(false);
   const [viewReady, setViewReady] = useState(false);
   const [backdropReady, setBackdropReady] = useState(false);
   const running = useRef(false);
@@ -92,7 +90,6 @@ export default function Crossing() {
     const root = document.documentElement;
     const t0 = performance.now();
     let switched = false;
-    let noticeOn = false;
     let raf = 0;
 
     const tick = (now: number) => {
@@ -100,18 +97,15 @@ export default function Crossing() {
       let t: number;
       let done: boolean;
       let cover: number;
-      let showNotice: boolean;
       if (fallback) {
         const f = Math.min(1, elapsed / FALLBACK_S);
         t = direction === "down" ? f * DESCENT_S : (1 - f) * DESCENT_S;
         cover = direction === "down" ? smoothstep(0, 0.4, f) : 1;
-        showNotice = direction === "down" && f >= 0.5;
         done = direction === "down" ? elapsed >= FALLBACK_S / 2 + NOTICE_HOLD_S : f >= 1;
       } else {
         t = timelineAt(elapsed, direction, speed);
         done = isDone(elapsed, direction, speed);
         cover = direction === "down" ? backdropOpacity(t) : 1;
-        showNotice = direction === "down" && noticeShown(t);
       }
       scene.crossingT = t;
 
@@ -120,16 +114,12 @@ export default function Crossing() {
         backdrop.current.style.backgroundColor = `rgb(${FIELD.map((v, i) => Math.round(v + (ABYSS[i] - v) * c)).join(",")})`;
         backdrop.current.style.opacity = String(cover);
       }
-      // The System boots: a blue flash peaking at the cut, with a scanline sweeping down under it.
+      // Signal loss at the cut: black static peaking under the switch, with a bright line sweeping down.
       const f = flashOpacity(t);
       if (flash.current) flash.current.style.opacity = String(f);
       if (scan.current) {
         scan.current.style.opacity = f > 0.02 ? "1" : "0";
         scan.current.style.transform = `translateY(${scanline(t) * window.innerHeight}px)`;
-      }
-      if (showNotice && !noticeOn) {
-        noticeOn = true;
-        setNotice(true);
       }
       // Once the backdrop is opaque, take the page out of layout so its own 3D views stop drawing over the descent.
       if (cover >= 0.999) root.dataset.crossing = "";
@@ -138,8 +128,6 @@ export default function Crossing() {
         setRealm(direction === "down" ? "underworld" : "olympus");
       }
       if (done) {
-        // The overlay's notice sits exactly where the Arrival's will; tell the Arrival not to open a second one.
-        if (direction === "down") scene.noticeCarried = noticeOn;
         setPushedTo(path);
         router.push(href);
         return; // ponytail: no timeout if navigation never lands; add one if that is ever seen in the wild
@@ -167,7 +155,6 @@ export default function Crossing() {
     const id = setTimeout(() => {
       setRun(null);
       setPushedTo(null);
-      setNotice(false);
       setViewReady(false);
       setBackdropReady(false);
     }, 600);
@@ -181,7 +168,8 @@ export default function Crossing() {
       {!run.fallback && !leaving && (
         <View className="crossing-view" visible={false}>
           <PerspectiveCamera makeDefault fov={DESCENT_FOV} near={0.1} far={400} />
-          <Spirit on={spiritNow} onReady={() => setViewReady(true)} />
+          {/* Same target ratio as the backdrop, so the spirit lines keep their weight at the handoff. */}
+          <Spirit maxDpr={BACKDROP_DPR} on={spiritNow} onReady={() => setViewReady(true)} />
           <SceneBoundary fallback={null}>
             <DescentScene />
           </SceneBoundary>
@@ -193,15 +181,6 @@ export default function Crossing() {
             <div ref={flash} aria-hidden className="crossing-flash" />
             <div ref={scan} aria-hidden className="crossing-scan" />
           </>
-        )}
-        {notice && (
-          <div className="crossing-notice">
-            <div className="mx-auto w-full max-w-[1280px] px-4 md:px-8">
-              <SystemWindow notice className="w-fit max-w-[34rem]">
-                {SYSTEM.entered}
-              </SystemWindow>
-            </div>
-          </div>
         )}
         <div aria-hidden className="crossing-loader" data-on={loading ? "" : undefined}>
           <span className="flex items-baseline gap-3 font-mono text-xs uppercase tracking-[0.2em]">

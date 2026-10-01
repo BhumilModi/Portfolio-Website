@@ -251,8 +251,6 @@ body:has(#crossing) .intro-skip { visibility: hidden; }
   box-shadow: 0 0 12px 2px color-mix(in srgb, var(--color-bone) 60%, transparent);
   will-change: transform;
 }
-/* Same container and bottom offset as the Arrival's notice (components/underworld/arrival.tsx), so the handoff lines up. */
-.crossing-notice { position: fixed; inset-inline: 0; bottom: 6rem; text-align: left; pointer-events: none; }
 
 /* System windows (components/underworld/system-window.tsx): CRT terminal readouts (spirit spec §6). Black glass,
    a spirit-teal edge, scanlines; they warm up like a tube when they first scroll into view. */
@@ -360,7 +358,7 @@ body:has(#crossing) .intro-skip { visibility: hidden; }
   pointer-events: none;
   background: repeating-linear-gradient(0deg, rgb(255 255 255 / 0.05) 0 1px, transparent 1px 3px);
 }
-.rank-seal { display: inline-block; padding: 6px 10px; border: 1px solid var(--color-seal); color: var(--color-seal); }
+.rank-seal { display: inline-block; padding: 6px 10px; border: 1px solid var(--color-seal); color: var(--color-bone); }
 @media (prefers-reduced-motion: no-preference) {
   .rank-seal { animation: stamp 160ms cubic-bezier(0.23, 1, 0.32, 1) both; }
 }

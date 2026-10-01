@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { SYSTEM, UNDERWORLD } from "@/lib/content";
 import { cardOpacity, signalLoss, whisperOpacity } from "@/lib/ferry";
 import { scene } from "@/lib/scene";
@@ -23,8 +23,6 @@ const isStill = () => window.matchMedia("(prefers-reduced-motion: reduce)").matc
  */
 export default function Ferry() {
   const track = useRef<HTMLElement>(null);
-  // Arriving from the crossing, its notice is already on screen: show ours in place, without a second opening.
-  const [carried] = useState(() => scene.noticeCarried);
   // Realm mounts this only after hydration, so reading the browser here is safe.
   const [still, setStill] = useState(isStill);
 
@@ -36,8 +34,8 @@ export default function Ferry() {
     return () => mo.disconnect();
   }, [still]);
 
-  useEffect(() => {
-    scene.noticeCarried = false;
+  // Layout effect: card, dots and signal are set from the scroll position before the first paint.
+  useLayoutEffect(() => {
     const el = track.current;
     if (!el) return;
     if (still) {
@@ -66,7 +64,10 @@ export default function Ferry() {
     };
     raf = requestAnimationFrame(tick);
     const skip = () => el.querySelector<HTMLAnchorElement>("a[data-cross]")?.click();
+    const mountedAt = performance.now();
     const onKey = (e: KeyboardEvent) => {
+      // Not a held key or the tail of the crossing's own Enter-to-skip: only a fresh press after the page settles.
+      if (e.repeat || performance.now() - mountedAt < 600) return;
       if (e.key === "Enter" && document.activeElement === document.body && last < 1) skip();
     };
     window.addEventListener("keydown", onKey);
@@ -82,7 +83,7 @@ export default function Ferry() {
       <h1 id="ryuma" className="relative w-[min(90vw,860px)] text-bone before:absolute before:-inset-x-[30%] before:-inset-y-[60%] before:-z-10 before:bg-[radial-gradient(closest-side,#000_55%,transparent)] before:content-['']">
         <RyumaMark className="block w-full" />
       </h1>
-      <SystemWindow notice instant={carried} className="w-fit max-w-[34rem] text-left">
+      <SystemWindow notice className="w-fit max-w-[34rem] text-left">
         {SYSTEM.entered}
       </SystemWindow>
     </>
