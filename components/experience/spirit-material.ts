@@ -47,7 +47,7 @@ float linearDepth(vec2 uv) {
 float lumAt(vec2 uv) { return log(1.0 + 6.0 * dot(texture2D(tColor, uv).rgb, vec3(0.2126, 0.7152, 0.0722))); }
 
 // x: relative depth Laplacian (a grazing flat plane like the water has a steep gradient but no curvature, so no line);
-// y: Sobel on log luminance (ripples, petals, the lantern rims).
+// y: Sobel on log luminance (ripples, the scans' carving, the shades' folds).
 vec2 edges(vec2 uv, float radius) {
   vec2 px = radius / uResolution;
   #define D(x, y) linearDepth(uv + px * vec2(x, y))
@@ -100,7 +100,7 @@ void main() {
   vec3 col = uGround * 0.6;
   col += tone * (line * uLineGain + halo) * fade;
   col += tone * smoothstep(0.05, 0.6, lum) * uFill;
-  col += mix(vec3(0.9, 1.0, 0.97), uEmber, red) * smoothstep(0.7, 2.2, lum); // hot cores: moon, lanterns, wisps
+  col += mix(vec3(0.9, 1.0, 0.97), uEmber, red) * smoothstep(0.7, 2.2, lum); // hot cores: moon, braziers, wisps, the shades' eyes
 
   vec2 frag = gl_FragCoord.xy;
   col *= 1.0 - uScan + uScan * sin(frag.y * 3.14159 * 0.5);

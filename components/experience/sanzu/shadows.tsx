@@ -16,7 +16,7 @@ const STAGGER_S = 0.08; // centre first, then outward
 const FADE_S = 0.8; // reduced motion: fade in, don't rise
 const DEPTH = 2.4; // how far under the water they start
 
-// calibration knob: the formation — a shallow V opening away from the camera, in front of the torii, right of the boat.
+// calibration knob: the formation — a shallow V opening away from the camera, in front of the Gate, right of the boat.
 const FORMATION = [-3, -2, -1, 0, 1, 2, 3].map((k) => ({
   x: TORII.x + k * 1.15,
   z: TORII.z + 3.6 - Math.abs(k) * 0.45,
@@ -97,7 +97,7 @@ function buildArmy(low: boolean) {
   // Same program, fray off. uOpacity and uTime are shared with the cloth, so the blade fades in with its bearer.
   const steel = body.clone();
   steel.uniforms = { ...body.uniforms, uFray: { value: 0 } };
-  // HDR System blue: the eyes are the only part of a soldier that blooms.
+  // HDR bone: the eyes are the hottest part of a shade, so the spirit pass draws them as cores.
   const eye = new THREE.MeshBasicMaterial({ color: new THREE.Color(INK.bone).multiplyScalar(5), transparent: true });
   const void_ = new THREE.MeshBasicMaterial({ color: SANZU.shadow, transparent: true });
   const segments = low ? 24 : 40;

@@ -1,8 +1,8 @@
 import { mulberry32 } from "@/lib/rng";
 import { scene } from "@/lib/scene";
 
-// Mirror --color-void, --color-bone, --color-spirit and --color-lily in app/globals.css (spirit spec §4).
-export const INK = { void: "#0b0907", bone: "#efe6d4", spirit: "#52f5d6", lily: "#c8232c" } as const;
+// Mirror --color-void, --color-bone and --color-spirit in app/globals.css (spirit spec §4).
+export const INK = { void: "#0b0907", bone: "#efe6d4", spirit: "#52f5d6" } as const;
 
 // Scene-only tones, not UI tokens: night-blue moonlight, amber paper, ink water.
 export const SANZU = {
@@ -14,17 +14,15 @@ export const SANZU = {
   skyFill: "#1c2540",
   moon: "#e6ecf7",
   moonlight: "#9fb4d8",
-  lantern: "#fff1d6", // warm paper, outside the spirit pass's red band, so the lanterns burn white, not ember
+  lantern: "#fff1d6", // the bow lamp on Charon's boat: warm white, outside the spirit pass's red band
   wood: "#4a3526",
   cloth: "#0b0d12",
-  stone: "#15171c",
-  stem: "#1d2a16",
   mist: "#7d8fb0",
   hitodama: "#cfe6ff",
   shadow: "#06070b",
 } as const;
 
-export const FOG_DENSITY = 0.018; // calibration knob: 0.012–0.03 — higher swallows the torii, lower flattens the depth
+export const FOG_DENSITY = 0.018; // calibration knob: 0.012–0.03 — higher swallows the Gate, lower flattens the depth
 
 /** Value noise and fbm for the portal, mist, sky and moon shaders. */
 export const NOISE = /* glsl */ `
@@ -49,7 +47,7 @@ float fbm(vec2 p) {
 
 /**
  * A fresh seeded generator per builder (salt keeps their sequences apart). The descent's Sanzu and the backdrop's are
- * separate mounts; a fixed seed gives both the same lantern, lily and mote layout, so the handoff doesn't pop.
+ * separate mounts; a fixed seed gives both the same mote and shade layout, so the handoff doesn't pop.
  */
 export const sanzuRand = (salt: number) => mulberry32(0x5a2e + salt);
 

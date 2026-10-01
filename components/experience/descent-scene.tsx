@@ -121,9 +121,9 @@ const COLONNADE = Array.from({ length: 12 }, (_, i) => (i / 12) * Math.PI * 2)
   .filter(([, z]) => z < 3);
 
 /**
- * The fall from Olympus, down the engraved shaft, through the portal and out over the Sanzu (redesign spec §4).
- * Reads scene.crossingT; owns the view's camera. The engraving and the lit Sanzu are never on screen together:
- * the switch happens at GATE_CUT, under the flash (components/quest/crossing.tsx).
+ * The fall from Olympus, down the engraved shaft, through the portal and out over the Styx (redesign spec §4,
+ * spirit spec §9). Reads scene.crossingT; owns the view's camera. The engraving and the spirit-drawn river are never
+ * on screen together: the switch happens at GATE_CUT, under signal loss (components/quest/crossing.tsx).
  */
 export default function DescentScene() {
   const low = scene.tier === "low";

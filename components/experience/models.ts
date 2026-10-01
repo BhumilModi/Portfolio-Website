@@ -1,5 +1,5 @@
 "use client";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
@@ -27,7 +27,7 @@ function toFloat(attr: THREE.BufferAttribute | THREE.InterleavedBufferAttribute)
 
 export function useModelGeometry(id: ModelId): THREE.BufferGeometry {
   const gltf = useGLTF(MODELS[id].file);
-  return useMemo(() => {
+  const geometry = useMemo(() => {
     let mesh: THREE.Mesh | undefined;
     gltf.scene.traverse((o) => {
       if (!mesh && (o as THREE.Mesh).isMesh) mesh = o as THREE.Mesh;
@@ -52,6 +52,9 @@ export function useModelGeometry(id: ModelId): THREE.BufferGeometry {
     g.computeBoundingSphere();
     return g;
   }, [gltf, id]);
+  // Each caller gets its own Float32 copy: free it with the caller, so remounts (a crossing, a revisit) don't leak.
+  useEffect(() => () => geometry.dispose(), [geometry]);
+  return geometry;
 }
 
 if (typeof window !== "undefined") {

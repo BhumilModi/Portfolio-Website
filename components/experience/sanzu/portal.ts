@@ -38,7 +38,7 @@ void main() {
 
 /**
  * The Gate's portal: a swirling bone core with a spirit-teal rim. The core is kept low so the spirit pass draws
- * the arms as lines rather than a white blob; additive. Used on the torii and as the descent's approach disc.
+ * the arms as lines rather than a white blob; additive. Used in the Gate and as the descent's approach disc.
  */
 // calibration knob: intensity 0.6–1.4 under the spirit pass; the bone core is bright, so keep it low.
 export function createPortalMaterial(intensity = 1.3) {

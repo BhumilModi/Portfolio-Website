@@ -23,7 +23,7 @@ export const FERRY_CUT = 0.95;
 
 // calibration knob: the rest poses after the cut — a wide, calm view with room for the shades rising before the torii.
 export const REST_CAMERA: Pose = { position: [0, 3.2, 14], pitch: -0.06 };
-export const REST_CAMERA_PORTRAIT: Pose = { position: [4, 3.6, 20], pitch: -0.06 };
+export const REST_CAMERA_PORTRAIT: Pose = { position: [4, 1.6, 20], pitch: 0.1 };
 
 type Key = { p: number; pose: Pose };
 // calibration knob: every key below — the ride along the river (boat height), the approach centred on the torii
@@ -43,27 +43,41 @@ const PATHS = {
   ),
   portrait: path(
     riverCamera(0.5),
-    { position: [4, 1.0, 4], pitch: 0.04 },
-    { position: [4, 2.6, -7.5], pitch: 0.02 },
+    { position: [4, 0.8, 4], pitch: 0.14 },
+    { position: [4, 2.2, -7.5], pitch: 0.08 },
     { position: [4, 2.76, -15.5], pitch: 0 },
   ),
 };
 
-/** Camera pose at progress p. Holds the descent's landing pose through the card and the reveal; rests after the cut. */
-export function ferryPose(p: number, aspect: number): Pose {
+/** Copy a pose into out (when given) and return it; otherwise return the pose itself. */
+function into(pose: Pose, out?: Pose): Pose {
+  if (!out) return pose;
+  out.position[0] = pose.position[0];
+  out.position[1] = pose.position[1];
+  out.position[2] = pose.position[2];
+  out.pitch = pose.pitch;
+  return out;
+}
+
+/**
+ * Camera pose at progress p. Holds the descent's landing pose through the card and the reveal; rests after the cut.
+ * Pass out to write into a caller-owned pose (the per-frame rig) instead of allocating one.
+ */
+export function ferryPose(p: number, aspect: number, out?: Pose): Pose {
   const portrait = aspect < PORTRAIT_BELOW;
-  if (p >= FERRY_CUT) return portrait ? REST_CAMERA_PORTRAIT : REST_CAMERA;
+  if (p >= FERRY_CUT) return into(portrait ? REST_CAMERA_PORTRAIT : REST_CAMERA, out);
   const keys = portrait ? PATHS.portrait : PATHS.landscape;
-  if (p <= keys[0].p) return riverCamera(aspect);
+  if (p <= keys[0].p) return into(riverCamera(aspect), out);
   const i = keys.findIndex((k) => k.p >= p);
   const a = keys[i - 1].pose;
   const b = keys[i].pose;
   const u = easeInOutCubic((p - keys[i - 1].p) / (keys[i].p - keys[i - 1].p));
-  const lerp = (x: number, y: number) => x + (y - x) * u;
-  return {
-    position: [lerp(a.position[0], b.position[0]), lerp(a.position[1], b.position[1]), lerp(a.position[2], b.position[2])],
-    pitch: lerp(a.pitch, b.pitch),
-  };
+  const pose = out ?? { position: [0, 0, 0], pitch: 0 };
+  pose.position[0] = a.position[0] + (b.position[0] - a.position[0]) * u;
+  pose.position[1] = a.position[1] + (b.position[1] - a.position[1]) * u;
+  pose.position[2] = a.position[2] + (b.position[2] - a.position[2]) * u;
+  pose.pitch = a.pitch + (b.pitch - a.pitch) * u;
+  return pose;
 }
 
 /** The title card: held, then gone by the end of the reveal. */

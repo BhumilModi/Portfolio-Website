@@ -90,7 +90,7 @@ function uniforms(): Record<string, THREE.IUniform> {
   ]);
 }
 
-/** The river. The normal tier reflects the scene (torii, portal, lanterns, moon); the low tier fakes it. */
+/** The river. The normal tier reflects the scene (the temple, portal, guardians, moon); the low tier fakes it. */
 export function buildWater(low: boolean) {
   const geometry = new THREE.PlaneGeometry(SIZE, SIZE);
   if (low) {

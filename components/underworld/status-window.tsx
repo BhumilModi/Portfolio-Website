@@ -62,7 +62,7 @@ export default function StatusWindow() {
         ) : (
           <div className="flex flex-col gap-8">
             <div className="grid items-center gap-6 sm:grid-cols-[12rem_1fr]">
-              <RyumaMark className="w-48 text-bone" />
+              <RyumaMark className="w-48 text-bone" pitch={16} />
               <dl className="flex flex-col gap-3">
                 <Row label={STATUS.labels.job}>{STATUS.job}</Row>
                 <Row label={STATUS.labels.title}>{STATUS.title}</Row>

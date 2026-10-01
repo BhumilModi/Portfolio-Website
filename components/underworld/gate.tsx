@@ -8,7 +8,7 @@ export default function Gate({ count }: { count: number }) {
     <section className="grid min-h-dvh place-items-center px-4 text-center">
       <div className="flex w-full max-w-[34rem] flex-col items-center gap-8">
         <div aria-hidden className="w-[min(80vw,560px)] text-bone opacity-40">
-          <RyumaMark className="block w-full" />
+          <RyumaMark className="block w-full" pitch={9} />
         </div>
         <div className="sys-window w-full text-left" data-phase="still">
           <h1 className="sys-head">{UNDERWORLD.gate.title}</h1>

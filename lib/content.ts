@@ -236,7 +236,6 @@ export const UNDERWORLD = {
   metaDescription: "Off duty. A side quest beneath the portfolio of Bhumil Modi.",
   brand: "Ryuma",
   ascend: "Ascend ↑",
-  name: "Ryuma",
   // The broadcast's subtitles, one at a time through the ride (spirit spec §5).
   whispers: ["By day, agents in production.", "By night,", "the one who holds the line."],
   cross: "Cross ↵",
@@ -275,13 +274,12 @@ export const STATUS = {
   heading: "STATUS",
   locked: "No signal. Clear the Gate to tune in.",
   toGate: "To the Gate ↑",
-  name: "Ryuma",
   // Bhumil's own read on how he plays: leads the team, anchors it, fills whatever role is open.
   // The numbers are flavor, shaped to that (steady and aware over fast), not measured.
   level: 27,
   job: "Anchor",
   title: "One Who Holds the Line",
-  labels: { name: "Name", level: "Level", job: "Job", title: "Title" },
+  labels: { level: "Level", job: "Job", title: "Title" },
   stats: [
     { k: "STR", v: 58 },
     { k: "AGI", v: 64 },
@@ -300,7 +298,6 @@ export const STATUS = {
   },
   equipment: { heading: "EQUIPMENT", list: ["PC", "Mobile"] },
   recordHeading: "YOUR RECORD",
-  rankLabel: "Rank",
   unranked: "Unranked",
   invite: {
     text: "Ryuma has sent you a party invite.",

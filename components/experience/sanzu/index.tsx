@@ -3,7 +3,7 @@ import { Suspense, useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { PerspectiveCamera, View } from "@react-three/drei";
 import * as THREE from "three";
-import { DESCENT_FOV } from "@/lib/descent";
+import { DESCENT_FOV, type Pose } from "@/lib/descent";
 import { ferryPose } from "@/lib/ferry";
 import { clamp01, easeInOutCubic } from "@/lib/timeline";
 import { BACKDROP_READY_EVENT, scene } from "@/lib/scene";
@@ -110,15 +110,44 @@ function Guardian({ id, position, scale, yaw, material }: { id: ModelId; positio
   return <mesh geometry={geometry} material={material} position={position} scale={scale} rotation={[0, yaw, 0]} />;
 }
 
-/** Real scans in grey stone: their carved detail is what the spirit pass draws, under the raking light. */
+const GUARDIANS_IN = "bm:guardians-in";
+let guardiansIn = false;
+/** The scans have loaded (or failed and been dropped): the backdrop may start drawing without them popping in later. */
+function markGuardiansIn() {
+  if (guardiansIn) return;
+  guardiansIn = true;
+  window.dispatchEvent(new Event(GUARDIANS_IN));
+}
+/** Mounts only once every sibling in its Suspense has resolved. */
+function Settled() {
+  useEffect(markGuardiansIn, []);
+  return null;
+}
+
+/** Real scans in banded stone: their carved detail is what the spirit pass draws, under the raking light. */
 function Guardians() {
-  const stone = useMemo(() => new THREE.MeshStandardMaterial({ color: "#8a8a86", roughness: 0.8 }), []);
-  useEffect(() => () => stone.dispose(), [stone]);
+  // Toon bands, not smooth shading: each hard step in the light is a luminance edge, so the spirit pass traces the
+  // carving (manes, brows, folds) as contour lines instead of drawing only the silhouette.
+  const { stone, bands } = useMemo(() => {
+    const steps = new Uint8Array([20, 80, 150, 255]); // calibration knob: band levels, 3–5 steps
+    const bands = new THREE.DataTexture(steps, steps.length, 1, THREE.RedFormat);
+    bands.minFilter = bands.magFilter = THREE.NearestFilter;
+    bands.needsUpdate = true;
+    return { stone: new THREE.MeshToonMaterial({ color: "#9a9a96", gradientMap: bands }), bands };
+  }, []);
+  useEffect(
+    () => () => {
+      stone.dispose();
+      bands.dispose();
+    },
+    [stone, bands],
+  );
   return (
     <Suspense fallback={null}>
       {GUARDIANS.map(([id, position, scale, yaw], i) => (
         <Guardian key={i} id={id} position={position} scale={scale} yaw={yaw} material={stone} />
       ))}
+      <Settled />
     </Suspense>
   );
 }
@@ -178,7 +207,7 @@ export function Sanzu({ fade = one }: { fade?: () => number }) {
       <primitive object={water.mesh} />
       <primitive object={temple.group} />
       {/* A failed scan download drops the guardians, not the whole river (or the whole descent). */}
-      <SceneBoundary fallback={null}>
+      <SceneBoundary fallback={<Settled />}>
         <Guardians />
       </SceneBoundary>
       <mesh position={[TORII.x, TORII.portalY, TORII.z]} material={portal} renderOrder={2}>
@@ -215,6 +244,7 @@ export function Sanzu({ fade = one }: { fade?: () => number }) {
 function Rig() {
   const aim = useRef({ yaw: 0, pitch: 0 });
   const lean = useRef({ yaw: 0, pitch: 0 });
+  const rigPose = useRef<Pose>({ position: [0, 0, 0], pitch: 0 }); // written in place every frame: no per-frame allocation
   useEffect(() => {
     if (scene.reducedMotion) return;
     const onMove = (e: PointerEvent) => {
@@ -228,8 +258,8 @@ function Rig() {
     const k = 1 - Math.exp(-Math.min(delta, 0.1) * LEAN_RATE); // frame-rate independent
     lean.current.yaw += (aim.current.yaw - lean.current.yaw) * k;
     lean.current.pitch += (aim.current.pitch - lean.current.pitch) * k;
-    const pose = ferryPose(scene.ferry, window.innerWidth / window.innerHeight);
-    camera.position.set(...pose.position);
+    const pose = ferryPose(scene.ferry, window.innerWidth / window.innerHeight, rigPose.current);
+    camera.position.set(pose.position[0], pose.position[1], pose.position[2]);
     camera.rotation.set(pose.pitch + lean.current.pitch, lean.current.yaw, 0, "YXZ");
   });
   return null;
@@ -244,6 +274,21 @@ const crossingActive = () => "crossing" in document.documentElement.dataset;
 export const BACKDROP_DPR = 1.25;
 
 const backdropReady = () => window.dispatchEvent(new Event(BACKDROP_READY_EVENT));
+// ponytail: the longest the backdrop holds its first frame for the scans before drawing without them.
+const GUARDIANS_WAIT_MS = 4000;
+/** Programs compiled: tell the crossing once the scans are in too, so a cold visit never shows them popping in. */
+function whenGuardiansIn() {
+  if (guardiansIn) return backdropReady();
+  const go = () => {
+    window.removeEventListener(GUARDIANS_IN, go);
+    window.clearTimeout(id);
+    markGuardiansIn();
+    backdropReady();
+  };
+  const id = window.setTimeout(go, GUARDIANS_WAIT_MS);
+  window.addEventListener(GUARDIANS_IN, go);
+}
+const backdropPaused = () => crossingActive() || !guardiansIn;
 
 /** The /underworld backdrop: the Sanzu from exactly where the descent lands. */
 export function SanzuBackdrop() {
@@ -253,7 +298,7 @@ export function SanzuBackdrop() {
         <PerspectiveCamera makeDefault fov={DESCENT_FOV} near={0.1} far={400} />
         <Rig />
         <fogExp2 attach="fog" args={[SANZU.fog, FOG_DENSITY]} />
-        <Spirit paused={crossingActive} onReady={backdropReady} maxDpr={BACKDROP_DPR} />
+        <Spirit paused={backdropPaused} onReady={whenGuardiansIn} maxDpr={BACKDROP_DPR} />
         <SceneBoundary fallback={null}>
           <Sanzu />
         </SceneBoundary>

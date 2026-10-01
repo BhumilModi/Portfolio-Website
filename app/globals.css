@@ -9,7 +9,6 @@
   /* The Underworld (spirit spec §4). */
   --color-spirit: #52f5d6;
   --color-seal: #b31f27;
-  --color-lily: #c8232c;
   --color-paper: var(--color-bone);
   --color-ink: var(--color-void);
   --font-display: var(--font-league-gothic), "Arial Narrow", sans-serif;

@@ -48,13 +48,14 @@ const PATHS = (() => {
  * with a halftone dot screen in currentColor. Each dot's radius follows --dot (1 = full), so the broadcast's reveal can
  * dissolve the mark into the screen.
  */
-export default function RyumaMark({ className = "" }: { className?: string }) {
+/** pitch: the dot screen's cell in viewBox units (1000 wide). Coarsen it for small marks, or the dots moiré on 1x screens. */
+export default function RyumaMark({ className = "", pitch = 6 }: { className?: string; pitch?: number }) {
   const id = useId().replace(/:/g, "");
   return (
     <svg viewBox="0 0 1000 400" role="img" aria-label="Ryuma" className={className}>
       <defs>
-        <pattern id={`${id}-dots`} width="6" height="6" patternUnits="userSpaceOnUse">
-          <circle cx="3" cy="3" r="2.3" fill="currentColor" style={{ r: "calc(2.3px * var(--dot, 1))" } as React.CSSProperties} />
+        <pattern id={`${id}-dots`} width={pitch} height={pitch} patternUnits="userSpaceOnUse">
+          <circle cx={pitch / 2} cy={pitch / 2} r={pitch * 0.38} fill="currentColor" style={{ r: `calc(${pitch * 0.38}px * var(--dot, 1))` } as React.CSSProperties} />
         </pattern>
         <mask id={`${id}-shape`} maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="400">
           {PATHS.map((d, i) => (

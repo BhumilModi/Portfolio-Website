@@ -71,3 +71,16 @@ test("whispers live inside the ride, peak in their slot, and never overlap", () 
     assert.ok(lit.length <= 1, `two whispers at p=${p.toFixed(3)}`);
   }
 });
+
+test("ferryPose can write into a caller's pose, so the per-frame camera rig allocates nothing", () => {
+  const out = { position: [0, 0, 0] as [number, number, number], pitch: 0 };
+  const position = out.position;
+  for (const a of ASPECTS) {
+    for (const p of [0, 0.2, 0.5, 0.8, 0.94, FERRY_CUT, 1]) {
+      const r = ferryPose(p, a, out);
+      assert.equal(r, out);
+      assert.equal(out.position, position);
+      assert.deepEqual(out, ferryPose(p, a));
+    }
+  }
+});

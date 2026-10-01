@@ -46,8 +46,8 @@ export type Pose = { position: [number, number, number]; pitch: number };
 // calibration knob: both river poses — tune while comparing /underworld screenshots at 1440×900 and 390×844.
 /** Low over the water, pitched slightly up; the torii sits right of centre. The backdrop uses it unchanged. */
 export const RIVER_CAMERA: Pose = { position: [0, 1.1, 8], pitch: 0.05 };
-/** Tall screens: centred on the torii and pitched down, so the Gate sits in the top half and the text below. */
-export const RIVER_CAMERA_PORTRAIT: Pose = { position: [4, 0.8, 14], pitch: -0.01 };
+/** Tall screens: centred on the Gate, low and tilted up, so the temple fills the frame instead of empty water. */
+export const RIVER_CAMERA_PORTRAIT: Pose = { position: [4, 0.5, 14], pitch: 0.14 };
 export const PORTRAIT_BELOW = 0.9; // aspect (w / h) under which the portrait pose is used
 export const riverCamera = (aspect: number): Pose => (aspect < PORTRAIT_BELOW ? RIVER_CAMERA_PORTRAIT : RIVER_CAMERA);
 

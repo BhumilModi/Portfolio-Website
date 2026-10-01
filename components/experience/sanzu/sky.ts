@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { NOISE, SANZU } from "./common";
 
-// calibration knob: just above the torii's kasagi as seen from RIVER_CAMERA; stay inside the dome (radius 180).
+// calibration knob: just above the Gate's pediment as seen from RIVER_CAMERA; stay inside the dome (radius 180).
 export const MOON_POS: [number, number, number] = [20, 44, -120];
 
 const skyVertex = /* glsl */ `
