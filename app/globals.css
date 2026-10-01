@@ -254,46 +254,22 @@ body:has(#crossing) .intro-skip { visibility: hidden; }
 /* Same container and bottom offset as the Arrival's notice (components/underworld/arrival.tsx), so the handoff lines up. */
 .crossing-notice { position: fixed; inset-inline: 0; bottom: 6rem; text-align: left; pointer-events: none; }
 
-/* System windows (components/underworld/system-window.tsx): translucent navy, 1px System-blue edge + glow, corner brackets. */
+/* System windows (components/underworld/system-window.tsx): CRT terminal readouts (spirit spec §6). Black glass,
+   a spirit-teal edge, scanlines; they warm up like a tube when they first scroll into view. */
 .sys-window {
   position: relative;
   padding: 1.25rem 1.5rem;
   color: var(--color-bone);
-  background: linear-gradient(180deg, rgb(10 22 48 / 0.8), rgb(6 12 28 / 0.74));
-  -webkit-backdrop-filter: blur(12px) saturate(1.2);
-  backdrop-filter: blur(12px) saturate(1.2);
-  border: 1px solid color-mix(in srgb, var(--color-spirit) 75%, transparent);
-  box-shadow: 0 0 18px color-mix(in srgb, var(--color-spirit) 30%, transparent), inset 0 0 28px color-mix(in srgb, var(--color-spirit) 12%, transparent);
+  background: rgb(0 0 0 / 0.85);
+  border: 1px solid color-mix(in srgb, var(--color-spirit) 50%, transparent);
+  transform-origin: 50% 50%;
 }
-/* Corner brackets: eight 2px bars just outside the border. */
-.sys-window::before {
-  content: "";
-  position: absolute;
-  inset: -5px;
-  pointer-events: none;
-  background:
-    linear-gradient(var(--color-spirit) 0 0) left top / 16px 2px,
-    linear-gradient(var(--color-spirit) 0 0) left top / 2px 16px,
-    linear-gradient(var(--color-spirit) 0 0) right top / 16px 2px,
-    linear-gradient(var(--color-spirit) 0 0) right top / 2px 16px,
-    linear-gradient(var(--color-spirit) 0 0) left bottom / 16px 2px,
-    linear-gradient(var(--color-spirit) 0 0) left bottom / 2px 16px,
-    linear-gradient(var(--color-spirit) 0 0) right bottom / 16px 2px,
-    linear-gradient(var(--color-spirit) 0 0) right bottom / 2px 16px;
-  background-repeat: no-repeat;
-  filter: drop-shadow(0 0 4px var(--color-spirit));
-}
-/* The opening line: a 1px System-blue rule across the middle. */
 .sys-window::after {
   content: "";
   position: absolute;
-  inset-inline: 0;
-  top: 50%;
-  height: 1px;
-  background: var(--color-spirit);
-  box-shadow: 0 0 8px var(--color-spirit);
-  opacity: 0;
+  inset: 0;
   pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgb(255 255 255 / 0.06) 0 1px, transparent 1px 3px);
 }
 .sys-head {
   margin-bottom: 1rem;
@@ -302,34 +278,25 @@ body:has(#crossing) .intro-skip { visibility: hidden; }
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--color-spirit);
-  text-shadow: 0 0 10px color-mix(in srgb, var(--color-spirit) 60%, transparent);
 }
-.sys-notice { padding: 0.85rem 1.1rem; font-family: var(--font-serif); font-size: 1.125rem; line-height: 1.4; }
-.sys-tag { margin-right: 0.35rem; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.18em; color: var(--color-spirit); }
-.sys-window[data-phase="shut"] { clip-path: inset(50% 50% 50% 50%); }
+.sys-notice { padding: 0.85rem 1.1rem; font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 0.04em; line-height: 1.5; color: var(--color-spirit); }
+.sys-tag { margin-right: 0.5rem; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.18em; color: var(--color-bone); }
+.sys-window[data-phase="shut"] { opacity: 0; }
 @media (prefers-reduced-motion: no-preference) {
-  /* 0–40% (120ms): the line draws out; 40–100% (180ms): the panel unfolds. Strong ease-out on both. */
-  .sys-window[data-phase="open"] { animation: sys-open 300ms both; }
-  .sys-window[data-phase="open"]::after { animation: sys-line 300ms both; }
-  .sys-window[data-phase="open"] .sys-body { animation: sys-fade 160ms 200ms ease-out both; }
+  .sys-window[data-phase="shut"] { transform: scaleY(0.02); }
+  /* The tube warming up: a bright line that opens to the full panel, 160ms, strong ease-out. */
+  .sys-window[data-phase="open"] { animation: sys-warm 160ms cubic-bezier(0.23, 1, 0.32, 1) both; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .sys-window[data-phase="shut"] { clip-path: none; opacity: 0; }
   .sys-window[data-phase="open"] { animation: sys-fade 150ms ease-out both; }
 }
-@keyframes sys-open {
-  0% { clip-path: inset(calc(50% - 1px) 50% calc(50% - 1px) 50%); animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); }
-  40% { clip-path: inset(calc(50% - 1px) -24px calc(50% - 1px) -24px); animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); }
-  100% { clip-path: inset(-24px); }
-}
-@keyframes sys-line {
-  0% { opacity: 1; transform: scaleX(0); animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); }
-  40% { opacity: 1; transform: scaleX(1); }
-  100% { opacity: 0; transform: scaleX(1); }
+@keyframes sys-warm {
+  from { opacity: 1; transform: scaleY(0.02); filter: brightness(2.5); }
+  to { opacity: 1; transform: scaleY(1); filter: brightness(1); }
 }
 @keyframes sys-fade { from { opacity: 0; } }
 
-/* System buttons (trial, status, ARISE). 44px minimum hit area. */
+/* System buttons (trial, status, ARISE). 44px minimum hit area. The primary is the screen's one seal-red accent. */
 .sys-btn {
   display: inline-flex;
   align-items: center;
@@ -337,24 +304,19 @@ body:has(#crossing) .intro-skip { visibility: hidden; }
   min-height: 44px;
   padding: 0.7rem 1.2rem;
   border: 1px solid color-mix(in srgb, var(--color-spirit) 60%, transparent);
-  background: color-mix(in srgb, var(--color-spirit) 8%, transparent);
-  color: var(--color-bone);
+  background: transparent;
+  color: var(--color-spirit);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  transition: background-color 150ms ease-out, border-color 150ms ease-out, box-shadow 150ms ease-out, transform 100ms ease-out;
+  transition: background-color 150ms ease-out, border-color 150ms ease-out, transform 100ms ease-out;
 }
 .sys-btn:active { transform: scale(0.97); }
-.sys-btn-primary {
-  background: var(--color-spirit);
-  border-color: var(--color-spirit);
-  color: var(--color-void);
-  box-shadow: 0 0 18px color-mix(in srgb, var(--color-spirit) 45%, transparent);
-}
-@media (hover: hover) {
-  .sys-btn:hover { background: color-mix(in srgb, var(--color-spirit) 20%, transparent); border-color: var(--color-spirit); box-shadow: 0 0 16px color-mix(in srgb, var(--color-spirit) 35%, transparent); }
-  .sys-btn-primary:hover { background: color-mix(in srgb, var(--color-spirit) 80%, white); color: var(--color-void); }
+.sys-btn-primary { background: var(--color-seal); border-color: var(--color-seal); color: var(--color-bone); }
+@media (hover: hover) and (pointer: fine) {
+  .sys-btn:hover { background: color-mix(in srgb, var(--color-spirit) 12%, transparent); border-color: var(--color-spirit); }
+  .sys-btn-primary:hover { background: color-mix(in srgb, var(--color-seal) 88%, #000); border-color: color-mix(in srgb, var(--color-seal) 88%, #000); }
 }
 
 /* ARISE (components/underworld/arise.tsx): a violet veil and the word, ~1.2s. Reduced motion: the word fades, no scale. */

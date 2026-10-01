@@ -18,14 +18,13 @@ type Props = {
 };
 
 /**
- * The System window (redesign spec §5): a translucent deep-navy panel, a 1px System-blue border with a soft glow,
- * and corner brackets. It opens the first time it scrolls into view — a 120ms line, then a 180ms unfold, strong
- * ease-out — and chimes if sound is on. Reduced motion gets a plain 150ms fade (app/globals.css).
+ * The System window (spirit spec §6): a CRT terminal readout — black glass, a spirit-teal edge, scanlines. It opens the
+ * first time it scrolls into view with a 160ms tube warm-up (a bright line opening to the panel) and chimes if sound
+ * is on. Reduced motion gets a plain 150ms fade (app/globals.css).
  */
 export default function SystemWindow({ heading, level = 2, notice = false, instant = false, id, className = "", children }: Props) {
-  // Observed on an unclipped wrapper, not the window itself: the shut state's clip-path collapses the
-  // window's own box to zero, which would make an IntersectionObserver watching it (or a descendant of it)
-  // report a permanent zero intersection ratio and never fire.
+  // Observed on an untransformed wrapper, not the window itself: the shut state's scaleY(0.02) collapses the
+  // window's box to a sliver, which would keep an IntersectionObserver watching it below its threshold forever.
   const wrap = useRef<HTMLDivElement>(null);
   const headingId = useId();
   const [phase, setPhase] = useState<"shut" | "open" | "still">(instant ? "still" : "shut");
