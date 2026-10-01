@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import { paid } from "@/lib/quest";
 import { cross } from "@/lib/scene";
 import { UNDERWORLD } from "@/lib/content";
@@ -14,6 +15,11 @@ import StatusWindow from "./status-window";
 export default function Realm() {
   const hydrated = useHydrated();
   const s = useQuest();
+  const open = hydrated && paid(s);
+  // The realm renders after hydration, so the browser's own hash scroll ran against an empty page: redo it once.
+  useEffect(() => {
+    if (open && location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
+  }, [open]);
   return (
     <div className="realm-underworld min-h-dvh">
       <SanzuBackdrop />
