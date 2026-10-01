@@ -4,6 +4,7 @@ import { SYSTEM } from "@/lib/content";
 import { quest } from "@/lib/quest";
 import { scene } from "@/lib/scene";
 import { playChime } from "@/components/quest/sound";
+import { HalftoneWord } from "./ryuma-mark";
 
 const ARISE_EVENT = "bm:arise";
 const FLASH_MS = 1200;
@@ -21,7 +22,7 @@ export function summon() {
   window.dispatchEvent(new Event(ARISE_EVENT));
 }
 
-/** The word: "ARISE" huge in League Gothic with a Monarch-violet glow for ~1.2s, then on to the Status Window. */
+/** The word: "ARISE" huge in the mark's halftone gothic, revealed in signal-glitch slices, ~1.2s; then on to the Status screen. */
 export default function AriseFlash() {
   const [on, setOn] = useState(false);
   useEffect(() => {
@@ -43,7 +44,7 @@ export default function AriseFlash() {
   if (!on) return null;
   return (
     <div className="arise-flash" role="status" aria-live="assertive">
-      <span className="arise-word font-display">{SYSTEM.arise}</span>
+      <HalftoneWord text={SYSTEM.arise} width={900} height={260} className="arise-word" />
     </div>
   );
 }

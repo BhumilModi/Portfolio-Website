@@ -274,7 +274,7 @@ export const ARENA = {
 // The Status Window (redesign spec §6). Replaces the old CARD.
 export const STATUS = {
   heading: "STATUS",
-  locked: "Clear the Gate to unlock.",
+  locked: "No signal. Clear the Gate to tune in.",
   toGate: "To the Gate ↑",
   name: "Ryuma",
   // Bhumil's own read on how he plays: leads the team, anchors it, fills whatever role is open.

@@ -319,7 +319,8 @@ body:has(#crossing) .intro-skip { visibility: hidden; }
   .sys-btn-primary:hover { background: color-mix(in srgb, var(--color-seal) 88%, #000); border-color: color-mix(in srgb, var(--color-seal) 88%, #000); }
 }
 
-/* ARISE (components/underworld/arise.tsx): a violet veil and the word, ~1.2s. Reduced motion: the word fades, no scale. */
+/* ARISE (components/underworld/arise.tsx): a black veil and the halftone word, revealed in three signal-glitch slices
+   (60ms each), held, then gone; ~1.2s. Reduced motion: the word fades, no slices. */
 .arise-flash {
   position: fixed;
   inset: 0;
@@ -327,23 +328,22 @@ body:has(#crossing) .intro-skip { visibility: hidden; }
   display: grid;
   place-items: center;
   pointer-events: none;
-  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--color-seal) 26%, transparent), transparent 70%);
+  background: radial-gradient(ellipse at center, rgb(0 0 0 / 0.6), transparent 70%);
   animation: arise-veil 1200ms ease-out both;
 }
 .arise-word {
-  font-size: clamp(7rem, 28vw, 22rem);
-  line-height: 0.85;
-  text-transform: uppercase;
+  width: min(92vw, 1100px);
   color: var(--color-bone);
-  text-shadow: 0 0 2px var(--color-seal), 0 0 36px color-mix(in srgb, var(--color-seal) 80%, transparent), 0 0 90px color-mix(in srgb, var(--color-seal) 50%, transparent);
-  animation: arise-word 1200ms both;
+  animation: arise-glitch 1200ms both;
 }
 @keyframes arise-veil { 0% { opacity: 0; } 12% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
-@keyframes arise-word {
-  0% { opacity: 0; transform: scale(1.18); animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); }
-  22% { opacity: 1; transform: scale(1); }
-  72% { opacity: 1; transform: scale(1.02); animation-timing-function: ease-in; }
-  100% { opacity: 0; transform: scale(1.04); }
+@keyframes arise-glitch {
+  0% { opacity: 1; clip-path: inset(38% 0 48% 0); transform: translateX(-10px); animation-timing-function: step-end; }
+  5% { clip-path: inset(8% 0 70% 0); transform: translateX(8px); animation-timing-function: step-end; }
+  10% { clip-path: inset(62% 0 12% 0); transform: translateX(-4px); animation-timing-function: step-end; }
+  15% { clip-path: inset(0); transform: none; }
+  75% { opacity: 1; clip-path: inset(0); }
+  100% { opacity: 0; clip-path: inset(0); }
 }
 @media (prefers-reduced-motion: reduce) { .arise-word { animation-name: arise-veil; } }
 
