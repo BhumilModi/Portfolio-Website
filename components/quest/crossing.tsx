@@ -16,9 +16,9 @@ import SceneBoundary from "@/components/experience/scene-boundary";
 import SystemWindow from "@/components/underworld/system-window";
 import { setRealm } from "./sound";
 
-// Mirror --color-field and --color-abyss: the backdrop behind the canvas cools as the camera falls.
+// --color-field fading to the broadcast's black: the backdrop behind the canvas darkens as the camera falls.
 const FIELD = [154, 42, 20];
-const ABYSS = [5, 7, 13];
+const ABYSS = [0, 0, 0];
 const FALLBACK_S = 1;
 /** Reduced motion: the notice opens halfway through the crossfade and is held this long before the page swaps in.
  * Must clear 1s of full opacity after its own 150ms fade-in (rd-constraints.md's "held fully visible for at least 1s"). */
@@ -205,7 +205,7 @@ export default function Crossing() {
         )}
         <div aria-hidden className="crossing-loader" data-on={loading ? "" : undefined}>
           <span className="flex items-baseline gap-3 font-mono text-xs uppercase tracking-[0.2em]">
-            <span className="system-glow text-system">{SYSTEM.tag}</span>
+            <span className="system-glow text-spirit">{SYSTEM.tag}</span>
             {CROSSING.loading}
           </span>
           <span className="crossing-loader-bar" />

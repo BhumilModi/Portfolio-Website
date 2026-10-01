@@ -192,9 +192,9 @@ export function Sanzu({ fade = one }: { fade?: () => number }) {
       {/* calibration knob: light intensities — moon 0.6–1.2, fill 0.2–0.6, portal 15–45. */}
       {/* Moonlight from behind the torii: the Gate reads as a silhouette with a lit rim. */}
       <directionalLight position={MOON_POS} target={moonTarget} color={SANZU.moonlight} intensity={0.9} />
-      {!low && <hemisphereLight args={[SANZU.skyFill, INK.abyss, 0.55]} />}
+      {!low && <hemisphereLight args={[SANZU.skyFill, INK.void, 0.55]} />}
       {/* The portal's violet spill on the pillars: the one light the low tier keeps besides the moon. */}
-      <pointLight position={[TORII.x, TORII.portalY, TORII.z + 0.8]} color={INK.monarch} intensity={30} distance={34} decay={2} />
+      <pointLight position={[TORII.x, TORII.portalY, TORII.z + 0.8]} color={INK.spirit} intensity={30} distance={34} decay={2} />
       {!low && <LanternLights lanterns={lanterns} />}
     </group>
   );

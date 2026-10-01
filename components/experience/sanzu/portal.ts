@@ -46,8 +46,8 @@ export function createPortalMaterial(intensity = 2.0) {
       uTime: { value: 0 },
       uOpacity: { value: 1 },
       uIntensity: { value: intensity }, // calibration knob: 1.8–3.5
-      uCore: { value: new THREE.Color(INK.system) },
-      uRim: { value: new THREE.Color(INK.monarch) },
+      uCore: { value: new THREE.Color(INK.bone) },
+      uRim: { value: new THREE.Color(INK.spirit) },
     },
     vertexShader: vertex,
     fragmentShader: fragment,

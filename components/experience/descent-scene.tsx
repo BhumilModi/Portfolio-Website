@@ -131,13 +131,13 @@ export default function DescentScene() {
   const rays = useMemo(() => buildRays(), []);
   const marble = useMemo(() => createEngravingMaterial({ spacing: 4 }), []);
   const coin = useMemo(() => createEngravingMaterial({ ink: WARM.ember }), []);
-  const stone = useMemo(() => createEngravingMaterial({ ink: INK.mist, ground: INK.abyss }), []);
+  const stone = useMemo(() => createEngravingMaterial({ ink: INK.bone, ground: INK.void }), []);
   // Every tier gets the full shaft: it is two instanced draw calls.
   const shaft = useMemo(() => buildShaft(9, stone), [stone]);
-  const wisps = useMemo(() => buildWisps(low ? 250 : 600, 6, 36, { color: INK.system }), [low]);
+  const wisps = useMemo(() => buildWisps(low ? 250 : 600, 6, 36, { color: INK.spirit }), [low]);
   const portal = useMemo(() => createPortalMaterial(3.2), []); // calibration knob: approach-disc intensity, 2.4–4
   const warm = useMemo(() => new THREE.Color(WARM.ember), []);
-  const cold = useMemo(() => new THREE.Color(INK.system), []);
+  const cold = useMemo(() => new THREE.Color(INK.spirit), []);
   const obol = useRef<THREE.Mesh>(null);
   const disc = useRef<THREE.Mesh>(null);
   const sanzuFade = useCallback(() => sanzuOpacity(scene.crossingT), []);

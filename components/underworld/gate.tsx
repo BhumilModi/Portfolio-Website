@@ -5,10 +5,10 @@ export default function Gate({ count }: { count: number }) {
   return (
     <section className="grid min-h-dvh place-items-center px-4 text-center">
       <div className="flex max-w-[40ch] flex-col items-center gap-6">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-mist/70">{UNDERWORLD.gate.eyebrow}</p>
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-bone/70">{UNDERWORLD.gate.eyebrow}</p>
         <h1 className="cap-trim font-display text-[clamp(3rem,10vw,7rem)] uppercase leading-[0.9]">{UNDERWORLD.gate.title}</h1>
-        <p className="font-serif text-lg italic text-mist/85">{UNDERWORLD.gate.body.replace("{n}", String(count))}</p>
-        <Link href="/#hero" className="border border-mist/60 px-5 py-3 font-mono text-xs uppercase tracking-[0.16em] transition-colors duration-150 hover:bg-mist hover:text-abyss active:scale-[0.97]">
+        <p className="font-serif text-lg italic text-bone/85">{UNDERWORLD.gate.body.replace("{n}", String(count))}</p>
+        <Link href="/#hero" className="border border-bone/60 px-5 py-3 font-mono text-xs uppercase tracking-[0.16em] transition-colors duration-150 hover:bg-bone hover:text-void active:scale-[0.97]">
           {UNDERWORLD.gate.back}
         </Link>
       </div>

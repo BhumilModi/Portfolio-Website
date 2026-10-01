@@ -84,7 +84,7 @@ function buildArmy(low: boolean) {
     uniforms: {
       ...THREE.UniformsUtils.clone(THREE.UniformsLib.fog),
       uBody: { value: new THREE.Color(SANZU.shadow) },
-      uRim: { value: new THREE.Color(INK.monarch) },
+      uRim: { value: new THREE.Color(INK.spirit) },
       uOpacity: { value: 1 },
       uTime: { value: 0 },
       uFray: { value: 1 },
@@ -98,7 +98,7 @@ function buildArmy(low: boolean) {
   const steel = body.clone();
   steel.uniforms = { ...body.uniforms, uFray: { value: 0 } };
   // HDR System blue: the eyes are the only part of a soldier that blooms.
-  const eye = new THREE.MeshBasicMaterial({ color: new THREE.Color(INK.system).multiplyScalar(5), transparent: true });
+  const eye = new THREE.MeshBasicMaterial({ color: new THREE.Color(INK.bone).multiplyScalar(5), transparent: true });
   const void_ = new THREE.MeshBasicMaterial({ color: SANZU.shadow, transparent: true });
   const segments = low ? 24 : 40;
   const geo = {
@@ -135,7 +135,7 @@ function buildArmy(low: boolean) {
     return s;
   });
   // Violet smoke curling up round their feet.
-  const smoke = buildWisps(low ? 110 : 220, 9, 2.4, { color: INK.monarch, size: 40, maxSize: 8, speed: 0.35, intensity: 1.6, rand: sanzuRand(4) });
+  const smoke = buildWisps(low ? 110 : 220, 9, 2.4, { color: INK.spirit, size: 40, maxSize: 8, speed: 0.35, intensity: 0.8, rand: sanzuRand(4) });
   smoke.points.position.set(TORII.x, 0, TORII.z + 3.2);
   group.add(smoke.points);
   // Left visible on purpose: the descent pre-compiles visible objects at mount, and the first frame hides it if not arisen.

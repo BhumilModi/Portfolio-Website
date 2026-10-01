@@ -1,8 +1,8 @@
 import { mulberry32 } from "@/lib/rng";
 import { scene } from "@/lib/scene";
 
-// Mirror the --color-abyss/mist/system/monarch/lily tokens in app/globals.css (redesign spec §8).
-export const INK = { abyss: "#05070d", mist: "#cfd8e3", system: "#4aa8ff", monarch: "#8b5cf6", lily: "#c8232c" } as const;
+// Mirror --color-void, --color-bone, --color-spirit and --color-lily in app/globals.css (spirit spec §4).
+export const INK = { void: "#0b0907", bone: "#efe6d4", spirit: "#52f5d6", lily: "#c8232c" } as const;
 
 // Scene-only tones, not UI tokens: night-blue moonlight, amber paper, ink water.
 export const SANZU = {

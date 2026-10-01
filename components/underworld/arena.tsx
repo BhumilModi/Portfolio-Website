@@ -12,10 +12,10 @@ import { summon } from "./arise";
 type Screen = "lobby" | "countdown" | "live" | "done";
 type Target = Point & { born: number; life: number };
 type Burst = Point & { born: number };
-// Mirror --color-system, --color-monarch and --color-mist.
-const SYSTEM_BLUE = "#4aa8ff";
-const MONARCH = "#8b5cf6";
-const MIST = "#cfd8e3";
+// Mirror --color-spirit, --color-seal and --color-bone. Interim: Task 7 of the spirit plan redraws the sigils.
+const SYSTEM_BLUE = "#52f5d6";
+const MONARCH = "#b31f27";
+const MIST = "#efe6d4";
 const TAU = Math.PI * 2;
 const BURST_MS = 220;
 
@@ -232,7 +232,7 @@ export default function Arena() {
   return (
     <section id="trial" aria-labelledby="trial-title" className="mx-auto w-full max-w-[1280px] px-4 py-24 md:px-8">
       <div className="flex flex-col gap-4">
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-system">{ARENA.label}</p>
+        <p className="font-mono text-xs uppercase tracking-[0.18em] text-spirit">{ARENA.label}</p>
         <h2 id="trial-title" className="cap-trim font-display text-[clamp(3rem,7vw,6rem)] uppercase leading-[0.9]">{ARENA.title}</h2>
       </div>
       <div className="arena-field relative mt-10 aspect-[3/4] w-full overflow-hidden sm:aspect-[16/10]">
@@ -244,7 +244,7 @@ export default function Arena() {
         />
 
         {screen === "live" && (
-          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 flex justify-between p-4 font-mono text-xs uppercase tracking-[0.16em] text-mist">
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 flex justify-between p-4 font-mono text-xs uppercase tracking-[0.16em] text-bone">
             <span>{hud.timeLeft}s</span>
             <span className="tabular-nums">{hud.score.toLocaleString()}</span>
             <span>×{hud.streak}</span>
@@ -268,7 +268,7 @@ export default function Arena() {
                 </button>
               </div>
               {best && (
-                <p className="mt-5 font-mono text-xs uppercase tracking-[0.16em] text-mist/70">
+                <p className="mt-5 font-mono text-xs uppercase tracking-[0.16em] text-bone/70">
                   {ARENA.yourBest} · {ARENA.rank} {rankFor(best.score, ARENA.ryumaBest)} · <span className="tabular-nums">{best.score.toLocaleString()}</span>
                 </p>
               )}
@@ -289,7 +289,7 @@ export default function Arena() {
               <SystemWindow heading={ARENA.resultHeading} level={3}>
                 <div className="flex items-end justify-between gap-6">
                   <div>
-                    <p className="font-mono text-xs uppercase tracking-[0.18em] text-mist/70">{ARENA.rank}</p>
+                    <p className="font-mono text-xs uppercase tracking-[0.18em] text-bone/70">{ARENA.rank}</p>
                     <p className="rank-letter font-display" data-rank={rank}>
                       {rank}
                     </p>
@@ -299,23 +299,23 @@ export default function Arena() {
                       <span className="sr-only">{ARENA.you} </span>
                       {result.score.toLocaleString()}
                     </p>
-                    <p className="mt-2 font-mono text-xs uppercase tracking-[0.14em] text-mist/70">
+                    <p className="mt-2 font-mono text-xs uppercase tracking-[0.14em] text-bone/70">
                       {ARENA.ryuma} <span className="tabular-nums">{ARENA.ryumaBest.toLocaleString()}</span>
                     </p>
                   </div>
                 </div>
                 <p className="mt-4 font-serif text-lg italic">{verdict(result.score, ARENA.ryumaBest) === "taken" ? ARENA.taken : ARENA.held}</p>
-                <dl className="mt-4 grid grid-cols-3 gap-4 border-t border-system/25 pt-4 font-mono text-xs uppercase tracking-[0.14em]">
+                <dl className="mt-4 grid grid-cols-3 gap-4 border-t border-spirit/25 pt-4 font-mono text-xs uppercase tracking-[0.14em]">
                   <div>
-                    <dt className="text-mist/60">{ARENA.stats.hits}</dt>
+                    <dt className="text-bone/60">{ARENA.stats.hits}</dt>
                     <dd className="mt-1 text-base tabular-nums">{result.hits}</dd>
                   </div>
                   <div>
-                    <dt className="text-mist/60">{ARENA.stats.accuracy}</dt>
+                    <dt className="text-bone/60">{ARENA.stats.accuracy}</dt>
                     <dd className="mt-1 text-base tabular-nums">{Math.round(result.accuracy * 100)}%</dd>
                   </div>
                   <div>
-                    <dt className="text-mist/60">{ARENA.stats.reaction}</dt>
+                    <dt className="text-bone/60">{ARENA.stats.reaction}</dt>
                     <dd className="mt-1 text-base tabular-nums">{result.reactionMs} ms</dd>
                   </div>
                 </dl>
