@@ -100,8 +100,6 @@ export const portalScale = (t: number) => 0.25 + 0.75 * smoothstep(3.0, 3.9, t);
 export const flashOpacity = (t: number) => smoothstep(4.2, GATE_CUT, t) * (1 - smoothstep(GATE_CUT, 4.45, t));
 /** The scanline's sweep down the screen through the gate beat: 0 = top, 1 = bottom. */
 export const scanline = (t: number) => beatLocal(t, "gate");
-/** Bloom runs from the portal approach on; the Olympus beats never go through the composer. */
-export const bloomBeat = (t: number) => t >= 3.0;
 export const noticeShown = (t: number) => t >= NOTICE_AT;
 /** Opaque backdrop behind the canvas that hides the page; in over the fare beat. */
 export const backdropOpacity = (t: number) => smoothstep(0, 0.5, t);

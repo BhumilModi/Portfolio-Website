@@ -5,7 +5,7 @@ import { PerspectiveCamera, View } from "@react-three/drei";
 import * as THREE from "three";
 import { DESCENT_FOV, riverCamera } from "@/lib/descent";
 import { BACKDROP_READY_EVENT, scene } from "@/lib/scene";
-import Bloom, { GlowSprite, bloomOn } from "../bloom";
+import Ink from "../ink";
 import SceneBoundary from "../scene-boundary";
 import { buildWisps } from "../wisps";
 import { FOG_DENSITY, INK, SANZU, sanzuClock, sanzuRand } from "./common";
@@ -180,7 +180,6 @@ export function Sanzu({ fade = one }: { fade?: () => number }) {
         <planeGeometry args={[TORII.portalW, TORII.portalH]} />
       </mesh>
       <primitive object={lanterns.mesh} />
-      {!bloomOn() && <primitive object={lanterns.halos} />}
       <primitive object={lilies.group} />
       <primitive object={mist.group} />
       <group position={[1, 0.4, -12]}>
@@ -197,8 +196,6 @@ export function Sanzu({ fade = one }: { fade?: () => number }) {
       {/* The portal's violet spill on the pillars: the one light the low tier keeps besides the moon. */}
       <pointLight position={[TORII.x, TORII.portalY, TORII.z + 0.8]} color={INK.monarch} intensity={30} distance={34} decay={2} />
       {!low && <LanternLights lanterns={lanterns} />}
-      <GlowSprite position={[TORII.x, TORII.portalY, TORII.z + 0.05]} size={11} color={INK.system} intensity={0.55} />
-      <GlowSprite position={MOON_POS} size={30} color={SANZU.moon} intensity={0.3} />
     </group>
   );
 }
@@ -233,9 +230,9 @@ function Rig() {
 /** While the crossing covers the page, the crossing's own view draws; the backdrop sits out. */
 const crossingActive = () => "crossing" in document.documentElement.dataset;
 
-// calibration knob: the bloom composer's pixel-ratio cap while the backdrop is up, 1–2. The Sanzu is fill-bound (on an
-// M4 at 1440x900, DPR 2: ~23ms a frame uncapped, ~13ms capped at 1.25). Only the composer drops: the canvas keeps its ratio, since
-// resizing an antialiased canvas costs ~200ms on the main thread. Nothing here is dithered; the glow hides the rest.
+// calibration knob: the ink target's pixel-ratio cap while the backdrop is up, 1–2. The Sanzu is fill-bound (on an
+// M4 at 1440x900, DPR 2: ~23ms a frame uncapped, ~13ms capped at 1.25). Only the ink target drops: the canvas keeps its ratio, since
+// resizing an antialiased canvas costs ~200ms on the main thread. Nothing here is dithered; the paper grain hides the rest.
 const BACKDROP_DPR = 1.25;
 
 const backdropReady = () => window.dispatchEvent(new Event(BACKDROP_READY_EVENT));
@@ -248,7 +245,7 @@ export function SanzuBackdrop() {
         <PerspectiveCamera makeDefault fov={DESCENT_FOV} near={0.1} far={400} />
         <Rig />
         <fogExp2 attach="fog" args={[SANZU.fog, FOG_DENSITY]} />
-        <Bloom paused={crossingActive} onReady={backdropReady} maxDpr={BACKDROP_DPR} />
+        <Ink paused={crossingActive} onReady={backdropReady} maxDpr={BACKDROP_DPR} />
         <SceneBoundary fallback={null}>
           <Sanzu />
         </SceneBoundary>

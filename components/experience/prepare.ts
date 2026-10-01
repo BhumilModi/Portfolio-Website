@@ -24,18 +24,17 @@ function allVisible<T>(world: THREE.Scene, lights: boolean, fn: () => T): T {
  * Compile every program a view will draw before it draws: the Sanzu while it is still hidden before the cut, the
  * shadows before ARISE. A first-use compile blocks the main thread for tens of ms per program (52 per crossing),
  * which is what froze the descent. compileAsync lets the driver compile in parallel off the main thread.
- * Tone mapping, the render target and the light count are all part of each program's key, so compile every way a
- * frame is drawn: into a HalfFloat target (the bloom path) and on screen (the direct path), lit and unlit.
+ * The render target and the light count are both part of each program's key, so compile every way a frame is drawn:
+ * into the ink pass's HalfFloat target, lit and unlit, and on screen unlit (the engraving, before the descent's cut).
  */
 export async function precompile(gl: THREE.WebGLRenderer, world: THREE.Scene, camera: THREE.Camera) {
   const target = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType });
   const rt = gl.getRenderTarget();
   const tone = gl.toneMapping;
-  // The lit Sanzu draws with ACES on screen; the unlit engraving without. Both go through the bloom target.
+  // Nothing is tone mapped any more: the ink ramp is authored directly (ink spec §3.1).
   const variants: [THREE.WebGLRenderTarget | null, THREE.ToneMapping, boolean][] = [
     [target, THREE.NoToneMapping, true],
     [target, THREE.NoToneMapping, false],
-    [rt, THREE.ACESFilmicToneMapping, true],
     [rt, THREE.NoToneMapping, false],
   ];
   try {
@@ -56,12 +55,12 @@ export async function precompile(gl: THREE.WebGLRenderer, world: THREE.Scene, ca
 
 /**
  * One throwaway draw with everything shown, so geometry and texture uploads (and the water's reflection target)
- * happen now rather than on the first real frame. render draws a frame; it is called once per tone-mapping variant
- * so the bloom composer's own passes compile both ways too.
+ * happen now rather than on the first real frame. render draws a frame; it is called lit and unlit, so the ink
+ * pass's own program compiles here too.
  */
 export function warm(gl: THREE.WebGLRenderer, world: THREE.Scene, render: () => void) {
   const tone = gl.toneMapping;
-  for (const [mapping, lights] of [[THREE.NoToneMapping, false], [THREE.ACESFilmicToneMapping, true]] as const) {
+  for (const [mapping, lights] of [[THREE.NoToneMapping, false], [THREE.NoToneMapping, true]] as const) {
     gl.toneMapping = mapping;
     allVisible(world, lights, render);
   }

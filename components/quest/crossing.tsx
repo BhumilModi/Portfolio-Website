@@ -5,12 +5,12 @@ import { PerspectiveCamera, View } from "@react-three/drei";
 import { CROSSING, SYSTEM } from "@/lib/content";
 import {
   DESCENT_FOV, DESCENT_S, GATE_CUT,
-  backdropOpacity, bloomBeat, coldness, flashOpacity, isDone, noticeShown, scanline, timelineAt, type Direction,
+  backdropOpacity, coldness, flashOpacity, isDone, noticeShown, scanline, timelineAt, type Direction,
 } from "@/lib/descent";
 import { quest } from "@/lib/quest";
 import { BACKDROP_READY_EVENT, CROSS_EVENT, scene } from "@/lib/scene";
 import { smoothstep } from "@/lib/timeline";
-import Bloom from "@/components/experience/bloom";
+import Ink from "@/components/experience/ink";
 import DescentScene from "@/components/experience/descent-scene";
 import SceneBoundary from "@/components/experience/scene-boundary";
 import SystemWindow from "@/components/underworld/system-window";
@@ -30,9 +30,8 @@ let crossings = 0; // this session; a repeat crossing runs at 2×
 /** awaitBackdrop: the destination draws WebGL, so hold the overlay until its programs are compiled. */
 type Run = { direction: Direction; speed: number; fallback: boolean; awaitBackdrop: boolean };
 const destination = (d: Direction) => (d === "down" ? { path: "/underworld", href: "/underworld" } : { path: "/", href: "/#hero" });
-// Bloom from the portal approach on; ACES only once the lit Sanzu is on screen, so the engraving keeps its flat colours.
-const bloomNow = () => bloomBeat(scene.crossingT);
-const acesNow = () => scene.crossingT >= GATE_CUT;
+// Ink once the Sanzu is on screen; before the cut the engraving draws straight, keeping its flat colours.
+const inkNow = () => scene.crossingT >= GATE_CUT;
 
 /** The crossing between realms (redesign spec §4). Listens for cross() from lib/scene.ts. */
 export default function Crossing() {
@@ -81,7 +80,7 @@ export default function Crossing() {
   }, [arrived, leaving]);
 
   // Drive the timeline, paint the DOM layers, switch the music, and navigate at the end.
-  // It starts once the descent's programs are compiled (Bloom's onReady), so t=0 is a real first frame.
+  // It starts once the descent's programs are compiled (Ink's onReady), so t=0 is a real first frame.
   useEffect(() => {
     if (!run || (!run.fallback && !viewReady)) return;
     const { direction, speed, fallback } = run;
@@ -182,7 +181,7 @@ export default function Crossing() {
       {!run.fallback && !leaving && (
         <View className="crossing-view" visible={false}>
           <PerspectiveCamera makeDefault fov={DESCENT_FOV} near={0.1} far={400} />
-          <Bloom bloom={bloomNow} aces={acesNow} onReady={() => setViewReady(true)} />
+          <Ink ink={inkNow} onReady={() => setViewReady(true)} />
           <SceneBoundary fallback={null}>
             <DescentScene />
           </SceneBoundary>
