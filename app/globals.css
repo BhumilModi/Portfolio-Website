@@ -224,8 +224,9 @@ body:has(#crossing) .intro-skip { visibility: hidden; }
   .crossing-loader-bar::after { width: 100%; animation: loader-pulse 1.4s ease-in-out infinite alternate; }
 }
 @keyframes loader-pulse { from { opacity: 0.35; } to { opacity: 1; } }
-/* Signal loss at the cut (spirit spec §9): the broadcast drops to black static, with one bright line across the tube. */
-.crossing-flash {
+/* Signal loss (spirit spec §5, §9): the broadcast drops to black static, with one bright line across the tube.
+   The crossing's cut and the broadcast track's dive into the portal share it. */
+.crossing-flash, .signal-loss {
   position: fixed;
   inset: 0;
   opacity: 0;
@@ -233,7 +234,7 @@ body:has(#crossing) .intro-skip { visibility: hidden; }
   background-color: #000;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-.crossing-flash::after {
+.crossing-flash::after, .signal-loss::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -400,3 +401,30 @@ body:has(#crossing) .intro-skip { visibility: hidden; }
   color: var(--color-bone);
   text-shadow: 0 0 2px var(--color-seal), 0 0 36px color-mix(in srgb, var(--color-seal) 80%, transparent);
 }
+
+/* The broadcast (components/underworld/ferry.tsx). */
+.signal-loss::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: 2px;
+  background: var(--color-bone);
+  box-shadow: 0 0 12px 2px color-mix(in srgb, var(--color-bone) 60%, transparent);
+}
+/* The one red accent per screen (spirit spec §3.4): seal red under bone, 11px mono caps. Bone on #b31f27 is 5.39:1. */
+.seal {
+  display: inline-flex;
+  align-items: center;
+  background: var(--color-seal);
+  color: var(--color-bone);
+  padding: 6px 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition: transform 160ms ease-out, background-color 150ms ease;
+}
+.seal:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) { .seal:hover { background: color-mix(in srgb, var(--color-seal) 88%, #000); } }
+.broadcast-subtitle { text-shadow: 0 0 2px #000, 0 1px 2px #000, 0 0 12px #000; }

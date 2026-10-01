@@ -10,6 +10,8 @@ export const scene = {
   noticeCarried: false,
   /** performance.now() when ARISE was pressed this session; 0 = not this session (the shadows are then already standing). */
   ariseAt: 0,
+  /** Scroll progress through the Underworld's broadcast track (lib/ferry.ts), 0–1; written by components/underworld/ferry.tsx. */
+  ferry: 0,
 };
 
 /** Browser-only. Detects tier and motion preference, flags missing WebGL on <html>. */

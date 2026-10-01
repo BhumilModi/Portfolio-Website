@@ -3,7 +3,9 @@ import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { PerspectiveCamera, View } from "@react-three/drei";
 import * as THREE from "three";
-import { DESCENT_FOV, riverCamera } from "@/lib/descent";
+import { DESCENT_FOV } from "@/lib/descent";
+import { ferryPose } from "@/lib/ferry";
+import { clamp01, easeInOutCubic } from "@/lib/timeline";
 import { BACKDROP_READY_EVENT, scene } from "@/lib/scene";
 import Spirit from "../spirit";
 import SceneBoundary from "../scene-boundary";
@@ -22,8 +24,9 @@ import { buildWraith } from "./wraith";
 const one = () => 1;
 const LEAN = 0.1; // calibration knob: pointer lean in radians, 0.03–0.15 (spec §3 caps it at ±0.15)
 const LEAN_RATE = 3; // calibration knob: how fast the lean eases toward the pointer, 1.5–6 per second
-// calibration knob: the boat's drift toward the Gate, left of the shadows' formation; tau is the approach time constant (30–120s).
-const BOAT = { from: new THREE.Vector3(-5, 0, -6.5), to: new THREE.Vector3(-1.4, 0, -11.2), tau: 60 };
+// calibration knob: the boat's path toward the Gate, left of the shadows' formation, and the stretch of the broadcast
+// track (scene.ferry) it travels over, so it slides past the camera during the ride.
+const BOAT = { from: new THREE.Vector3(-5, 0, -6.5), to: new THREE.Vector3(-1.4, 0, -11.2), start: 0.25, end: 0.85 };
 const LANTERN_LIGHT = 2.2; // calibration knob: candela for each of the two lit lanterns, 1–4
 
 /** Half a cylinder, open side up, stretched along z and pinched to a point at bow and stern: a skiff. */
@@ -64,8 +67,8 @@ function Boat() {
 
   useFrame(({ clock }) => {
     const time = sanzuClock(clock.elapsedTime);
-    // Eases toward the Gate and comes to rest before it: no loop, so no jump.
-    drift.current?.position.lerpVectors(BOAT.from, BOAT.to, 1 - Math.exp(-time / BOAT.tau));
+    // Rides with the broadcast's scroll; the descent's view (scene.ferry 0) keeps it at the start, so the handoff matches.
+    drift.current?.position.lerpVectors(BOAT.from, BOAT.to, easeInOutCubic(clamp01((scene.ferry - BOAT.start) / (BOAT.end - BOAT.start))));
     if (rock.current) {
       rock.current.position.y = Math.sin(time * 0.8) * 0.04;
       rock.current.rotation.z = Math.sin(time * 0.6) * 0.03;
@@ -201,7 +204,8 @@ export function Sanzu({ fade = one }: { fade?: () => number }) {
 }
 
 /**
- * The backdrop camera: the river pose for this screen's shape (the descent lands on the same pose), leaning
+ * The backdrop camera: the broadcast's pose for this scroll position and screen shape (lib/ferry.ts; at the top it is
+ * the river pose the descent lands on), leaning
  * toward the pointer within ±LEAN, eased. The lean starts at zero, so the handoff doesn't pop. Reduced motion: no lean.
  */
 function Rig() {
@@ -220,7 +224,7 @@ function Rig() {
     const k = 1 - Math.exp(-Math.min(delta, 0.1) * LEAN_RATE); // frame-rate independent
     lean.current.yaw += (aim.current.yaw - lean.current.yaw) * k;
     lean.current.pitch += (aim.current.pitch - lean.current.pitch) * k;
-    const pose = riverCamera(window.innerWidth / window.innerHeight);
+    const pose = ferryPose(scene.ferry, window.innerWidth / window.innerHeight);
     camera.position.set(...pose.position);
     camera.rotation.set(pose.pitch + lean.current.pitch, lean.current.yaw, 0, "YXZ");
   });

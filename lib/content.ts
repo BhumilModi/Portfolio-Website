@@ -236,9 +236,10 @@ export const UNDERWORLD = {
   metaDescription: "Off duty. A side quest beneath the portfolio of Bhumil Modi.",
   brand: "Ryuma",
   ascend: "Ascend ↑",
-  eyebrow: "The Underworld",
   name: "Ryuma",
-  line: "By day, agents in production. By night —",
+  // The broadcast's subtitles, one at a time through the ride (spirit spec §5).
+  whispers: ["By day, agents in production.", "By night,", "the one who holds the line."],
+  cross: "Cross ↵",
   gate: {
     eyebrow: "The Sanzu",
     title: "No fare, no crossing.",
