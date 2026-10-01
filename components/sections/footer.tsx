@@ -4,9 +4,8 @@ import FooterRelief from "./footer-relief";
 
 export default function Footer() {
   return (
-    <footer className="sticky bottom-0 z-0 isolate flex h-dvh flex-col justify-between overflow-hidden bg-field bg-[url(/art/stele.jpg)] bg-cover bg-center px-4 pb-20 pt-24 text-bone md:px-8 md:pb-24">
-      {/* Relief wash (CC0 — The Met), Portal-style. Scrim keeps a contrast floor everywhere (never fully transparent) so link, title and meta text stay ≥4.5:1 even over the relief's brightest fold. */}
-      <div aria-hidden className="absolute inset-0 -z-10 bg-linear-to-b from-field/70 via-field/35 via-45% to-field/70" />
+    // A solid red wall: the carving owns the top, everything the visitor reads sits together at the bottom.
+    <footer className="sticky bottom-0 z-0 isolate flex h-dvh flex-col justify-end gap-8 overflow-hidden bg-field px-4 pb-16 pt-10 text-bone md:gap-10 md:px-8 md:pb-20">
       {/* Olive, owl and swallows carved into the red wall under a raking light (after immersive-g.com). */}
       <FooterRelief />
       <Obol id="footer" className="absolute right-[14%] top-[36%]" />

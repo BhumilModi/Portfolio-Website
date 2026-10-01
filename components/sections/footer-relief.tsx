@@ -156,9 +156,9 @@ function swallow(ctx: CanvasRenderingContext2D, x: number, y: number, s: number,
 }
 
 /**
- * Carved into the footer's red wall (after immersive-g.com's plaster birds and flowers): an olive garland between the
- * links and the name, the owl of Athena perched beside it, swallows in the upper corner. Every text box, link and the
- * hidden obol is masked out first, so the carving never touches what the visitor reads or clicks.
+ * Carved into the footer's red wall (after immersive-g.com's plaster birds and flowers): in the band above the
+ * footer's text, an olive branch arches across, the owl of Athena perches on it and swallows wheel above. Every text
+ * box, link and the hidden obol is still masked out, so the carving never touches what the visitor reads or clicks.
  */
 export default function FooterRelief() {
   const host = useRef<HTMLDivElement>(null);
@@ -167,18 +167,31 @@ export default function FooterRelief() {
   const paint = useCallback<PaintRelief>((ctx, w, h, scale) => {
     const el = host.current;
     if (!el) return;
-    const s = Math.min(w / 1440, h / 900) * 1.4; // motif scale follows the footer's size
+    // The carving owns the band above the first line of text (spirit follow-up: design on top, info below).
+    const box0 = el.getBoundingClientRect();
+    let firstText = box0.bottom;
+    el.parentElement?.querySelectorAll("p").forEach((n) => (firstText = Math.min(firstText, n.getBoundingClientRect().top)));
+    const band = Math.max(120 * scale, (firstText - box0.top) * scale - 24 * scale);
     const mobile = w / scale < 768;
-    // calibration knob: motif placement, as fractions of the footer.
-    olive(ctx, w * 0.05, h * 0.51, w * 0.36, h * (mobile ? 0.56 : 0.45), w * (mobile ? 0.95 : 0.7), h * 0.49, s * 0.85, 1);
-    if (!mobile) {
-      // The owl perched on its own sprig, right of the name and clear of the meta line below.
-      olive(ctx, w * 1.01, h * 0.77, w * 0.92, h * 0.72, w * 0.79, h * 0.765, s * 0.7, 3);
-      owl(ctx, w * 0.87, h * 0.655, s * 0.78);
-    }
-    swallow(ctx, w * 0.83, h * 0.085, s * 0.7, -0.12);
-    swallow(ctx, w * 0.92, h * 0.15, s * 0.5, 0.14);
-    swallow(ctx, w * (mobile ? 0.64 : 0.75), h * 0.13, s * 0.42, -0.22);
+    // calibration knob: motif scale follows the band's height.
+    const s = Math.min(1.6 * scale, Math.max(0.55 * scale, band / 230));
+    // An olive branch arching across the band; the owl perches on it; swallows wheel above.
+    const x0 = w * 0.02, y0 = band * 0.92;
+    const cx = w * 0.46, cy = band * 0.28;
+    const x1 = w * 0.99, y1 = band * 0.8;
+    olive(ctx, x0, y0, cx, cy, x1, y1, s, 1);
+    const perch = (t: number) => {
+      const u = 1 - t;
+      return { x: u * u * x0 + 2 * u * t * cx + t * t * x1, y: u * u * y0 + 2 * u * t * cy + t * t * y1 };
+    };
+    const o = perch(mobile ? 0.8 : 0.78);
+    // The owl stands 148 units tall above its talons: size it so its ear tufts stay inside the band.
+    const os = Math.min(s * (mobile ? 0.7 : 0.95), (o.y - 10 * scale) / 148);
+    owl(ctx, o.x, o.y - 80 * os, os);
+    const birds: [number, number, number, number][] = mobile
+      ? [[0.2, 0.3, 0.55, -0.15], [0.42, 0.14, 0.4, 0.12]]
+      : [[0.14, 0.32, 0.75, -0.15], [0.27, 0.14, 0.55, 0.1], [0.38, 0.42, 0.42, -0.25], [0.86, 0.18, 0.6, 0.12]];
+    for (const [bx, by, bs, ba] of birds) swallow(ctx, w * bx, band * by, s * bs, ba);
     // Soften the cut, like hand-worked plaster, then clear everything the visitor reads or clicks.
     const soft = document.createElement("canvas");
     soft.width = w;

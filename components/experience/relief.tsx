@@ -13,6 +13,10 @@ const RELIEF = {
   dark: 1.3, // shade strength on faces turned away, 0.4–1.8
   shadow: 0.55, // cast-shadow strength, 0–0.8
   ease: 2.4, // how fast the light follows the pointer, per second
+  pool: 0.3, // reveal pool radius as a fraction of the host's shorter side, 0.18–0.4 (px clamp below)
+  lead: 4.5, // how fast the leading pool chases the pointer, per second
+  trail: 1.3, // how fast the trailing pool follows, per second (lower = a longer trail)
+  idleMs: 2500, // after this long without the mouse, the pools wander on their own
 } as const;
 
 const vertex = /* glsl */ `
@@ -33,6 +37,8 @@ uniform vec3 uHigh;
 uniform vec3 uShade;
 uniform float uDepth, uLightK, uDarkK, uShadowK;
 uniform float uClip; // canvas-pixel y (from the bottom) above which something covers the host
+uniform vec3 uPoolA; // reveal pools in canvas pixels: x, y (from the bottom), radius
+uniform vec3 uPoolB;
 varying vec2 vUv;
 float h(vec2 uv) { return texture2D(tHeight, uv).r; }
 void main() {
@@ -54,7 +60,10 @@ void main() {
 #endif
   float hi = max(face, 0.0) * uLightK;
   float lo = max(-face, 0.0) * uDarkK + shadow * uShadowK;
-  float a = clamp(hi + lo, 0.0, 0.85);
+  // The carving surfaces only inside the soft pools that follow the cursor, as on immersive-g.com.
+  float ra = 1.0 - smoothstep(uPoolA.z * 0.35, uPoolA.z, distance(gl_FragCoord.xy, uPoolA.xy));
+  float rb = 1.0 - smoothstep(uPoolB.z * 0.35, uPoolB.z, distance(gl_FragCoord.xy, uPoolB.xy));
+  float a = clamp(hi + lo, 0.0, 0.85) * max(ra, rb * 0.85);
   vec3 col = (uHigh * hi + uShade * lo) / max(hi + lo, 1e-4);
   gl_FragColor = vec4(col, a);
   #include <colorspace_fragment>
@@ -64,11 +73,10 @@ void main() {
 /** Draws the height field: white is raised, black is the wall. Called on mount and whenever the host resizes. */
 export type PaintRelief = (ctx: CanvasRenderingContext2D, w: number, h: number, scale: number) => void;
 
-/** Ease the light toward the pointer's side; with no mouse moving it (touch screens), it drifts slowly on its own. */
-function follow(l: THREE.Vector3, aim: THREE.Vector2, time: number, dt: number) {
-  const idle = 0.3 * Math.sin(time * 0.25);
+/** Ease the light toward the side the lead pool is on, so the carving rakes from where the cursor is. */
+function follow(l: THREE.Vector3, aim: THREE.Vector2, dt: number) {
   const k = 1 - Math.exp(-Math.min(dt, 0.1) * RELIEF.ease);
-  l.x += (aim.x + idle - l.x) * k;
+  l.x += (aim.x - l.x) * k;
   l.y += (aim.y - l.y) * k;
 }
 
@@ -78,6 +86,41 @@ function follow(l: THREE.Vector3, aim: THREE.Vector2, time: number, dt: number) 
  */
 function clip(u: { value: number }, cover: Element | null, dpr: number) {
   u.value = cover ? (window.innerHeight - cover.getBoundingClientRect().bottom) * dpr : 1e6;
+}
+
+/**
+ * Move the two reveal pools: the lead chases the pointer, the trail follows it more slowly. Without the mouse (touch
+ * screens, or idle), they wander over the host's top band on their own. The light rakes from the lead pool's side.
+ */
+function reveal(
+  material: THREE.ShaderMaterial,
+  el: HTMLElement,
+  pointer: { x: number; y: number; at: number },
+  pools: { a: THREE.Vector2; b: THREE.Vector2 },
+  aim: THREE.Vector2,
+  time: number,
+  dt: number,
+  dpr: number,
+) {
+  const r = el.getBoundingClientRect();
+  const live = performance.now() - pointer.at < RELIEF.idleMs;
+  const tx = live ? pointer.x : r.left + r.width * (0.5 + 0.36 * Math.sin(time * 0.17));
+  const ty = live ? pointer.y : r.top + r.height * (0.2 + 0.06 * Math.sin(time * 0.29));
+  if (pools.a.x < 0) {
+    pools.a.set(tx, ty);
+    pools.b.set(tx, ty);
+  }
+  const ka = 1 - Math.exp(-Math.min(dt, 0.1) * RELIEF.lead);
+  const kb = 1 - Math.exp(-Math.min(dt, 0.1) * RELIEF.trail);
+  pools.a.x += (tx - pools.a.x) * ka;
+  pools.a.y += (ty - pools.a.y) * ka;
+  pools.b.x += (pools.a.x - pools.b.x) * kb;
+  pools.b.y += (pools.a.y - pools.b.y) * kb;
+  const radius = Math.min(320, Math.max(150, Math.min(r.width, r.height) * RELIEF.pool)) * dpr;
+  // Reduced motion: no chasing pools, the whole carving shows at once.
+  material.uniforms.uPoolA.value.set(pools.a.x * dpr, (window.innerHeight - pools.a.y) * dpr, scene.reducedMotion ? 1e6 : radius);
+  material.uniforms.uPoolB.value.set(pools.b.x * dpr, (window.innerHeight - pools.b.y) * dpr, radius * 0.8);
+  aim.set(((pools.a.x - (r.left + r.width / 2)) / r.width) * 2.4, ((r.top + r.height / 2 - pools.a.y) / r.height) * 2.4);
 }
 
 function Carving({ host, paint, high, shade, cover }: { host: React.RefObject<HTMLElement | null>; paint: PaintRelief; high: string; shade: string; cover?: () => Element | null }) {
@@ -98,6 +141,8 @@ function Carving({ host, paint, high, shade, cover }: { host: React.RefObject<HT
         uDarkK: { value: RELIEF.dark },
         uShadowK: { value: RELIEF.shadow },
         uClip: { value: 1e6 },
+        uPoolA: { value: new THREE.Vector3(0, 0, 0) },
+        uPoolB: { value: new THREE.Vector3(0, 0, 0) },
       },
       vertexShader: vertex,
       fragmentShader: fragment,
@@ -108,6 +153,8 @@ function Carving({ host, paint, high, shade, cover }: { host: React.RefObject<HT
     return { material, texture, canvas };
   }, [high, shade]);
   const aim = useRef(new THREE.Vector2(-0.6, 0.5));
+  const pointer = useRef({ x: 0, y: 0, at: -Infinity });
+  const pools = useRef({ a: new THREE.Vector2(-1, -1), b: new THREE.Vector2(-1, -1) });
 
   useEffect(() => {
     const el = host.current;
@@ -134,9 +181,7 @@ function Carving({ host, paint, high, shade, cover }: { host: React.RefObject<HT
     ro.observe(el);
     const onMove = (e: PointerEvent) => {
       if (e.pointerType !== "mouse") return;
-      const r = el.getBoundingClientRect();
-      // The light sits where the pointer is, raking across the carving from that side.
-      aim.current.set(((e.clientX - (r.left + r.width / 2)) / r.width) * 2.4, ((r.top + r.height / 2 - e.clientY) / r.height) * 2.4);
+      pointer.current = { x: e.clientX, y: e.clientY, at: performance.now() };
     };
     if (!scene.reducedMotion) window.addEventListener("pointermove", onMove, { passive: true });
     return () => {
@@ -154,8 +199,12 @@ function Carving({ host, paint, high, shade, cover }: { host: React.RefObject<HT
   );
 
   useFrame(({ clock, gl }, dt) => {
-    clip(material.uniforms.uClip, cover?.() ?? null, gl.getPixelRatio());
-    if (!scene.reducedMotion) follow(material.uniforms.uLight.value, aim.current, clock.elapsedTime, dt);
+    const el = host.current;
+    if (!el) return;
+    const dpr = gl.getPixelRatio();
+    clip(material.uniforms.uClip, cover?.() ?? null, dpr);
+    reveal(material, el, pointer.current, pools.current, aim.current, scene.reducedMotion ? 0 : clock.elapsedTime, scene.reducedMotion ? 1 : dt, dpr);
+    follow(material.uniforms.uLight.value, aim.current, scene.reducedMotion ? 1 : dt);
   });
 
   return (
