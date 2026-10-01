@@ -6,76 +6,64 @@ import { rankFor } from "@/lib/rank";
 import { quest, type Best } from "@/lib/quest";
 import { useQuest } from "@/components/quest/use-quest";
 import { playHit } from "@/components/quest/sound";
+import { HalftoneWord } from "./ryuma-mark";
 import SystemWindow from "./system-window";
 import { summon } from "./arise";
 
 type Screen = "lobby" | "countdown" | "live" | "done";
 type Target = Point & { born: number; life: number };
 type Burst = Point & { born: number };
-// Mirror --color-spirit, --color-seal and --color-bone. Interim: Task 7 of the spirit plan redraws the sigils.
-const SYSTEM_BLUE = "#52f5d6";
-const MONARCH = "#b31f27";
-const MIST = "#efe6d4";
+// Mirror --color-spirit and --color-bone (spirit spec §4).
+const SPIRIT = "#52f5d6";
+const BONE = "#efe6d4";
 const TAU = Math.PI * 2;
 const BURST_MS = 220;
 
-/** A sigil: a violet haze, a System-blue ring with turning ticks, a counter-turning violet hexagram, a mist core; the outer arc drains with its life. */
+/**
+ * A spirit sigil (spirit spec §7): two glowing teal contour rings and eight turning ticks round a bone core. Its life
+ * drains as the signal weakens: the strokes dim from full to 0.3 and flicker, and the outer arc winds down.
+ * Allocation-free: no gradients or arrays per frame.
+ */
 function draw(ctx: CanvasRenderingContext2D, w: number, h: number, target: Target, clock: number, bursts: Burst[], r: number) {
   ctx.clearRect(0, 0, w, h);
   const life = Math.max(0, 1 - (clock - target.born) / target.life);
   const { x, y } = target;
   const spin = clock * 0.0015;
+  const flicker = 0.85 + 0.15 * Math.sin(clock * 0.05 + target.born);
   ctx.save();
-  ctx.globalAlpha = 0.3 + 0.7 * life;
-  const haze = ctx.createRadialGradient(x, y, r * 0.1, x, y, r * 1.7);
-  haze.addColorStop(0, "rgba(139, 92, 246, 0.55)");
-  haze.addColorStop(0.5, "rgba(74, 168, 255, 0.18)");
-  haze.addColorStop(1, "rgba(74, 168, 255, 0)");
-  ctx.fillStyle = haze;
-  ctx.beginPath();
-  ctx.arc(x, y, r * 1.7, 0, TAU);
-  ctx.fill();
-  ctx.shadowColor = SYSTEM_BLUE;
-  ctx.shadowBlur = 12;
-  ctx.strokeStyle = SYSTEM_BLUE;
+  ctx.globalAlpha = (0.3 + 0.7 * life) * flicker;
+  ctx.shadowColor = SPIRIT;
+  ctx.shadowBlur = 10;
+  ctx.strokeStyle = SPIRIT;
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.arc(x, y, r, 0, TAU);
   ctx.stroke();
+  ctx.lineWidth = 1.25;
+  ctx.beginPath();
+  ctx.arc(x, y, r * 0.62, 0, TAU);
+  ctx.stroke();
+  ctx.lineWidth = 2;
   for (let i = 0; i < 8; i++) {
     const a = spin + (i * TAU) / 8;
     ctx.beginPath();
-    ctx.moveTo(x + Math.cos(a) * r * 0.78, y + Math.sin(a) * r * 0.78);
-    ctx.lineTo(x + Math.cos(a) * r * 0.92, y + Math.sin(a) * r * 0.92);
+    ctx.moveTo(x + Math.cos(a) * r * 0.74, y + Math.sin(a) * r * 0.74);
+    ctx.lineTo(x + Math.cos(a) * r * 0.9, y + Math.sin(a) * r * 0.9);
     ctx.stroke();
   }
-  ctx.strokeStyle = MONARCH;
-  ctx.shadowColor = MONARCH;
-  ctx.lineWidth = 1.5;
-  for (const off of [0, Math.PI]) {
-    ctx.beginPath();
-    for (let k = 0; k < 3; k++) {
-      const a = -spin * 0.6 + off + (k * TAU) / 3 - Math.PI / 2;
-      const px = x + Math.cos(a) * r * 0.62;
-      const py = y + Math.sin(a) * r * 0.62;
-      if (k === 0) ctx.moveTo(px, py);
-      else ctx.lineTo(px, py);
-    }
-    ctx.closePath();
-    ctx.stroke();
-  }
-  ctx.fillStyle = MIST;
+  ctx.shadowColor = BONE;
+  ctx.fillStyle = BONE;
   ctx.beginPath();
   ctx.arc(x, y, r * 0.12, 0, TAU);
   ctx.fill();
   ctx.shadowBlur = 0;
-  ctx.strokeStyle = MIST;
+  ctx.strokeStyle = BONE;
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.arc(x, y, r * 1.18, -Math.PI / 2, -Math.PI / 2 + TAU * life);
   ctx.stroke();
   ctx.restore();
-  // Banished: a white-hot core, a sharp ring and eight shards flying out, all in BURST_MS with a strong ease-out.
+  // Banished: a white flash, a ring expanding and eight teal line shards flying out, all in BURST_MS, strong ease-out.
   for (let i = bursts.length - 1; i >= 0; i--) {
     const b = bursts[i];
     const k = (clock - b.born) / BURST_MS;
@@ -85,12 +73,12 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number, target: Targe
     }
     const e = 1 - Math.pow(1 - k, 3);
     ctx.globalAlpha = 1 - k;
-    ctx.strokeStyle = SYSTEM_BLUE;
+    ctx.strokeStyle = BONE;
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.arc(b.x, b.y, r * (0.9 + e * 1.1), 0, TAU);
     ctx.stroke();
-    ctx.strokeStyle = MIST;
+    ctx.strokeStyle = SPIRIT;
     for (let s = 0; s < 8; s++) {
       const a = (s * TAU) / 8 + 0.2;
       const r0 = r * (0.4 + e * 1.2);
@@ -232,7 +220,6 @@ export default function Arena() {
   return (
     <section id="trial" aria-labelledby="trial-title" className="mx-auto w-full max-w-[1280px] px-4 py-24 md:px-8">
       <div className="flex flex-col gap-4">
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-spirit">{ARENA.label}</p>
         <h2 id="trial-title" className="cap-trim font-display text-[clamp(3rem,7vw,6rem)] uppercase leading-[0.9]">{ARENA.title}</h2>
       </div>
       <div className="arena-field relative mt-10 aspect-[3/4] w-full overflow-hidden sm:aspect-[16/10]">
@@ -290,8 +277,8 @@ export default function Arena() {
                 <div className="flex items-end justify-between gap-6">
                   <div>
                     <p className="font-mono text-xs uppercase tracking-[0.18em] text-bone/70">{ARENA.rank}</p>
-                    <p className="rank-letter font-display" data-rank={rank}>
-                      {rank}
+                    <p className="rank-seal mt-2" data-rank={rank}>
+                      <HalftoneWord text={rank} width={100} height={120} className="block h-24 w-20" />
                     </p>
                   </div>
                   <div className="text-right">

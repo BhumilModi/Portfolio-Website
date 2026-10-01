@@ -69,3 +69,23 @@ export default function RyumaMark({ className = "" }: { className?: string }) {
     </svg>
   );
 }
+
+/** A word set in the mark's gothic face and filled with the same halftone screen: the rank letter, ARISE. */
+export function HalftoneWord({ text, width, height, className = "" }: { text: string; width: number; height: number; className?: string }) {
+  const id = useId().replace(/:/g, "");
+  return (
+    <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={text} className={className}>
+      <defs>
+        <pattern id={`${id}-dots`} width="5" height="5" patternUnits="userSpaceOnUse">
+          <circle cx="2.5" cy="2.5" r="1.9" fill="currentColor" />
+        </pattern>
+        <mask id={`${id}-shape`} maskUnits="userSpaceOnUse" x="0" y="0" width={width} height={height}>
+          <text x={width / 2} y={height * 0.8} textAnchor="middle" fontSize={height * 0.92} fill="#fff" className={gothic.className}>
+            {text}
+          </text>
+        </mask>
+      </defs>
+      <rect width={width} height={height} fill={`url(#${id}-dots)`} mask={`url(#${id}-shape)`} />
+    </svg>
+  );
+}

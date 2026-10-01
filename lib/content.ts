@@ -251,7 +251,6 @@ export const UNDERWORLD = {
 };
 
 export const ARENA = {
-  label: "The Gate",
   title: "Trial of Ryuma",
   briefing: { heading: "QUEST", lines: ["Clear the Gate.", "Banish the shades.", "Time limit: 30s."] },
   start: "Enter",

@@ -347,22 +347,25 @@ body:has(#crossing) .intro-skip { visibility: hidden; }
 }
 @media (prefers-reduced-motion: reduce) { .arise-word { animation-name: arise-veil; } }
 
-/* The Trial (components/underworld/arena.tsx): a dark field for the sigils, and the rank letter. */
+/* The Trial (components/underworld/arena.tsx): a black CRT panel for the sigils, and the rank as a halftone gothic
+   letter on a seal (spirit spec §7). */
 .arena-field {
   border: 1px solid color-mix(in srgb, var(--color-spirit) 30%, transparent);
-  background: radial-gradient(ellipse at center, rgb(10 22 48 / 0.55), rgb(5 7 13 / 0.82));
-  box-shadow: inset 0 0 60px color-mix(in srgb, var(--color-spirit) 8%, transparent);
+  background: rgb(0 0 0 / 0.82);
 }
-.rank-letter {
-  font-size: clamp(5rem, 16vw, 8rem);
-  line-height: 0.8;
-  color: var(--color-spirit);
-  text-shadow: 0 0 2px var(--color-spirit), 0 0 30px color-mix(in srgb, var(--color-spirit) 55%, transparent);
+.arena-field::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgb(255 255 255 / 0.05) 0 1px, transparent 1px 3px);
 }
-.rank-letter[data-rank="S"] {
-  color: var(--color-bone);
-  text-shadow: 0 0 2px var(--color-seal), 0 0 36px color-mix(in srgb, var(--color-seal) 80%, transparent);
+.rank-seal { display: inline-block; padding: 6px 10px; border: 1px solid var(--color-seal); color: var(--color-seal); }
+@media (prefers-reduced-motion: no-preference) {
+  .rank-seal { animation: stamp 160ms cubic-bezier(0.23, 1, 0.32, 1) both; }
 }
+@keyframes stamp { from { opacity: 0; transform: scale(1.15) rotate(-4deg); } }
+
 
 /* The broadcast (components/underworld/ferry.tsx). */
 .signal-loss::before {
