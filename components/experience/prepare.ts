@@ -25,13 +25,13 @@ function allVisible<T>(world: THREE.Scene, lights: boolean, fn: () => T): T {
  * shadows before ARISE. A first-use compile blocks the main thread for tens of ms per program (52 per crossing),
  * which is what froze the descent. compileAsync lets the driver compile in parallel off the main thread.
  * The render target and the light count are both part of each program's key, so compile every way a frame is drawn:
- * into the ink pass's HalfFloat target, lit and unlit, and on screen unlit (the engraving, before the descent's cut).
+ * into the spirit pass's HalfFloat target, lit and unlit, and on screen unlit (the engraving, before the descent's cut).
  */
 export async function precompile(gl: THREE.WebGLRenderer, world: THREE.Scene, camera: THREE.Camera) {
   const target = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType });
   const rt = gl.getRenderTarget();
   const tone = gl.toneMapping;
-  // Nothing is tone mapped any more: the ink ramp is authored directly (ink spec §3.1).
+  // Nothing is tone mapped any more: the spirit pass reads linear HDR (spirit spec §3.1).
   const variants: [THREE.WebGLRenderTarget | null, THREE.ToneMapping, boolean][] = [
     [target, THREE.NoToneMapping, true],
     [target, THREE.NoToneMapping, false],
@@ -55,7 +55,7 @@ export async function precompile(gl: THREE.WebGLRenderer, world: THREE.Scene, ca
 
 /**
  * One throwaway draw with everything shown, so geometry and texture uploads (and the water's reflection target)
- * happen now rather than on the first real frame. render draws a frame; it is called lit and unlit, so the ink
+ * happen now rather than on the first real frame. render draws a frame; it is called lit and unlit, so the spirit
  * pass's own program compiles here too.
  */
 export function warm(gl: THREE.WebGLRenderer, world: THREE.Scene, render: () => void) {

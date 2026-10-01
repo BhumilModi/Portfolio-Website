@@ -5,7 +5,7 @@ import { PerspectiveCamera, View } from "@react-three/drei";
 import * as THREE from "three";
 import { DESCENT_FOV, riverCamera } from "@/lib/descent";
 import { BACKDROP_READY_EVENT, scene } from "@/lib/scene";
-import Ink from "../ink";
+import Spirit from "../spirit";
 import SceneBoundary from "../scene-boundary";
 import { buildWisps } from "../wisps";
 import { FOG_DENSITY, INK, SANZU, sanzuClock, sanzuRand } from "./common";
@@ -230,8 +230,8 @@ function Rig() {
 /** While the crossing covers the page, the crossing's own view draws; the backdrop sits out. */
 const crossingActive = () => "crossing" in document.documentElement.dataset;
 
-// calibration knob: the ink target's pixel-ratio cap while the backdrop is up, 1–2. The Sanzu is fill-bound (on an
-// M4 at 1440x900, DPR 2: ~23ms a frame uncapped, ~13ms capped at 1.25). Only the ink target drops: the canvas keeps its ratio, since
+// calibration knob: the spirit target's pixel-ratio cap while the backdrop is up, 1–2. The Sanzu is fill-bound (on an
+// M4 at 1440x900, DPR 2: ~23ms a frame uncapped, ~13ms capped at 1.25). Only the spirit target drops: the canvas keeps its ratio, since
 // resizing an antialiased canvas costs ~200ms on the main thread. Nothing here is dithered; the paper grain hides the rest.
 const BACKDROP_DPR = 1.25;
 
@@ -245,7 +245,7 @@ export function SanzuBackdrop() {
         <PerspectiveCamera makeDefault fov={DESCENT_FOV} near={0.1} far={400} />
         <Rig />
         <fogExp2 attach="fog" args={[SANZU.fog, FOG_DENSITY]} />
-        <Ink paused={crossingActive} onReady={backdropReady} maxDpr={BACKDROP_DPR} />
+        <Spirit paused={crossingActive} onReady={backdropReady} maxDpr={BACKDROP_DPR} />
         <SceneBoundary fallback={null}>
           <Sanzu />
         </SceneBoundary>

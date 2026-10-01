@@ -14,7 +14,7 @@ export const SANZU = {
   skyFill: "#1c2540",
   moon: "#e6ecf7",
   moonlight: "#9fb4d8",
-  lantern: "#fff1d6", // warm paper, outside the ink pass's red band, so the lanterns read as bare paper
+  lantern: "#fff1d6", // warm paper, outside the spirit pass's red band, so the lanterns burn white, not ember
   wood: "#4a3526",
   cloth: "#0b0d12",
   stone: "#15171c",
