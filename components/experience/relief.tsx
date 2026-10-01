@@ -32,9 +32,11 @@ uniform vec3 uLight;
 uniform vec3 uHigh;
 uniform vec3 uShade;
 uniform float uDepth, uLightK, uDarkK, uShadowK;
+uniform float uClip; // canvas-pixel y (from the bottom) above which something covers the host
 varying vec2 vUv;
 float h(vec2 uv) { return texture2D(tHeight, uv).r; }
 void main() {
+  if (gl_FragCoord.y > uClip) discard;
   float c = h(vUv);
   vec2 e = uTexel;
   vec3 n = normalize(vec3((h(vUv - vec2(e.x, 0.0)) - h(vUv + vec2(e.x, 0.0))) * uDepth,
@@ -70,7 +72,15 @@ function follow(l: THREE.Vector3, aim: THREE.Vector2, time: number, dt: number) 
   l.y += (aim.y - l.y) * k;
 }
 
-function Carving({ host, paint, high, shade }: { host: React.RefObject<HTMLElement | null>; paint: PaintRelief; high: string; shade: string }) {
+/**
+ * The page's canvas sits above the DOM, so the carving must stop where something still covers its host (the footer's
+ * sticky reveal slides out from under the page): discard everything above the cover's bottom edge.
+ */
+function clip(u: { value: number }, cover: Element | null, dpr: number) {
+  u.value = cover ? (window.innerHeight - cover.getBoundingClientRect().bottom) * dpr : 1e6;
+}
+
+function Carving({ host, paint, high, shade, cover }: { host: React.RefObject<HTMLElement | null>; paint: PaintRelief; high: string; shade: string; cover?: () => Element | null }) {
   const { material, texture, canvas } = useMemo(() => {
     const canvas = document.createElement("canvas");
     const texture = new THREE.CanvasTexture(canvas);
@@ -87,6 +97,7 @@ function Carving({ host, paint, high, shade }: { host: React.RefObject<HTMLEleme
         uLightK: { value: RELIEF.light },
         uDarkK: { value: RELIEF.dark },
         uShadowK: { value: RELIEF.shadow },
+        uClip: { value: 1e6 },
       },
       vertexShader: vertex,
       fragmentShader: fragment,
@@ -142,7 +153,8 @@ function Carving({ host, paint, high, shade }: { host: React.RefObject<HTMLEleme
     [material, texture],
   );
 
-  useFrame(({ clock }, dt) => {
+  useFrame(({ clock, gl }, dt) => {
+    clip(material.uniforms.uClip, cover?.() ?? null, gl.getPixelRatio());
     if (!scene.reducedMotion) follow(material.uniforms.uLight.value, aim.current, clock.elapsedTime, dt);
   });
 
@@ -157,12 +169,12 @@ function Carving({ host, paint, high, shade }: { host: React.RefObject<HTMLEleme
  * A carved relief over the host element (after immersive-g.com): paint draws the height field, and a raking light
  * that follows the pointer carves it with light and shade only, so the host's own background is the material.
  */
-export default function Relief({ host, paint, high, shade, className = "" }: { host: React.RefObject<HTMLElement | null>; paint: PaintRelief; high: string; shade: string; className?: string }) {
+export default function Relief({ host, paint, high, shade, cover, className = "" }: { host: React.RefObject<HTMLElement | null>; paint: PaintRelief; high: string; shade: string; cover?: () => Element | null; className?: string }) {
   return (
     <div aria-hidden className={`pointer-events-none ${className}`}>
       <View className="size-full">
         <OrthographicCamera makeDefault position={[0, 0, 1]} />
-        <Carving host={host} paint={paint} high={high} shade={shade} />
+        <Carving host={host} paint={paint} high={high} shade={shade} cover={cover} />
       </View>
     </div>
   );

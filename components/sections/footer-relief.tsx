@@ -162,6 +162,8 @@ function swallow(ctx: CanvasRenderingContext2D, x: number, y: number, s: number,
  */
 export default function FooterRelief() {
   const host = useRef<HTMLDivElement>(null);
+  // What covers the footer during its sticky reveal: the page content just before it.
+  const coverOf = useCallback(() => host.current?.parentElement?.previousElementSibling ?? null, []);
   const paint = useCallback<PaintRelief>((ctx, w, h, scale) => {
     const el = host.current;
     if (!el) return;
@@ -208,7 +210,8 @@ export default function FooterRelief() {
   }, []);
   return (
     <div ref={host} aria-hidden className="pointer-events-none absolute inset-0">
-      <Relief host={host} paint={paint} high={HIGH} shade={SHADE} className="absolute inset-0" />
+      {/* The page above slides off the footer as it reveals: carve only below its bottom edge. */}
+      <Relief host={host} paint={paint} high={HIGH} shade={SHADE} cover={coverOf} className="absolute inset-0" />
     </div>
   );
 }
