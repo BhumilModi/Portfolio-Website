@@ -4,7 +4,7 @@ import { SANZU } from "./common";
 // calibration knob: the drift band (x span centred on centerX; z from near to far) and the flow speed in units/s (0.05–0.25).
 export const LANTERN = { span: 36, centerX: 2, near: -3, far: -38, y: 0.02, speed: 0.12 } as const;
 
-// Shared by the lanterns and their halos, and mirrored by lanternCenter() below for the two point lights.
+// Shared by the lanterns, and mirrored by lanternCenter() below for the two point lights.
 const drift = /* glsl */ `
 uniform float uTime;
 uniform float uSpan;
@@ -62,35 +62,8 @@ void main() {
 }
 `;
 
-// The bloom fallback: a soft amber halo per lantern, drawn only when real bloom is off.
-const haloVertex = /* glsl */ `
-attribute vec3 aOffset;
-attribute float aSeed;
-uniform float uSize;
-uniform float uPixelRatio;
-${drift}
-void main() {
-  vec4 c = lanternCenter(aOffset, aSeed);
-  vec4 mv = modelViewMatrix * vec4(c.xyz + vec3(0.0, 0.18, 0.0), 1.0);
-  gl_Position = projectionMatrix * mv;
-  gl_PointSize = uSize * uPixelRatio * c.w / -mv.z;
-}
-`;
-
-const haloFragment = /* glsl */ `
-uniform vec3 uColor;
-uniform float uIntensity;
-void main() {
-  float d = length(gl_PointCoord - 0.5) * 2.0;
-  gl_FragColor = vec4(uColor * uIntensity, pow(max(0.0, 1.0 - d), 2.0));
-  #include <tonemapping_fragment>
-  #include <colorspace_fragment>
-}
-`;
-
 export type Lanterns = {
   mesh: THREE.Mesh;
-  halos: THREE.Points;
   offsets: Float32Array;
   seeds: Float32Array;
   uniforms: { uTime: THREE.IUniform<number> };
@@ -109,10 +82,11 @@ export function buildLanterns(count: number, rand: () => number = Math.random): 
   offsets.set([-1, LANTERN.y, -6], 0);
   offsets.set([7, LANTERN.y, -9], 3);
 
-  // Shared uniform objects: one write per frame moves the lanterns and their halos together.
+  // Shared uniform objects: one write per frame moves every lantern.
   const drifting = { uTime: { value: 0 }, uSpan: { value: LANTERN.span }, uCenterX: { value: LANTERN.centerX }, uSpeed: { value: LANTERN.speed } };
 
-  const box = new THREE.BoxGeometry(0.3, 0.36, 0.3).translate(0, 0.18, 0);
+  // A paper cylinder, so it reads as a lantern in outline rather than a box (spirit spec §3.2).
+  const box = new THREE.CylinderGeometry(0.13, 0.15, 0.32, 12).translate(0, 0.16, 0);
   const geometry = new THREE.InstancedBufferGeometry();
   geometry.setIndex(box.index);
   for (const [name, attr] of Object.entries(box.attributes)) geometry.setAttribute(name, attr);
@@ -133,30 +107,8 @@ export function buildLanterns(count: number, rand: () => number = Math.random): 
   const mesh = new THREE.Mesh(geometry, material);
   mesh.frustumCulled = false; // positions come from the shader
 
-  const haloGeometry = new THREE.BufferGeometry();
-  haloGeometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(count * 3), 3));
-  haloGeometry.setAttribute("aOffset", new THREE.BufferAttribute(offsets, 3));
-  haloGeometry.setAttribute("aSeed", new THREE.BufferAttribute(seeds, 1));
-  const haloMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-      ...drifting,
-      uColor: { value: new THREE.Color(SANZU.lantern) },
-      uIntensity: { value: 0.9 },
-      uSize: { value: 650 }, // calibration knob: halo size, 400–900
-      uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
-    },
-    vertexShader: haloVertex,
-    fragmentShader: haloFragment,
-    transparent: true,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending,
-  });
-  const halos = new THREE.Points(haloGeometry, haloMaterial);
-  halos.frustumCulled = false;
-
   return {
     mesh,
-    halos,
     offsets,
     seeds,
     uniforms: drifting,
@@ -164,8 +116,6 @@ export function buildLanterns(count: number, rand: () => number = Math.random): 
       box.dispose();
       geometry.dispose();
       material.dispose();
-      haloGeometry.dispose();
-      haloMaterial.dispose();
     },
   };
 }

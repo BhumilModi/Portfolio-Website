@@ -55,7 +55,10 @@ void main() {
   if (r > 1.0) discard;
   float limb = 0.72 + 0.28 * sqrt(1.0 - r * r);
   float maria = noise2(c * 3.0 + 1.7) * 0.2 + noise2(c * 7.0) * 0.08;
-  gl_FragColor = vec4(uColor * uIntensity * limb * (1.0 - maria), 1.0 - smoothstep(0.96, 1.0, r));
+  // A thin hot ring with a faint face: the spirit pass draws it as a lit halo, not a flat grey coin (spirit spec §3.2).
+  float ring = smoothstep(0.86, 0.9, r) * (1.0 - smoothstep(0.96, 1.0, r));
+  float face = 0.15 * limb * (1.0 - maria) * (1.0 - smoothstep(0.86, 0.9, r)); // calibration knob: face fill, 0–0.3
+  gl_FragColor = vec4(uColor * uIntensity, ring + face);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
 }
@@ -81,7 +84,7 @@ export function buildSky() {
   return { mesh, material, dispose: () => (mesh.geometry.dispose(), material.dispose()) };
 }
 
-/** A pale low moon, HDR so it blooms. Faces +z, toward the river camera. */
+/** A pale low moon: a hot ring with a faint face. Faces +z, toward the river camera. */
 export function buildMoon() {
   const material = new THREE.ShaderMaterial({
     uniforms: { uColor: { value: new THREE.Color(SANZU.moon) }, uIntensity: { value: 1.9 } }, // calibration knob: 1.2–2.5

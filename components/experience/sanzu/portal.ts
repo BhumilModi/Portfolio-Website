@@ -27,8 +27,8 @@ void main() {
   float arms = smoothstep(0.42, 0.85, fbm(q * 2.6 + vec2(0.0, -uTime * 0.12)));
   float core = pow(1.0 - r, 2.4);
   float rim = smoothstep(0.62, 0.93, r) * (1.0 - smoothstep(0.93, 1.0, r));
-  vec3 col = mix(uRim, uCore, clamp(core * 1.6 + arms * (1.0 - r) * 0.5, 0.0, 1.0));
-  float glow = core * 1.6 + arms * (0.35 + 0.65 * (1.0 - r)) + rim * 0.8;
+  vec3 col = mix(uRim, uCore, clamp(core * 0.8 + arms * (1.0 - r) * 0.5, 0.0, 1.0));
+  float glow = core * 0.8 + arms * (0.35 + 0.65 * (1.0 - r)) + rim * 0.8;
   float edge = 1.0 - smoothstep(0.88, 1.0, r);
   gl_FragColor = vec4(col * glow * uIntensity, edge * uOpacity);
   #include <tonemapping_fragment>
@@ -37,10 +37,11 @@ void main() {
 `;
 
 /**
- * The Gate's portal: a swirling System-blue core with a Monarch-violet rim — the brightest thing in the frame.
- * HDR (values above 1) so it blooms; additive. Used on the torii and as the descent's approach disc.
+ * The Gate's portal: a swirling bone core with a spirit-teal rim. The core is kept low so the spirit pass draws
+ * the arms as lines rather than a white blob; additive. Used on the torii and as the descent's approach disc.
  */
-export function createPortalMaterial(intensity = 2.0) {
+// calibration knob: intensity 0.6–1.4 under the spirit pass; the bone core is bright, so keep it low.
+export function createPortalMaterial(intensity = 1.3) {
   return new THREE.ShaderMaterial({
     uniforms: {
       uTime: { value: 0 },
