@@ -9,8 +9,12 @@ import SystemWindow from "./system-window";
 
 const WHISPERS = UNDERWORLD.whispers;
 
-/** Still: reduced motion, or no WebGL to ride through. The broadcast collapses to stacked content, no pinned track. */
-const isStill = () => scene.reducedMotion || document.documentElement.classList.contains("no-webgl");
+const noWebgl = () => document.documentElement.classList.contains("no-webgl");
+/**
+ * Still: reduced motion, or no WebGL to ride through; the broadcast collapses to stacked content, no pinned track.
+ * Read from the browser, not scene: the Stage that runs initScene() loads lazily and can land after this mounts.
+ */
+const isStill = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches || noWebgl();
 
 /**
  * The broadcast (spirit spec §5): a 250vh pinned track over the Sanzu. Scroll progress drives the backdrop's camera
@@ -22,7 +26,15 @@ export default function Ferry() {
   // Arriving from the crossing, its notice is already on screen: show ours in place, without a second opening.
   const [carried] = useState(() => scene.noticeCarried);
   // Realm mounts this only after hydration, so reading the browser here is safe.
-  const [still] = useState(isStill);
+  const [still, setStill] = useState(isStill);
+
+  // The Stage flags no-webgl when its probe or its canvas fails, possibly after this mounted.
+  useEffect(() => {
+    if (still) return;
+    const mo = new MutationObserver(() => noWebgl() && setStill(true));
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => mo.disconnect();
+  }, [still]);
 
   useEffect(() => {
     scene.noticeCarried = false;

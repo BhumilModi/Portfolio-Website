@@ -241,7 +241,6 @@ export const UNDERWORLD = {
   whispers: ["By day, agents in production.", "By night,", "the one who holds the line."],
   cross: "Cross ↵",
   gate: {
-    eyebrow: "The Sanzu",
     title: "No fare, no crossing.",
     body: "The ferryman counts {n} of 3 obols. They are hidden above.",
     back: "← Back to Olympus",
